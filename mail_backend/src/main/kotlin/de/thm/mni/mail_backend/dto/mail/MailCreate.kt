@@ -8,6 +8,7 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.NotBlank
+import java.time.LocalDateTime
 import java.util.UUID
 
 data class MailCreate(
@@ -22,7 +23,7 @@ data class MailCreate(
     @field:Valid
     var bcc: List<Address> = emptyList(),
     @field:Valid
-    var replyTo: Address?,
+    var replyTo: List<Address> = emptyList(),
     @field:NotBlank(message = "Subject cannot be blank")
     var subject: String,
     @field:NotBlank(message = "Email body cannot be blank")
@@ -30,7 +31,12 @@ data class MailCreate(
     @field:NotNull(message = "Status cannot be null")
     var status: EMailStatus,
     @field:Valid
-    var attachments: List<Attachments>
+    var attachments: List<Attachments>,
+    @field:Valid
+    var source: String,
+    var createdAt: LocalDateTime = LocalDateTime.now(),
+    var updatedAt: LocalDateTime = LocalDateTime.now(),
+    var sentAt: LocalDateTime? = null
 ){
     fun toMail(mailId: UUID = UUID.randomUUID()): Mail {
         return Mail(

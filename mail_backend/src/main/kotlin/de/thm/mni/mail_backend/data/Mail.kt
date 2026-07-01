@@ -46,13 +46,9 @@ open class Mail(
     @CollectionTable(name = "mail_bcc_addresses", joinColumns = [JoinColumn(name = "mail_id")])
     var bcc: List<Address> = emptyList(),
 
-    @Embedded
-    @AttributeOverrides(
-        AttributeOverride(name = "addressId", column = Column(name = "reply_to_address_id")),
-        AttributeOverride(name = "email", column = Column(name = "reply_to_email")),
-        AttributeOverride(name = "displayName", column = Column(name = "reply_to_display_name")),
-    )
-    var replyTo: Address? = null,
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "mail_reply_to_addresses", joinColumns = [JoinColumn(name = "mail_id")])
+    var replyTo: List<Address> = emptyList(),
 
     var subject: String = "",
     var bodyText: String = "",
