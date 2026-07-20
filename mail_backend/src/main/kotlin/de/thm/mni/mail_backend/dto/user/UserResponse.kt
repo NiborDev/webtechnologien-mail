@@ -6,7 +6,9 @@ import java.util.UUID
 
 data class UserResponse(
     var userId: UUID,
-    var address: Address,
+    var email: String,
+    var firstName: String,
+    var lastName: String,
     var createdAt: LocalDateTime,
     var updatedAt: LocalDateTime,
 )

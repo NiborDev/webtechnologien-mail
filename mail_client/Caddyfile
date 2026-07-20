@@ -1,0 +1,14 @@
+# Caddy configuration for serving a web application on port 80
+:80 {
+	# Set root directory for static files
+	root * /srv
+
+	# Enable gzip and zstd compression for responses
+	encode gzip zstd
+
+	# SPA Fallback for Angular Routing - redirect missing files to index.html
+	try_files {path} /index.html
+
+	# Static File Server - serve files from root directory
+	file_server
+}

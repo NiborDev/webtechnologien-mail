@@ -12,6 +12,7 @@ apply(plugin = "java")
 
 application {
 	mainClass = "de.thm.mni.mail_backend.MailBackendApplicationKt"
+	applicationName = "mail_backend"
 }
 
 group = "de.thm.mni"

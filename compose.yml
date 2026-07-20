@@ -1,0 +1,26 @@
+services:
+  mail_backend:
+    build:
+      context: ./mail_backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:maildb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      # H2 Konsole aktivieren (unter http://localhost:8080/h2-console)
+      - SPRING_H2_CONSOLE_ENABLED=true
+      # JPA / Hibernate Schema-Erstellung
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - APP_JWT_SECRET=${JWT_SECRET}
+
+  mail_client:
+    build:
+      context: ./mail_client
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - mail_backend

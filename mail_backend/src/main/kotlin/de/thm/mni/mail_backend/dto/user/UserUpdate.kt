@@ -6,28 +6,24 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import java.time.LocalDateTime
 
+//TODO: Passwörter encoden/korrekt speichern
+
 data class UserUpdate(
     @field:Pattern(
         regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@\$!%*#?&])[A-Za-z\\d@\$!%*#?&]{8,}\$", message = "Password >= 6 chars, upper + lowercase, min 1 number\n and special character")
-    @field:NotBlank(message = "New password cannot be blank")
-    var newPaddword: String?,
-    @field:Pattern(
-        regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@\$!%*#?&])[A-Za-z\\d@\$!%*#?&]{8,}\$", message = "Password >= 6 chars, upper + lowercase, min 1 number\n and special character")
-    @field:NotBlank(message = "Old password cannot be blank")
+    var newPassword: String?,
     var oldPassword: String?,
     @field:Email(message = "Email needs to be valid")
-    @field:NotBlank(message = "Email cannot be blank")
     var email: String?,
-    @field:NotBlank(message = "Name cannot be blank")
-    var displayName: String?,
+    var firstName: String?,
+    var lastName: String?,
 ) {
     fun toUser(originalUser: User): User {
         return originalUser.copy(
-            password = newPaddword ?: originalUser.password,
-            address = originalUser.address.copy(
-                email = email ?: originalUser.address.email,
-                displayName = displayName ?: originalUser.address.displayName,
-            ),
+            password = newPassword ?: originalUser.password,
+            email = email ?: originalUser.email,
+            firstName = firstName ?: originalUser.firstName,
+            lastName = lastName ?: originalUser.lastName,
             updatedAt = LocalDateTime.now(),
         )
     }

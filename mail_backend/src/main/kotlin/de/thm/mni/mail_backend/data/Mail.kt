@@ -20,6 +20,8 @@ import jakarta.persistence.Table
 import java.time.LocalDateTime
 import java.util.UUID
 
+//TODO: finale implementierung von source
+
 @Entity
 @Table(name = "mails")
 open class Mail(
@@ -63,7 +65,9 @@ open class Mail(
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "mail_id")
-    var attachments: MutableList<Attachments> = mutableListOf()
+    var attachments: MutableList<Attachments> = mutableListOf(),
+    
+    var source: String = "INTERNAL",
 ) {
     fun toResponse(): MailResponse {
         return MailResponse(
@@ -80,7 +84,8 @@ open class Mail(
             isRead = isRead,
             isMarked = isMarked,
             sentAt = sentAt,
-            receivedAt = receivedAt
+            receivedAt = receivedAt,
+            source = source
         )
     }
 }

@@ -16,18 +16,18 @@ data class UserCreate(
     @field:NotBlank(message = "Email cannot be blank")
     @field:Email(message = "Email needs to be valid")
     var email: String,
-    @field:NotBlank(message = "Name cannot be blank")
-    var displayName: String,
+    @field:NotBlank(message = "First Name cannot be blank")
+    var firstName: String,
+    @field:NotBlank(message = "Last Name cannot be blank")
+    var lastName: String,
 ){
     fun toUser(userId: UUID = UUID.randomUUID()): User {
         return User(
             userId = userId,
             password = password,
-            address = Address(
-                addressId = UUID.randomUUID(),
-                email = email,
-                displayName = displayName,
-            ),
+            email = email,
+            firstName = firstName,
+            lastName = lastName,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
         )
