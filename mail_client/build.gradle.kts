@@ -16,17 +16,19 @@ tasks.register<com.github.gradle.node.npm.task.NpmTask>("build") {
   group = "build"
   dependsOn("npmSetup", "npmInstall")
   args.set(listOf("run", "build"))
-  workingDir.set(project.rootDir.resolve("MailClient"))
+  workingDir.set(project.rootDir.resolve("mail_client"))
 }
 
 tasks.register("installDist") {
   group = "distribution"
   dependsOn("build")
+  from(project.layout.projectDirectory.dir("dist/mail_client"))
+  into(project.layout.buildDirectory.dir("install"))
 }
 
 // clean task
 tasks.register<Delete>("clean") {
-  val modulePath = project.rootDir.resolve("MailClient")
+  val modulePath = project.rootDir.resolve("mail_client")
 
   delete(modulePath.resolve(".angular"))
   delete(modulePath.resolve(".gradle"))

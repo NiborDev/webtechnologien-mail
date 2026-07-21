@@ -1,4 +1,4 @@
 rootProject.name = "MailSystem"
 
 include("mail_backend")
-include("MailClient")
+include("mail_client")

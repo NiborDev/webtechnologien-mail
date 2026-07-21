@@ -1,6 +1,5 @@
 package de.thm.mni.mail_backend.dto.mail
 
-import de.thm.mni.mail_backend.data.Address
 import de.thm.mni.mail_backend.data.Attachments
 import de.thm.mni.mail_backend.data.enums.EMailStatus
 import java.time.LocalDateTime
@@ -8,11 +7,11 @@ import java.util.UUID
 
 data class MailResponse(
     var mailId: UUID,
-    var from: Address,
-    var to: List<Address>,
-    var cc: List<Address> = emptyList(),
-    var bcc: List<Address> = emptyList(),
-    var replyTo: List<Address> = emptyList(),
+    var from: String,
+    var to: List<String>,
+    var cc: List<String> = emptyList(),
+    var bcc: List<String> = emptyList(),
+    var replyTo: List<String> = emptyList(),
     var subject: String,
     var bodyText: String,
     var status: EMailStatus,
