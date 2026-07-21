@@ -23,6 +23,9 @@ springdoc:
     path: /swagger-ui
     enabled: true
 
+server:
+  servlet:
+    context-path: /api/v1
 
 app:
   name: backendmail
