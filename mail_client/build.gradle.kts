@@ -1,4 +1,5 @@
 import com.github.gradle.node.npm.task.NpmTask
+import org.gradle.api.tasks.Copy
 
 plugins {
   id("com.github.node-gradle.node") version "7.1.0"
@@ -12,14 +13,14 @@ node {
   npmVersion = "11.6.2"
 }
 
-tasks.register<com.github.gradle.node.npm.task.NpmTask>("build") {
+tasks.register<NpmTask>("build") {
   group = "build"
   dependsOn("npmSetup", "npmInstall")
   args.set(listOf("run", "build"))
   workingDir.set(project.rootDir.resolve("mail_client"))
 }
 
-tasks.register("installDist") {
+tasks.register<Copy>("installDist") {
   group = "distribution"
   dependsOn("build")
   from(project.layout.projectDirectory.dir("dist/mail_client"))
