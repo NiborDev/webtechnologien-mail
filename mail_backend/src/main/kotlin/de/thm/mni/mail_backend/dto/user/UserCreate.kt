@@ -1,6 +1,5 @@
 package de.thm.mni.mail_backend.dto.user
 
-import de.thm.mni.mail_backend.data.Address
 import de.thm.mni.mail_backend.data.User
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank

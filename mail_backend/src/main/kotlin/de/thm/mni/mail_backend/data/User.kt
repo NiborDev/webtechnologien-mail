@@ -1,7 +1,6 @@
 package de.thm.mni.mail_backend.data
 
 import de.thm.mni.mail_backend.dto.user.UserResponse
-import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
@@ -17,12 +16,7 @@ data class User(
     var userId: UUID? = null,
 
     var password: String = "",
-
-    @Embedded
-    var address: Address = Address(),
         
-    @field:NotBlank(message = "Email cannot be blank")
-    @field:Email(message = "Invalid email format")
     var email: String = "",
         
     var firstName: String = "",

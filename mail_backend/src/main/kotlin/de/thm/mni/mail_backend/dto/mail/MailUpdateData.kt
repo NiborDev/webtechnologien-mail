@@ -1,6 +1,5 @@
 package de.thm.mni.mail_backend.dto.mail
 
-import de.thm.mni.mail_backend.data.Address
 import de.thm.mni.mail_backend.data.Attachments
 import de.thm.mni.mail_backend.data.Mail
 import jakarta.validation.Valid
@@ -11,14 +10,14 @@ import java.util.UUID
 data class MailUpdateData(
     var mailId: UUID,
     @field:Valid
-    var from: Address,
+    var from: String,
     @field:Valid
     @field:Size(min = 1, message = "To address list cannot be empty")
-    var to: List<Address>?,
+    var to: List<String>?,
     @field:Valid
-    var cc: List<Address>?,
+    var cc: List<String>?,
     @field:Valid
-    var bcc: List<Address>?,
+    var bcc: List<String>?,
     @field:NotBlank(message = "Subject cannot be blank")
     var subject: String?,
     @field:NotBlank(message = "Email body cannot be blank")

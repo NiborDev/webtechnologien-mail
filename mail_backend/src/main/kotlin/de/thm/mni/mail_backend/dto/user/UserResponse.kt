@@ -1,6 +1,5 @@
 package de.thm.mni.mail_backend.dto.user
 
-import de.thm.mni.mail_backend.data.Address
 import java.time.LocalDateTime
 import java.util.UUID
 

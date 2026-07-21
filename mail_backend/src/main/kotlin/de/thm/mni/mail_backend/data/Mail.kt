@@ -2,13 +2,10 @@ package de.thm.mni.mail_backend.data
 
 import de.thm.mni.mail_backend.data.enums.EMailStatus
 import de.thm.mni.mail_backend.dto.mail.MailResponse
-import jakarta.persistence.AttributeOverride
-import jakarta.persistence.AttributeOverrides
 import jakarta.persistence.CascadeType
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
-import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -28,29 +25,28 @@ open class Mail(
     @Id
     var mailId: UUID? = null,
 
-    @Embedded
-    @AttributeOverrides(
-        AttributeOverride(name = "addressId", column = Column(name = "from_address_id")),
-        AttributeOverride(name = "email", column = Column(name = "from_email")),
-        AttributeOverride(name = "displayName", column = Column(name = "from_display_name")),
-    )
-    var from: Address = Address(),
+    @Column(name = "from_email")
+    var from: String = "",
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "mail_to_addresses", joinColumns = [JoinColumn(name = "mail_id")])
-    var to: List<Address> = emptyList(),
+    @Column(name = "to_email")
+    var to: List<String> = emptyList(),
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "mail_cc_addresses", joinColumns = [JoinColumn(name = "mail_id")])
-    var cc: List<Address> = emptyList(),
+    @Column(name = "cc_email")
+    var cc: List<String> = emptyList(),
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "mail_bcc_addresses", joinColumns = [JoinColumn(name = "mail_id")])
-    var bcc: List<Address> = emptyList(),
+    @Column(name = "bcc_email")
+    var bcc: List<String> = emptyList(),
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "mail_reply_to_addresses", joinColumns = [JoinColumn(name = "mail_id")])
-    var replyTo: List<Address> = emptyList(),
+    @Column(name = "reply_to_email")
+    var replyTo: List<String> = emptyList(),
 
     var subject: String = "",
     var bodyText: String = "",
