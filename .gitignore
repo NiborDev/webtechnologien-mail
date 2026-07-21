@@ -1,5 +1,36 @@
-# VS Code
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+
+# IDEs & Editors
+.idea/
 .vscode/
 *.code-workspace
-.idea/
+*.iml
+*.ipr
+*.iws
+
+# Gradle & Build Outputs
 .gradle/
+build/
+bin/
+out/
+dist/
+/mail_backend/build/
+/mail_client/dist/
+
+# Kotlin
+.kotlin/
+
+# Node & Angular
+node_modules/
+.angular/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System & OS Files
+.DS_Store
+Thumbs.db
+*.log
