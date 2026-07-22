@@ -29,7 +29,7 @@ server:
 
 app:
   name: backendmail
-  secret: "my-pepper-secret-for-password-encoding"
+  secret: ${APP_SECRET:my-pepper-secret-for-password-encoding}
   jwt:
-    secret: "my-super-secret-key-which-is-secure-enough-for-hmac256"
+    secret: ${JWT_SECRET:my-super-secret-key-which-is-secure-enough-for-hmac256}
     expires-seconds: 86400

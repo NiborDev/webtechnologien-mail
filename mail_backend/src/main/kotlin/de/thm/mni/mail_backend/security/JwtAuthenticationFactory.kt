@@ -12,10 +12,15 @@ const val ROLES_CLAIM = "roles"
 
 object JWTAuthenticationFactory {
     fun create(request: HttpServletRequest, jwtService: JwtService): Authentication? {
-        val token = request.getHeader(AUTHORIZATION_HEADER)
-            ?.takeIf { it.startsWith(BEARER_PREFIX) } // Turns null if header is missing or doesn't start with "Bearer "
-            ?.removePrefix(BEARER_PREFIX)
-            ?: return null // No token found, return null to indicate no authentication
+        var token = request.cookies?.firstOrNull { it.name == "jwt_token" }?.value
+
+        if (token == null) {
+            token = request.getHeader(AUTHORIZATION_HEADER)
+                ?.takeIf { it.startsWith(BEARER_PREFIX) }
+                ?.removePrefix(BEARER_PREFIX)
+        }
+
+        if (token == null) return null // No token found, return null to indicate no authentication
         val jwt = jwtService.validate(token) ?: return null
         val roles = jwt.getClaim(ROLES_CLAIM)?.asArray(String::class.java) ?: arrayOf("USER")
         val userDetails = User.builder()

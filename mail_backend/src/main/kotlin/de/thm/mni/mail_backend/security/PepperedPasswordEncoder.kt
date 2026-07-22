@@ -19,13 +19,16 @@ class PepperedPasswordEncoder(
             saltLength, hashLength, parallelism, memoryAsKB, iterations
         )
 
-        override fun encode(rawPassword: CharSequence?): String? {
-            return argon2.encode(rawPassword.toString() + pepper)
+        override fun encode(rawPassword: CharSequence?): String {
+            return requireNotNull(argon2.encode(rawPassword.toString() + pepper)) {
+                "Argon2 encoding failed"
+            }
         }
 
         override fun matches(
             rawPassword: CharSequence?, encodedPassword: String?
         ): Boolean {
+            if (encodedPassword == null) return false
             return argon2.matches(rawPassword.toString() + pepper, encodedPassword)
         }
 }
