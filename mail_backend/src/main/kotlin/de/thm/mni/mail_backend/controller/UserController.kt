@@ -20,9 +20,6 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import jakarta.servlet.http.HttpServletResponse
-import org.springframework.http.ResponseCookie
-import org.springframework.http.HttpHeaders
 
 @DefaultApiErrors
 @RestController
@@ -52,35 +49,13 @@ class UserController(
      * @return The logged in user with JWT token
      */
     @PostMapping("/login")
-    fun loginUser(@Valid @RequestBody userLogin: UserLogin, response: HttpServletResponse): LoginResponse {
+    fun loginUser(@Valid @RequestBody userLogin: UserLogin): LoginResponse {
         val user = userService.login(userLogin)
         val token = jwtService.createToken(user.email)
-        
-        val cookie = ResponseCookie.from("jwt_token", token)
-            .httpOnly(true)
-            .path("/")
-            .maxAge(86400) // 1 day
-            .sameSite("Strict") // Protects against CSRF attacks!
-            .build()
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString())
 
         return LoginResponse(token, user.toResponse())
     }
 
-    /**
-     * POST /users/logout Logouts a user
-     * Clears the HttpOnly JWT cookie to log the user out on the server side.
-     */
-    @PostMapping("/logout")
-    fun logoutUser(response: HttpServletResponse) {
-        val cookie = ResponseCookie.from("jwt_token", "")
-            .httpOnly(true)
-            .path("/")
-            .maxAge(0)
-            .sameSite("Strict")
-            .build()
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString())
-    }
 
     /**
      * GET /users Returns all users

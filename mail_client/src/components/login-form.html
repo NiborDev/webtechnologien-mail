@@ -1,0 +1,13 @@
+<form class="login-form" (ngSubmit)="onLogin()">
+  <mat-form-field class="login-form-field">
+    <label mat-label for="login-email">E-Mail</label>
+    <input id="login-email" matInput placeholder="Ex. max@mustermann.de" type="email" name="email" [(ngModel)]="email" required>
+  </mat-form-field>
+
+  <mat-form-field class="login-form-field">
+    <label mat-label for="login-password">Password</label>
+    <input id="login-password" matInput type="password" name="password" [(ngModel)]="password" required>
+  </mat-form-field>
+
+  <button mat-button type="submit">Login</button>
+</form>

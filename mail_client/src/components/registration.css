@@ -1,9 +1,9 @@
-.example-form {
+.registration-form {
   min-width: 150px;
   max-width: 500px;
   width: 100%;
 }
 
-.example-full-width {
+.registration-form-field {
   width: 100%;
 }

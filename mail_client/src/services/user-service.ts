@@ -3,11 +3,13 @@ import {HttpClient} from '@angular/common/http';
 import {map, Observable} from 'rxjs';
 import {User} from '../models/User';
 import {Environment} from '../environment';
+import { UserResponse } from '../dtos/UserResponse';
+import { UserCreate } from '../dtos/UserCreate';
 
 @Injectable({providedIn: 'root'})
 export class UserService {
-  private httpClient: HttpClient = inject(HttpClient);
-  private apiBasePath = Environment.apiBasePath;
+  private readonly httpClient: HttpClient = inject(HttpClient);
+  private readonly apiBasePath: string = Environment.apiBasePath;
 
   public findOne(id: string): Observable<User> {
     return this.httpClient
@@ -30,5 +32,4 @@ export class UserService {
     )
   }
 
-//todo
 }

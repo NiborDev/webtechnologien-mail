@@ -1,3 +1,5 @@
+import { UserCreate } from "./UserCreate";
+
 export class RegistrationData {
   constructor(
     public firstName: string = '',
