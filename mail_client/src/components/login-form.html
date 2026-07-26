@@ -1,12 +1,20 @@
-<form class="login-form" (ngSubmit)="onLogin()">
+<form class="login-form" [formGroup]="form" (ngSubmit)="onLogin()">
   <mat-form-field class="login-form-field">
-    <label mat-label for="login-email">E-Mail</label>
-    <input id="login-email" matInput placeholder="Ex. max@mustermann.de" type="email" name="email" [(ngModel)]="email" required>
+    <mat-label for="login-email">E-Mail</mat-label>
+    <input id="login-email" matInput placeholder="Ex. max@mustermann.de" type="email" formControlName="email" aria-label="E-Mail">
+    @if (form.controls.email.hasError('required')) {
+      <mat-error>E-Mail ist erforderlich</mat-error>
+    } @else if (form.controls.email.hasError('email')) {
+      <mat-error>Ungültige E-Mail-Adresse</mat-error>
+    }
   </mat-form-field>
 
   <mat-form-field class="login-form-field">
-    <label mat-label for="login-password">Password</label>
-    <input id="login-password" matInput type="password" name="password" [(ngModel)]="password" required>
+    <mat-label for="login-password">Passwort</mat-label>
+    <input id="login-password" matInput type="password" formControlName="password" aria-label="Passwort">
+    @if (form.controls.password.hasError('required')) {
+      <mat-error>Passwort ist erforderlich</mat-error>
+    }
   </mat-form-field>
 
   <button mat-button type="submit">Login</button>

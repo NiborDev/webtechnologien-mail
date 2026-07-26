@@ -1,33 +1,33 @@
-import {Component, output, signal} from '@angular/core';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {MatInputModule} from '@angular/material/input';
-import {MatFormFieldModule} from '@angular/material/form-field';
+import { Component, inject, output } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
-import {LoginData} from '../dtos/LoginData';
+import { LoginData } from '../dtos/LoginData';
 
 @Component({
   selector: 'app-login-form',
-  imports: [ReactiveFormsModule, FormsModule, MatInputModule, MatFormFieldModule, MatButtonModule],
+  imports: [ReactiveFormsModule, MatInputModule, MatFormFieldModule, MatButtonModule],
   templateUrl: './login-form.html',
   styleUrl: './login-form.css',
 })
 export class LoginForm {
-  public login = output<LoginData>()
+  private readonly formBuilder = inject(FormBuilder);
 
-  protected email = signal('')
-  protected password = signal('')
+  public readonly login = output<LoginData>();
 
-  onLogin() {
-    const loginData = new LoginData(
-      this.email(),
-      this.password()
-    );
-    this.login.emit(loginData)
-    this.resetForm()
-  }
+  protected readonly form = this.formBuilder.nonNullable.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required]],
+  });
 
-  private resetForm() {
-    this.email.set('')
-    this.password.set('')
+  onLogin(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    const { email, password } = this.form.getRawValue();
+    this.login.emit(new LoginData(email, password));
+    this.form.reset();
   }
 }

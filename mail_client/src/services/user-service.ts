@@ -1,12 +1,14 @@
-import {inject, Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {map, Observable} from 'rxjs';
-import {User} from '../models/User';
-import {Environment} from '../environment';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { map, Observable } from 'rxjs';
+import { User } from '../models/User';
+import { Environment } from '../environment';
 import { UserResponse } from '../dtos/UserResponse';
 import { UserCreate } from '../dtos/UserCreate';
+import { UserUpdate } from '../dtos/UserUpdate';
+import { UserPasswordUpdate } from '../dtos/UserPasswordUpdate';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class UserService {
   private readonly httpClient: HttpClient = inject(HttpClient);
   private readonly apiBasePath: string = Environment.apiBasePath;
@@ -14,7 +16,11 @@ export class UserService {
   public findOne(id: string): Observable<User> {
     return this.httpClient
       .get<UserResponse>(`${this.apiBasePath}/users/${id}`)
-      .pipe(map(this.mapToUser))
+      .pipe(map(this.mapToUser));
+  }
+
+  public getById(id: string): Observable<UserResponse> {
+    return this.httpClient.get<UserResponse>(`${this.apiBasePath}/users/${id}`);
   }
 
   public create(u: UserCreate): Observable<User> {
@@ -23,13 +29,19 @@ export class UserService {
       .pipe(map(this.mapToUser));
   }
 
-  private mapToUser(res: UserResponse): User {
-    return new User(
-      res.id,
-      res.email,
-      res.firstName,
-      res.lastName
-    )
+  public updateUser(id: string, userUpdate: UserUpdate): Observable<UserResponse> {
+    return this.httpClient.put<UserResponse>(`${this.apiBasePath}/users/${id}`, userUpdate);
   }
 
+  public updatePassword(id: string, passwordUpdate: UserPasswordUpdate): Observable<UserResponse> {
+    return this.httpClient.patch<UserResponse>(`${this.apiBasePath}/users/${id}/password`, passwordUpdate);
+  }
+
+  public deleteUser(id: string): Observable<void> {
+    return this.httpClient.delete<void>(`${this.apiBasePath}/users/${id}`);
+  }
+
+  private mapToUser(res: UserResponse): User {
+    return new User(res.userId, res.email, res.firstName, res.lastName);
+  }
 }
