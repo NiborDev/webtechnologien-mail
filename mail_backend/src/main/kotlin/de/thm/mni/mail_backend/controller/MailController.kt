@@ -1,7 +1,6 @@
 package de.thm.mni.mail_backend.controller
 
 import de.thm.mni.mail_backend.annotations.DefaultApiErrors
-import de.thm.mni.mail_backend.data.Mail
 import de.thm.mni.mail_backend.dto.mail.MailCreate
 import de.thm.mni.mail_backend.dto.mail.MailResponse
 import de.thm.mni.mail_backend.dto.mail.MailUpdateData
