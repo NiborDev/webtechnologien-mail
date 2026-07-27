@@ -21,7 +21,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "mails")
-open class Mail(
+data class Mail(
     @Id
     var mailId: UUID? = null,
 
@@ -31,22 +31,22 @@ open class Mail(
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "mail_to_addresses", joinColumns = [JoinColumn(name = "mail_id")])
     @Column(name = "to_email")
-    var to: List<String> = emptyList(),
+    var to: MutableList<String> = mutableListOf(),
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "mail_cc_addresses", joinColumns = [JoinColumn(name = "mail_id")])
     @Column(name = "cc_email")
-    var cc: List<String> = emptyList(),
+    var cc: MutableList<String> = mutableListOf(),
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "mail_bcc_addresses", joinColumns = [JoinColumn(name = "mail_id")])
     @Column(name = "bcc_email")
-    var bcc: List<String> = emptyList(),
+    var bcc: MutableList<String> = mutableListOf(),
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "mail_reply_to_addresses", joinColumns = [JoinColumn(name = "mail_id")])
     @Column(name = "reply_to_email")
-    var replyTo: List<String> = emptyList(),
+    var replyTo: MutableList<String> = mutableListOf(),
 
     var subject: String = "",
     var bodyText: String = "",

@@ -62,21 +62,24 @@ class MailService(private val mailRepository: MailRepository) {
     }
 
     /**
-     * Gets all Mails that are from an E-Mail Address
-     * @param mailAddress The E-Mail Address
-     * @return List of the Mails from that E-Mail Address
+     * Gets all Mails that are from the current User
+     * @return List of the Mails from that User
      */
-    fun getAllFromUser(mailAddress: String): List<Mail> {
+    fun getAllFromUser(): List<Mail> {
 
+        //TODO auth
+        val mailAddress = "test@example.com"
         return mailRepository.findByFrom(mailAddress)
     }
 
     /**
-     * Gets all Mails sent to an E-Mail Address (To, CC and BCC)
-     * @param mailAddress The E-Mail Address
-     * @return List of the Mails sent to that E-Mail Address
+     * Gets all Mails sent to thr current User (To, CC and BCC)
+     * @return List of the Mails sent to that User (User E-Mail Address in To, Cc or Bcc and Status SENT)
      */
-    fun getAllToUser(mailAddress: String): List<Mail> {
+    fun getAllToUser(): List<Mail> {
+
+        //TODO auth
+        val mailAddress = "test@example.com"
 
         //get all máils that have the address in to/cc/bcc and are sent
         val mailsTo = mailRepository.findByToAndStatus(mailAddress, EMailStatus.SENT)

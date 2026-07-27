@@ -45,6 +45,7 @@ class SecurityConfig(@Value("\${app.secret}") private val pepper: String) {
         .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
         .authorizeHttpRequests {
             it.requestMatchers("/users").permitAll()
+            it.requestMatchers("/mails/**").permitAll()
             it.requestMatchers("/v3/api-docs/**").permitAll()
             it.requestMatchers("/swagger-ui/**").permitAll()
             it.requestMatchers("/logout").permitAll()
