@@ -1,6 +1,7 @@
 package de.thm.mni.mail_backend.data
 
 import de.thm.mni.mail_backend.data.enums.EMailStatus
+import de.thm.mni.mail_backend.data.enums.Source
 import de.thm.mni.mail_backend.dto.mail.MailResponse
 import jakarta.persistence.CascadeType
 import jakarta.persistence.CollectionTable
@@ -16,8 +17,6 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import java.time.LocalDateTime
 import java.util.UUID
-
-//TODO: finale implementierung von source
 
 @Entity
 @Table(name = "mails")
@@ -63,7 +62,7 @@ data class Mail(
     @JoinColumn(name = "mail_id")
     var attachments: MutableList<Attachments> = mutableListOf(),
     
-    var source: String = "INTERNAL",
+    var source: Source = Source.INTERN,
 ) {
     fun toResponse(): MailResponse {
         return MailResponse(

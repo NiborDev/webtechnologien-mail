@@ -41,7 +41,7 @@ class MailController(val mailService: MailService) {
      */
     @DeleteMapping("/{id}")
     fun deleteMail(@PathVariable id: UUID) {
-        mailService.deleteMail(id)
+        mailService.deleteMailForUser(id)
     }
 
     /**

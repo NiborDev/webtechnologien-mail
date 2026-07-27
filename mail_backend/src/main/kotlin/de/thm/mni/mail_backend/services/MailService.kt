@@ -1,33 +1,62 @@
 package de.thm.mni.mail_backend.services
 
 import de.thm.mni.mail_backend.data.Mail
+import de.thm.mni.mail_backend.data.MailUser
 import de.thm.mni.mail_backend.data.enums.EMailStatus
+import de.thm.mni.mail_backend.data.enums.MailUserRelation
 import de.thm.mni.mail_backend.dto.mail.MailUpdateData
 import de.thm.mni.mail_backend.dto.mail.MailUpdateStatus
 import de.thm.mni.mail_backend.repositories.MailRepository
+import de.thm.mni.mail_backend.repositories.MailUserRepository
+import de.thm.mni.mail_backend.repositories.UserRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 //TODO auth, paging
 
 @Service
-class MailService(private val mailRepository: MailRepository) {
+class MailService(
+    private val mailRepository: MailRepository,
+    private val mailUserRepository: MailUserRepository,
+    private val userRepository: UserRepository
+) {
 
     /**
      * Creates a new Mail
      * @param mail The Mail to create
      * @return The Created Mail
      */
+    @Transactional
     fun createMail(mail: Mail): Mail {
-        return mailRepository.save(mail)
+        val savedMail = mailRepository.save(mail)
+        val user = userRepository.findByEmail(savedMail.from)?: throw NoSuchElementException("User with this Mail-Address doesn't exist")
+        mailUserRepository.save(
+            MailUser(
+                mailId = savedMail.mailId?: throw IllegalArgumentException("Mail Id Should not be null"),
+                userId = user.userId?: throw IllegalArgumentException("User Id Should not be null"),
+                relationType = MailUserRelation.AUTHOR
+            )
+        )
+        return savedMail
     }
 
     /**
      * Deletes a Mail from the Database
      * @param mailId The ID of the mail to delete
      */
-    fun deleteMail(mailId: UUID) {
-        mailRepository.deleteById(mailId)
+    @Transactional
+    fun deleteMailForUser(mailId: UUID) {
+        //TODO auth
+        val userId: UUID = UUID.randomUUID()
+
+        val mailUser = mailUserRepository
+            .findByUserIdAndMailId(userId, mailId)
+            .orElseThrow { NoSuchElementException("This mail is already deleted!") }
+
+        mailUser.isDeleted = true
+
+        mailUserRepository.save(mailUser)
     }
 
     /**
