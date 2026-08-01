@@ -2,8 +2,6 @@ package de.thm.mni.mail_backend.dto.user
 
 import de.thm.mni.mail_backend.data.User
 import jakarta.validation.constraints.Email
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.Pattern
 import java.time.LocalDateTime
 
 /**
@@ -20,10 +18,13 @@ data class UserUpdate(
     val lastName: String?,
 ) {
     fun toUser(user: User): User {
-        return user.copy(
+        return User(
+            userId = user.userId,
             email = email ?: user.email,
             firstName = firstName ?: user.firstName,
             lastName = lastName ?: user.lastName,
+            password = user.password,
+            createdAt = user.createdAt,
             updatedAt = LocalDateTime.now(),
         )
     }

@@ -28,8 +28,13 @@ data class UserPasswordUpdate(
     val newPassword: String,
 ) {
     fun toUser(user: User): User {
-        return user.copy(
+        return User(
+            userId = user.userId,
+            email = user.email,
+            firstName = user.firstName,
+            lastName = user.lastName,
             password = newPassword,
+            createdAt = user.createdAt,
             updatedAt = LocalDateTime.now(),
         )
     }
