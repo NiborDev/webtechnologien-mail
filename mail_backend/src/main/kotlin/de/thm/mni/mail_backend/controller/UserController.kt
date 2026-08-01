@@ -10,6 +10,8 @@ import de.thm.mni.mail_backend.dto.user.UserUpdate
 import de.thm.mni.mail_backend.security.JwtService
 import de.thm.mni.mail_backend.services.UserService
 import jakarta.validation.Valid
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.userdetails.UserDetails
 import java.util.UUID
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -37,7 +39,7 @@ class UserController(
      */
     @PostMapping
     fun registerUser(@Valid @RequestBody userCreate: UserCreate): UserResponse {
-        val user = userService.registerUser(userCreate.toUser())
+        val user = userService.registerUser(userCreate)
 
         return user.toResponse()
     }
@@ -51,7 +53,7 @@ class UserController(
     @PostMapping("/login")
     fun loginUser(@Valid @RequestBody userLogin: UserLogin): LoginResponse {
         val user = userService.login(userLogin)
-        val token = jwtService.createToken(user.email)
+        val token = jwtService.createToken(user.userId.toString())
 
         return LoginResponse(token, user.toResponse())
     }
@@ -84,15 +86,17 @@ class UserController(
      * PUT /users/{id} Updates a user
      *
      * @param id The id of the user
-     * @param user The user to update
+     * @param userUpdate The user to update
+     * @param currentUser The current authenticated user
      * @return The updated user
      */
     @PutMapping("/{id}")
     fun updateUser(
             @PathVariable id: UUID,
-            @Valid @RequestBody userUpdate: UserUpdate
+            @Valid @RequestBody userUpdate: UserUpdate,
+            @AuthenticationPrincipal currentUser: UserDetails
     ): UserResponse {
-        val updatedUser = userService.updateUser(id, userUpdate)
+        val updatedUser = userService.updateUser(id, UUID.fromString(currentUser.username), userUpdate)
         return updatedUser.toResponse()
     }
 
@@ -101,14 +105,16 @@ class UserController(
      *
      * @param id The id of the user
      * @param passwordChange The password change DTO
+     * @param currentUser The current authenticated user
      * @return The updated user
      */
     @PatchMapping("/{id}/password")
     fun updatePassword(
             @PathVariable id: UUID,
-            @Valid @RequestBody passwordChange: UserPasswordUpdate
+            @Valid @RequestBody passwordChange: UserPasswordUpdate,
+            @AuthenticationPrincipal currentUser: UserDetails
     ): UserResponse {
-        val updatedUser = userService.updatePassword(id, passwordChange)
+        val updatedUser = userService.updatePassword(id, passwordChange, UUID.fromString(currentUser.username))
         return updatedUser.toResponse()
     }
 
@@ -116,9 +122,10 @@ class UserController(
      * DELETE /users/{id} Deletes a user
      *
      * @param id The id of the user
+     * @param currentUser The current authenticated user
      */
     @DeleteMapping("/{id}")
-    fun deleteUser(@PathVariable id: UUID) {
-        return userService.deleteUser(id)
+    fun deleteUser(@PathVariable id: UUID, @AuthenticationPrincipal currentUser: UserDetails) {
+        return userService.deleteUser(id, UUID.fromString(currentUser.username))
     }
 }

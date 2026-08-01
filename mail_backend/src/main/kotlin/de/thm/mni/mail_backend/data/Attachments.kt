@@ -4,15 +4,13 @@ import de.thm.mni.mail_backend.dto.attachments.AttachmentResponse
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import jakarta.xml.bind.annotation.XmlMimeType
-import jakarta.xml.bind.annotation.XmlType
 import org.springframework.util.MimeType
 import java.time.LocalDateTime
 import java.util.UUID
 
 @Entity
 @Table(name = "attachments")
-data class Attachments(
+class Attachments(
     @Id
     var attachmentId: UUID? = null,
     var fileName: String = "",
