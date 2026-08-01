@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../../services/auth-service';
 import { UserService } from '../../services/user-service';
+import { fromUser } from '../../dtos/UserResponse';
 
 // TODO: Redesign and Controll Code!!!
 
@@ -99,7 +100,7 @@ export class Profile implements OnInit {
     const { firstName, lastName, email } = this.profileForm.getRawValue();
     this.userService.updateUser(userId, { firstName, lastName, email }).subscribe({
       next: (updatedUser) => {
-        this.authService.setCurrentUser(updatedUser);
+        this.authService.setCurrentUser(fromUser(updatedUser));
         this.profileSuccessMessage.set('Profil erfolgreich aktualisiert.');
       },
       error: (err: unknown) => {

@@ -2,7 +2,7 @@
 <mat-toolbar color="primary" class="app-toolbar">
   <span class="app-title" routerLink="/">Mail Client</span>
   <span class="spacer"></span>
-  @if (authService.isAuthenticated()) {
+  @if (authService.isAuthenticated) {
     <a mat-button routerLink="/" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">Home</a>
     <a mat-button routerLink="/profile" routerLinkActive="active-link">Profil</a>
     <button mat-button color="warn" (click)="logout()">Logout</button>

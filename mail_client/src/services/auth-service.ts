@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Environment } from '../environment';
 import { LoginData } from '../dtos/LoginData';
@@ -24,7 +24,10 @@ export class AuthService {
 
   public readonly token = this._token.asReadonly();
   public readonly currentUser = this._currentUser.asReadonly();
-  public readonly isAuthenticated = computed(() => !!this._token());
+
+  public get isAuthenticated(): boolean {
+    return !!this._token();
+  }
 
   private readonly httpClient = inject(HttpClient);
   private readonly apiBasePath = Environment.apiBasePath;

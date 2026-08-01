@@ -19,8 +19,8 @@ export class UserService {
       .pipe(map(this.mapToUser));
   }
 
-  public getById(id: string): Observable<UserResponse> {
-    return this.httpClient.get<UserResponse>(`${this.apiBasePath}/users/${id}`);
+  public getById(id: string): Observable<User> {
+    return this.httpClient.get<UserResponse>(`${this.apiBasePath}/users/${id}`).pipe(map(this.mapToUser));
   }
 
   public create(u: UserCreate): Observable<User> {
@@ -29,12 +29,12 @@ export class UserService {
       .pipe(map(this.mapToUser));
   }
 
-  public updateUser(id: string, userUpdate: UserUpdate): Observable<UserResponse> {
-    return this.httpClient.put<UserResponse>(`${this.apiBasePath}/users/${id}`, userUpdate);
+  public updateUser(id: string, userUpdate: UserUpdate): Observable<User> {
+    return this.httpClient.put<UserResponse>(`${this.apiBasePath}/users/${id}`, userUpdate).pipe(map(this.mapToUser));
   }
 
-  public updatePassword(id: string, passwordUpdate: UserPasswordUpdate): Observable<UserResponse> {
-    return this.httpClient.patch<UserResponse>(`${this.apiBasePath}/users/${id}/password`, passwordUpdate);
+  public updatePassword(id: string, passwordUpdate: UserPasswordUpdate): Observable<User> {
+    return this.httpClient.patch<UserResponse>(`${this.apiBasePath}/users/${id}/password`, passwordUpdate).pipe(map(this.mapToUser));
   }
 
   public deleteUser(id: string): Observable<void> {
