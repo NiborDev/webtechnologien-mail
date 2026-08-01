@@ -3,6 +3,7 @@ package de.thm.mni.mail_backend.controller
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -26,11 +27,12 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse)
     }
 
+    //TODO: Check if this error messages can be secured!
     @ExceptionHandler(AccessDeniedException::class)
-    fun handleResourceAccessDenied(ex: AccessDeniedException): ResponseEntity<Map<String, String>> {
+    fun handleAccessDenied(ex: AccessDeniedException): ResponseEntity<Map<String, String>> {
         logger.warn("Authorization denied: ${ex.message}")
-        val errorResponse = mapOf("error" to "Recource not found")
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse)
+        val errorResponse = mapOf("error" to (ex.message ?: "Access denied"))
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse)
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
