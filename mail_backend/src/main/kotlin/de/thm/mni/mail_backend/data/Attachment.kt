@@ -30,7 +30,7 @@ class Attachment(
     var storageUrl: String = "",
     var createdAt: LocalDateTime = LocalDateTime.now(),
     var updatedAt: LocalDateTime = LocalDateTime.now(),
-    var mimeType: MimeType = MimeType("text/plain"),
+    var mimeType: MimeType = MimeType.valueOf("text/plain"),
 ) {
     /**
      * Converts this entity to an AttachmentResponse DTO.

@@ -4,6 +4,7 @@ import de.thm.mni.mail_backend.data.Attachment
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Positive
 import org.springframework.util.MimeType
+import org.springframework.util.MimeTypeUtils
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
 import java.util.UUID
@@ -56,7 +57,10 @@ data class AttachmentCreate(
          */
         fun fromFile(file: MultipartFile, storageUrl: String): AttachmentCreate {
             val fileName = file.originalFilename ?: "unknown_file_name"
-            val mimeType = MimeType(file.contentType ?: "application/octet-stream")
+            val mimeType = file.contentType
+                ?.takeIf { it.isNotBlank() }
+                ?.let { runCatching { MimeType.valueOf(it) }.getOrNull() }
+                ?: MimeTypeUtils.APPLICATION_OCTET_STREAM
             val sizeBytes = file.size
 
             return AttachmentCreate(
