@@ -4,6 +4,11 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
 
   datasource:
     url: jdbc:h2:mem:emailapp;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
@@ -33,3 +38,5 @@ app:
   jwt:
     secret: ${JWT_SECRET:my-super-secret-key-which-is-secure-enough-for-hmac256}
     expires-seconds: 86400
+  storage:
+    location: uploads/attachments

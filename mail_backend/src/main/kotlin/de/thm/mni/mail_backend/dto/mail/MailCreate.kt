@@ -1,6 +1,6 @@
 package de.thm.mni.mail_backend.dto.mail
 
-import de.thm.mni.mail_backend.data.Attachments
+import de.thm.mni.mail_backend.data.Attachment
 import de.thm.mni.mail_backend.data.Mail
 import de.thm.mni.mail_backend.data.enums.EMailStatus
 import jakarta.validation.Valid
@@ -30,7 +30,7 @@ data class MailCreate(
     @field:NotNull(message = "Status cannot be null")
     var status: EMailStatus,
     @field:Valid
-    var attachments: List<Attachments>,
+    var attachments: List<Attachment>,
     @field:Valid
     var source: String,
     var createdAt: LocalDateTime = LocalDateTime.now(),

@@ -21,7 +21,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "mails")
-open class Mail(
+class Mail(
     @Id
     var mailId: UUID? = null,
 
@@ -61,8 +61,8 @@ open class Mail(
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "mail_id")
-    var attachments: MutableList<Attachments> = mutableListOf(),
-    
+    var attachments: MutableList<Attachment> = mutableListOf(),
+
     var source: String = "INTERNAL",
 ) {
     fun toResponse(): MailResponse {
