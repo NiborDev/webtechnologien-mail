@@ -78,7 +78,7 @@ class AttachmentController(
         logger.info("Download request for attachment {} by user {}", id, currentUser.username)
         
         return try {
-            val (attachment, resource) = attachmentService.loadFileAsResource(id)
+            val (attachment, resource) = attachmentService.loadFileAsResource(id, UUID.fromString(currentUser.username))
             
             logger.debug("File retrieved successfully: {}", attachment.fileName)
             ResponseEntity.ok()

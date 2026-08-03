@@ -5,6 +5,8 @@ import de.thm.mni.mail_backend.dto.attachments.AttachmentCreate
 import de.thm.mni.mail_backend.dto.attachments.AttachmentResponse
 import de.thm.mni.mail_backend.exceptions.StorageFileNotFoundException
 import de.thm.mni.mail_backend.repositories.interfaces.AttachmentRepository
+import de.thm.mni.mail_backend.repositories.interfaces.MailRepository
+import de.thm.mni.mail_backend.repositories.interfaces.MailUserRepository
 import de.thm.mni.mail_backend.storage.FileStorageService
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.Resource
@@ -20,9 +22,31 @@ import java.util.UUID
 @Service
 class AttachmentService(
     private val attachmentRepository: AttachmentRepository,
-    private val fileStorageService: FileStorageService
+    private val fileStorageService: FileStorageService,
+    private val mailRepository: MailRepository,
+    private val mailUserRepository: MailUserRepository
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
+
+    /**
+     * Helper Function: Checks if an Attachment is attached to a Mail belonging to the currently logged-in User
+     * @param attachmentId The ID of the Attachment to check
+     * @param currentUserId The ID of the currently logged-in User
+     * @throws NoSuchElementException if no Mail with the Attachment was found or User does not own the Mail
+     */
+    fun checkUserHasAttachment(attachmentId: UUID, currentUserId: UUID) {
+
+        val mailId = mailRepository.findByAttachmentsAttachmentId(attachmentId)?.mailId ?: throw NoSuchElementException("Mail not found!")
+
+        mailUserRepository
+            .findByUserIdAndMailId(currentUserId, mailId)
+            .orElseThrow {
+                NoSuchElementException(
+                    "Mail not found!"
+                )
+            }
+    }
+
     @Transactional
     fun saveAttachments(files: List<MultipartFile>): List<AttachmentResponse> {
         logger.info("Starting to save {} attachment(s)", files.size)
@@ -46,13 +70,10 @@ class AttachmentService(
         }
     }
 
-    fun loadFileAsResource(id: UUID): Pair<Attachment, Resource> {
+    fun loadFileAsResource(id: UUID, currentUserId: UUID): Pair<Attachment, Resource> {
         logger.debug("Loading file resource for attachment ID: {}", id)
-        // TODO: Check Permission so only Allowed Users have access to the file!
-        // We can store the userIds with access to the file or we check it over the mailId and check if the user have
-        // permissions to the mail if so then the user also have access to the attached files
-        val attachment = attachmentRepository.findById(id).orElseThrow { 
-            logger.warn("Attachment not found with ID: {}", id)
+        checkUserHasAttachment(id, currentUserId)
+        val attachment = attachmentRepository.findById(id).orElseThrow {
             StorageFileNotFoundException("File not found with id $id") 
         }
         val resource = fileStorageService.loadAsResource(attachment.storageUrl)

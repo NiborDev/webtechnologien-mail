@@ -30,15 +30,15 @@ class MailService(
      * Helper function: Checks if Mail is owned by the currently logged-in User
      * @param mailId The ID of the Mail to check
      * @param currentUserId The ID of the currently logged-in User
-     * @throws IllegalAccessException if User does not own the Mail
+     * @throws NoSuchElementException if User does not own the Mail
      */
     private fun checkUserHasMail(mailId: UUID, currentUserId: UUID) {
 
         mailUserRepository
             .findByUserIdAndMailId(currentUserId, mailId)
             .orElseThrow {
-                IllegalAccessException(
-                    "User has no access to this mail"
+                NoSuchElementException(
+                    "Mail not found!"
                 )
             }
     }
