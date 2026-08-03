@@ -45,17 +45,18 @@ class AttachmentController(
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
     fun uploadFiles(
-        @RequestParam("files") files: List<MultipartFile>
+        @RequestParam("files") files: List<MultipartFile>,
+        @AuthenticationPrincipal currentUser: UserDetails
     ): List<AttachmentResponse> {
-        logger.info("Received upload request for {} file(s)", files.size)
+        logger.info("Received upload request for {} file(s) from user {}", files.size, currentUser.username)
         
         if (files.isEmpty()) {
             logger.warn("Upload request received with no files")
             throw IllegalArgumentException("Upload request must contain at least one file.")
         }
         
-        val result = attachmentService.saveAttachments(files)
-        logger.info("Upload successful: {} file(s) saved", result.size)
+        val result = attachmentService.saveAttachments(files, UUID.fromString(currentUser.username))
+        logger.info("Upload successful: {} file(s) saved for user {}", result.size, currentUser.username)
         return result
     }
 

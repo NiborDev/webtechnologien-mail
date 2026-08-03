@@ -38,15 +38,23 @@ class AttachmentService(
      * @throws NoSuchElementException if no Mail with the Attachment was found or User does not own the Mail
      */
     fun checkUserHasAttachment(attachmentId: UUID, currentUserId: UUID) {
-
-        val mailId = mailRepository.findByAttachmentsAttachmentId(attachmentId)?.mailId ?: throw NoSuchElementException("Mail not found!")
+        val mail = mailRepository.findByAttachmentsAttachmentId(attachmentId)
+        if (mail == null) {
+            val attachment = attachmentRepository.findById(attachmentId).orElseThrow {
+                NoSuchElementException("Resource not found")
+            }
+            if (!attachment.storageUrl.contains(currentUserId.toString())) {
+                logger.warn("User {} attempted to access unassigned attachment {} owned by another directory", currentUserId, attachmentId)
+                throw NoSuchElementException("Resource not found")
+            }
+            return
+        }
 
         mailUserRepository
-            .findByUserIdAndMailId(currentUserId, mailId)
+            .findByUserIdAndMailId(currentUserId, mail.mailId!!)
             .orElseThrow {
-                NoSuchElementException(
-                    "Mail not found!"
-                )
+                logger.warn("User {} attempted to access attachment {} without mail relation", currentUserId, attachmentId)
+                NoSuchElementException("Resource not found")
             }
     }
 
@@ -59,7 +67,15 @@ class AttachmentService(
      * @throws AccessDeniedException if the user is not the author or the mail has already been sent
      */
     fun checkUserCanDeleteAttachment(attachmentId: UUID, currentUserId: UUID) {
-        val mail = mailRepository.findByAttachmentsAttachmentId(attachmentId) ?: return
+        val mail = mailRepository.findByAttachmentsAttachmentId(attachmentId)
+        if (mail == null) {
+            val attachment = attachmentRepository.findById(attachmentId).orElse(null) ?: return
+            if (!attachment.storageUrl.contains(currentUserId.toString())) {
+                logger.warn("User {} attempted to delete unassigned attachment {} owned by another directory", currentUserId, attachmentId)
+                throw NoSuchElementException("Resource not found")
+            }
+            return
+        }
 
         // Verify ownership: user must be AUTHOR of the mail
         val isAuthor = mailUserRepository
@@ -68,28 +84,29 @@ class AttachmentService(
 
         if (!isAuthor) {
             logger.warn("User {} attempted to delete attachment {} without AUTHOR relation", currentUserId, attachmentId)
-            throw AccessDeniedException("Only the author can delete attachments.")
+            throw NoSuchElementException("Resource not found")
         }
 
         // Verify email status: email must be DRAFT
         if (mail.status != EMailStatus.DRAFT) {
             logger.warn("Attempted to delete attachment {} on mail {} with status {}", attachmentId, mail.mailId, mail.status)
-            throw AccessDeniedException("Cannot delete attachments from sent emails.")
+            throw NoSuchElementException("Resource not found")
         }
     }
 
     /**
-     * Stores a list of multipart files on disk and saves their corresponding metadata in the database.
+     * Stores a list of multipart files on disk in a user-specific folder and saves their corresponding metadata in the database.
      *
      * @param files The list of uploaded multipart files to process and store.
+     * @param currentUserId The ID of the currently authenticated user uploading the files.
      * @return A list of [AttachmentResponse] DTOs representing the saved attachments.
      */
     @Transactional
-    fun saveAttachments(files: List<MultipartFile>): List<AttachmentResponse> {
-        logger.info("Starting to save {} attachment(s)", files.size)
+    fun saveAttachments(files: List<MultipartFile>, currentUserId: UUID): List<AttachmentResponse> {
+        logger.info("Starting to save {} attachment(s) for user {}", files.size, currentUserId)
         return files.map { file ->
-            // store file
-            val savePath = fileStorageService.store(file)
+            // store file in user folder
+            val savePath = fileStorageService.store(file, currentUserId)
 
             // create attachment DTO from file
             val attachmentCreate = AttachmentCreate.fromFile(file, savePath.toString())
@@ -98,12 +115,12 @@ class AttachmentService(
             val attachment = attachmentCreate.toAttachment()
             val saved = attachmentRepository.save(attachment)
             
-            logger.debug("Attachment saved with ID: {} ({})", saved.attachmentId, file.originalFilename)
+            logger.debug("Attachment saved with ID: {} ({}) for user {}", saved.attachmentId, file.originalFilename, currentUserId)
 
             // convert to response
             saved.toResponse()
         }.also { 
-            logger.info("Successfully saved {} attachment(s)", it.size)
+            logger.info("Successfully saved {} attachment(s) for user {}", it.size, currentUserId)
         }
     }
 
