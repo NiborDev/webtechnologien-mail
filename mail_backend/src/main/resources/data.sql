@@ -32,11 +32,11 @@ INSERT INTO mails (mail_id, from_email, subject, body_text, status, is_read, is_
 -- Draft Mail (DRAFT)
 ('a0000000-0000-0000-0000-000000000004', 'test@example.com', 'Fragen zur API Dokumentation', 'Hallo Anna,\n\nich wollte bezüglich der Swagger/OpenAPI Doku noch kurz nachfragen, ob...', 'DRAFT', TRUE, FALSE, NULL, NULL, 0),
 
--- Archived Mail (ARCHIVED)
-('a0000000-0000-0000-0000-000000000005', 'erika.musterfrau@example.com', 'Wichtige Information zur Modulprüfung', 'Sehr geehrte Studierende,\n\nbitte beachten Sie die aktuellen Hinweise zur Modulprüfung im Fach Webtechnologien.\n\nMit freundlichen Grüßen,\nErika Musterfrau', 'ARCHIVED', TRUE, TRUE, '2026-07-20 10:00:00', '2026-07-20 10:02:00', 0),
+-- Received Mail (RECEIVED)
+('a0000000-0000-0000-0000-000000000005', 'erika.musterfrau@example.com', 'Wichtige Information zur Modulprüfung', 'Sehr geehrte Studierende,\n\nbitte beachten Sie die aktuellen Hinweise zur Modulprüfung im Fach Webtechnologien.\n\nMit freundlichen Grüßen,\nErika Musterfrau', 'RECEIVED', TRUE, TRUE, '2026-07-20 10:00:00', '2026-07-20 10:02:00', 0),
 
--- Deleted Mail / Papierkorb (DELETED)
-('a0000000-0000-0000-0000-000000000006', 'newsletter@external-service.org', 'Wöchentlicher Dev-Newsletter', 'Hallo! Hier sind die wichtigsten News zu Kotlin 2.0, Spring Boot 3 und modernem Webdesign.', 'DELETED', TRUE, FALSE, '2026-07-15 08:00:00', '2026-07-15 08:05:00', 1);
+-- Received Mail 2 (RECEIVED)
+('a0000000-0000-0000-0000-000000000006', 'newsletter@external-service.org', 'Wöchentlicher Dev-Newsletter', 'Hallo! Hier sind die wichtigsten News zu Kotlin 2.0, Spring Boot 3 und modernem Webdesign.', 'RECEIVED', TRUE, FALSE, '2026-07-15 08:00:00', '2026-07-15 08:05:00', 1);
 
 -- ----------------------------------------------------------------------------
 -- 3. MAIL RECIPIENTS (mail_to_addresses, mail_cc_addresses)

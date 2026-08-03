@@ -27,6 +27,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ResponseStatus
 
+import de.thm.mni.mail_backend.dto.user.UserListResponse
+
 @DefaultApiErrors
 @RestController
 @RequestMapping("/users")
@@ -65,14 +67,14 @@ class UserController(
 
 
     /**
-     * GET /users Returns all users
+     * GET /users Returns all users for recipient selection (email, firstName, lastName) without exposing user IDs
      *
-     * @return A list of all users
+     * @return A list of user information
      */
     @GetMapping
-    fun getAllUsers(): List<UserResponse> {
+    fun getAllUsers(): List<UserListResponse> {
         val users = userService.getAllUsers()
-        return users.map { it.toResponse() }
+        return users.map { it.toUserListResponse() }
     }
 
     /**
