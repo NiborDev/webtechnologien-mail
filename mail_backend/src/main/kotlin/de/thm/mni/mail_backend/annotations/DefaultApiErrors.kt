@@ -8,8 +8,11 @@ import org.springframework.http.MediaType
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-@ApiResponse(responseCode = "401", description = "Unauthorized.")
-@ApiResponse(responseCode = "500", description = "Internal server Error.", content = [
+@ApiResponse(responseCode = "400", description = "Bad Request - Validation failed or invalid argument.")
+@ApiResponse(responseCode = "401", description = "Unauthorized - Authentication required.")
+@ApiResponse(responseCode = "403", description = "Forbidden - Access denied.")
+@ApiResponse(responseCode = "404", description = "Not Found - Resource not found.")
+@ApiResponse(responseCode = "500", description = "Internal Server Error.", content = [
     Content(
         mediaType = MediaType.APPLICATION_JSON_VALUE,
         schema = Schema(implementation = Error::class)

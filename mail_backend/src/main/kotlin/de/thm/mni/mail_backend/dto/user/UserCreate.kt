@@ -10,7 +10,7 @@ import java.util.UUID
 data class UserCreate(
     @field:NotBlank(message = "Password cannot be blank")
     @field:Pattern(
-        regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@\$!%*#?&])[A-Za-z\\d@\$!%*#?&]{8,}\$", message = "Password >= 6 chars, upper + lowercase, min 1 number\n and special character")
+        regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$", message = "Password >= 6 chars, upper + lowercase, min 1 number\n and special character")
     var password: String,
     @field:NotBlank(message = "Email cannot be blank")
     @field:Email(message = "Email needs to be valid")

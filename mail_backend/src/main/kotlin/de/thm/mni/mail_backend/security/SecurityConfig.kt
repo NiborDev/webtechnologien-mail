@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
@@ -17,7 +16,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @EnableWebSecurity
 class SecurityConfig(@Value("\${app.secret}") private val pepper: String) {
     @Bean
-    fun passwordEncoder(): PasswordEncoder = PepperedPasswordEncoder(pepper)
+    fun passwordEncoder(): PepperedPasswordEncoder = PepperedPasswordEncoder(pepper)
 
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
@@ -45,7 +44,7 @@ class SecurityConfig(@Value("\${app.secret}") private val pepper: String) {
         .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
         .authorizeHttpRequests {
             it.requestMatchers("/users").permitAll()
-            it.requestMatchers("/mails/**").permitAll()
+            it.requestMatchers("/users/login").permitAll()
             it.requestMatchers("/v3/api-docs/**").permitAll()
             it.requestMatchers("/swagger-ui/**").permitAll()
             it.requestMatchers("/logout").permitAll()

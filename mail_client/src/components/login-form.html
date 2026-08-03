@@ -1,0 +1,21 @@
+<form class="login-form" [formGroup]="form" (ngSubmit)="onLogin()">
+  <mat-form-field class="login-form-field">
+    <mat-label for="login-email">E-Mail</mat-label>
+    <input id="login-email" matInput placeholder="Ex. max@mustermann.de" type="email" formControlName="email" aria-label="E-Mail">
+    @if (form.controls.email.hasError('required')) {
+      <mat-error>E-Mail ist erforderlich</mat-error>
+    } @else if (form.controls.email.hasError('email')) {
+      <mat-error>Ungültige E-Mail-Adresse</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field class="login-form-field">
+    <mat-label for="login-password">Passwort</mat-label>
+    <input id="login-password" matInput type="password" formControlName="password" aria-label="Passwort">
+    @if (form.controls.password.hasError('required')) {
+      <mat-error>Passwort ist erforderlich</mat-error>
+    }
+  </mat-form-field>
+
+  <button mat-button type="submit">Login</button>
+</form>

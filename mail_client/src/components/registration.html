@@ -1,29 +1,49 @@
+<form class="registration-form" [formGroup]="form" (ngSubmit)="onRegister()">
+  <mat-form-field class="registration-form-field">
+    <mat-label for="reg-firstName">Vorname</mat-label>
+    <input id="reg-firstName" matInput placeholder="Ex. Max" type="text" formControlName="firstName" aria-label="Vorname">
+    @if (form.controls.firstName.hasError('required')) {
+      <mat-error>Vorname ist erforderlich</mat-error>
+    }
+  </mat-form-field>
 
- <form class="example-form" (ngSubmit)="onRegister()">
-    <mat-form-field class="example-full-width">
-      <mat-label>First Name</mat-label>
-      <input matInput placeholder="Ex. Max" type = "text" name="firstName" [(ngModel)]="firstName" required>
-    </mat-form-field>
+  <mat-form-field class="registration-form-field">
+    <mat-label for="reg-lastName">Nachname</mat-label>
+    <input id="reg-lastName" matInput placeholder="Ex. Mustermann" type="text" formControlName="lastName" aria-label="Nachname">
+    @if (form.controls.lastName.hasError('required')) {
+      <mat-error>Nachname ist erforderlich</mat-error>
+    }
+  </mat-form-field>
 
-    <mat-form-field class="example-full-width">
-      <mat-label>Last Name</mat-label>
-      <input matInput placeholder="Ex. Mustermann" type = "text" name="lastName" [(ngModel)]="lastName" required>
-    </mat-form-field>
+  <mat-form-field class="registration-form-field">
+    <mat-label for="reg-email">E-Mail</mat-label>
+    <input id="reg-email" matInput placeholder="Ex. max@mustermann.de" type="email" formControlName="email" aria-label="E-Mail">
+    @if (form.controls.email.hasError('required')) {
+      <mat-error>E-Mail ist erforderlich</mat-error>
+    } @else if (form.controls.email.hasError('email')) {
+      <mat-error>Ungültige E-Mail-Adresse</mat-error>
+    }
+  </mat-form-field>
 
-    <mat-form-field class="example-full-width">
-      <mat-label>E-Mail</mat-label>
-      <input matInput placeholder="Ex. max@mustermann.de" type = "text" name="email" [(ngModel)]="email" required>
-    </mat-form-field>
+  <mat-form-field class="registration-form-field">
+    <mat-label for="reg-password">Passwort</mat-label>
+    <input id="reg-password" matInput type="password" formControlName="password" aria-label="Passwort">
+    @if (form.controls.password.hasError('required')) {
+      <mat-error>Passwort ist erforderlich</mat-error>
+    } @else if (form.controls.password.hasError('pattern')) {
+      <mat-error>Mind. 8 Zeichen, Buchstabe, Zahl & Sonderzeichen (@$!%*#?&)</mat-error>
+    }
+  </mat-form-field>
 
-    <mat-form-field class="example-full-width">
-      <mat-label>Password</mat-label>
-      <input matInput type = "password" name="password" [(ngModel)]="password" required>
-    </mat-form-field>
+  <mat-form-field class="registration-form-field">
+    <mat-label for="reg-passwordConfirm">Passwort bestätigen</mat-label>
+    <input id="reg-passwordConfirm" matInput type="password" formControlName="passwordConfirm" aria-label="Passwort bestätigen">
+    @if (form.controls.passwordConfirm.hasError('required')) {
+      <mat-error>Passwortbestätigung ist erforderlich</mat-error>
+    } @else if (form.hasError('passwordMismatch') && form.controls.passwordConfirm.touched) {
+      <mat-error>Passwörter stimmen nicht überein</mat-error>
+    }
+  </mat-form-field>
 
-    <mat-form-field class="example-full-width">
-      <mat-label>Confirm Password</mat-label>
-      <input matInput type = "password" name="passwordConfirm" [(ngModel)]="passwordConfirm" required>
-    </mat-form-field>
-
-  <button mat-button type="submit">Register</button>
+  <button mat-button type="submit">Registrieren</button>
 </form>

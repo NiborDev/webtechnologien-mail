@@ -1,0 +1,21 @@
+/** TODO: Redesign */
+:host {
+  display: block;
+  width: 100%;
+}
+
+.login-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.login-form-field {
+  width: 100%;
+}
+
+.login-form button {
+  margin-top: 12px;
+  width: 100%;
+}

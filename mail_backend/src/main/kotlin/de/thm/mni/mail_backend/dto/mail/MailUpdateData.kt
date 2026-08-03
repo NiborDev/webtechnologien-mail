@@ -1,6 +1,6 @@
 package de.thm.mni.mail_backend.dto.mail
 
-import de.thm.mni.mail_backend.data.Attachments
+import de.thm.mni.mail_backend.data.Attachment
 import de.thm.mni.mail_backend.data.Mail
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
@@ -23,7 +23,7 @@ data class MailUpdateData(
     @field:NotBlank(message = "Email body cannot be blank")
     var bodyText: String?,
     @field:Valid
-    var attachments: List<Attachments>?,
+    var attachments: List<Attachment>?,
 ) {
     fun toMail(originalMail: Mail): Mail {
         return Mail(

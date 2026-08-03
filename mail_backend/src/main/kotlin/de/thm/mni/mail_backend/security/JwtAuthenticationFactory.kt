@@ -10,14 +10,26 @@ const val AUTHORIZATION_HEADER = "Authorization"
 const val BEARER_PREFIX = "Bearer "
 const val ROLES_CLAIM = "roles"
 
+/**
+ * Factory for creating authentication objects from JWT tokens.
+ */
 object JWTAuthenticationFactory {
+    /**
+     * Creates an authentication object from a JWT token.
+     * 
+     * @param request HTTP request containing the JWT token.
+     * @param jwtService The JWT service for token validation.
+     * @return Authentication object.
+     */
     fun create(request: HttpServletRequest, jwtService: JwtService): Authentication? {
         val token = request.getHeader(AUTHORIZATION_HEADER)
             ?.takeIf { it.startsWith(BEARER_PREFIX) } // Turns null if header is missing or doesn't start with "Bearer "
             ?.removePrefix(BEARER_PREFIX)
             ?: return null // No token found, return null to indicate no authentication
+
         val jwt = jwtService.validate(token) ?: return null
         val roles = jwt.getClaim(ROLES_CLAIM)?.asArray(String::class.java) ?: arrayOf("USER")
+        
         val userDetails = User.builder()
             .username(jwt.subject)
             .password("") // No password needed for JWT, but required, so we set an empty string
