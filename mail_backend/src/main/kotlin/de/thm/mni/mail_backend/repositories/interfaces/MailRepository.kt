@@ -1,4 +1,4 @@
-package de.thm.mni.mail_backend.repositories
+package de.thm.mni.mail_backend.repositories.interfaces
 
 import de.thm.mni.mail_backend.data.Mail
 import de.thm.mni.mail_backend.data.enums.EMailStatus

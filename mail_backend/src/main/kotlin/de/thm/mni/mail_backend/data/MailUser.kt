@@ -12,7 +12,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "mail_user")
-data class MailUser (
+class MailUser (
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     var id : UUID? = null,
