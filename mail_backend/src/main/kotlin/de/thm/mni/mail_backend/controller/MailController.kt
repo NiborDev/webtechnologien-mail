@@ -11,6 +11,8 @@ import de.thm.mni.mail_backend.services.MailService
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -42,21 +44,23 @@ class MailController(val mailService: MailService) {
     /**
      * DELETE /mails/{id} deletes a Mail
      * @param id The ID of the Mail to delete
+     * @param userDetails User Data from JWT
      */
     @DeleteMapping("/{id}")
-    fun deleteMail(@PathVariable id: UUID) {
-        mailService.deleteMail(id)
+    fun deleteMail(@PathVariable id: UUID, @AuthenticationPrincipal userDetails: UserDetails) {
+        mailService.deleteMail(id, UUID.fromString(userDetails.username))
     }
 
     /**
      * PATCH /mails/{id} updates the data of a Mail
      * @param id The ID of the Mail to Update
      * @param mailUpdateData The Data to update to
+     * @param userDetails User Data from JWT
      * @return The updated Mail
      */
     @PatchMapping("/{id}")
-    fun updateMailData(@PathVariable id: UUID, @Valid @RequestBody mailUpdateData: MailUpdateData ): MailResponse {
-        val mail = mailService.updateMail(id, mailUpdateData)
+    fun updateMailData(@PathVariable id: UUID, @Valid @RequestBody mailUpdateData: MailUpdateData, @AuthenticationPrincipal userDetails: UserDetails ): MailResponse {
+        val mail = mailService.updateMail(id, mailUpdateData, UUID.fromString(userDetails.username))
         return mail.toResponse()
     }
 
@@ -64,28 +68,30 @@ class MailController(val mailService: MailService) {
      * PATCH /mails/{id}/status updates the status of a Mail
      * @param id The ID of the Mail to update
      * @param mailUpdateStatus The status to update to
+     * @param userDetails User Data from JWT
      * @return The updated Mail
      */
     @PatchMapping("/{id}/status")
-    fun updateMailStatus(@PathVariable id: UUID, @Valid @RequestBody mailUpdateStatus: MailUpdateStatus): MailResponse {
-        val mail = mailService.updateMailStatus(id, mailUpdateStatus)
+    fun updateMailStatus(@PathVariable id: UUID, @Valid @RequestBody mailUpdateStatus: MailUpdateStatus, @AuthenticationPrincipal userDetails: UserDetails): MailResponse {
+        val mail = mailService.updateMailStatus(id, mailUpdateStatus, UUID.fromString(userDetails.username))
         return mail.toResponse()
     }
 
     @PatchMapping("/{id}/isRead")
-    fun updateMailIsRead(@PathVariable id: UUID, @Valid @RequestBody mailUpdateIsRead: MailUpdateIsRead): MailResponse {
-        val mail = mailService.updateMailIsRead(id, mailUpdateIsRead)
+    fun updateMailIsRead(@PathVariable id: UUID, @Valid @RequestBody mailUpdateIsRead: MailUpdateIsRead, @AuthenticationPrincipal userDetails: UserDetails): MailResponse {
+        val mail = mailService.updateMailIsRead(id, mailUpdateIsRead, UUID.fromString(userDetails.username))
         return mail.toResponse()
     }
 
     /**
      * GET /mails/{id} gets a Mail with a certain ID
      * @param id The ID of the Mail
+     * @param userDetails User Data from JWT
      * @return The Mail
      */
     @GetMapping("/{id}")
-    fun getMailById(@PathVariable id: UUID): MailResponse {
-        val mail = mailService.getById(id)
+    fun getMailById(@PathVariable id: UUID, @AuthenticationPrincipal userDetails: UserDetails): MailResponse {
+        val mail = mailService.getById(id, UUID.fromString(userDetails.username))
         return mail.toResponse()
     }
 
@@ -93,26 +99,29 @@ class MailController(val mailService: MailService) {
      * GET /mails gets all Mails from the current User with the selected Status
      * @param status RequestParam for the selected Status
      * @param pageable Pageable Object for paging
+     * @param userDetails User Data from JWT
      * @return A List of the Mails from the current User
      */
     @GetMapping
     fun getMails(
         @RequestParam status: EMailStatus,
-        pageable: Pageable
+        pageable: Pageable,
+        @AuthenticationPrincipal userDetails: UserDetails
         ): Page<MailResponse> {
 
         return mailService
-            .getAllFromUserWithStatus(status, pageable)
+            .getAllFromUserWithStatus(status, pageable, UUID.fromString(userDetails.username))
             .map { it.toResponse() }
     }
 
     /**
      * POST /mails/{id}/transmissions triggers sending a Mail
      * @param id the ID of the Mail to send
+     * @param userDetails User Data from JWT
      * @return the send mail
      */
     @PostMapping("/{id}/transmissions")
-    fun sendMail(@PathVariable id: UUID): MailResponse{
-        return mailService.sendMail(id).toResponse()
+    fun sendMail(@PathVariable id: UUID, @AuthenticationPrincipal userDetails: UserDetails): MailResponse{
+        return mailService.sendMail(id, UUID.fromString(userDetails.username)).toResponse()
     }
 }
