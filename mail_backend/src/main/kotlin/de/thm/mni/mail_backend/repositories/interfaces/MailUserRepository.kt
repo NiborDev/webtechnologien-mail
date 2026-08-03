@@ -1,11 +1,13 @@
 package de.thm.mni.mail_backend.repositories.interfaces
 
 import de.thm.mni.mail_backend.data.MailUser
+import de.thm.mni.mail_backend.data.enums.MailUserRelation
 import org.springframework.data.repository.CrudRepository
 import java.util.Optional
 import java.util.UUID
 
 interface MailUserRepository: CrudRepository<MailUser, UUID> {
     fun findByUserIdAndMailId(userId: UUID,mailId: UUID): Optional<MailUser>
+    fun findByUserIdAndMailIdAndRelationType(userId: UUID, mailId: UUID, relationType: MailUserRelation): Optional<MailUser>
     fun deleteByUserIdAndMailId(userId: UUID,mailId: UUID)
 }

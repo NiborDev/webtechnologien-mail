@@ -88,4 +88,22 @@ class FileStorageService(properties: StorageProperties) {
         }
     }
 
+    /**
+     * Deletes the file at the given path from the file storage.
+     */
+    fun delete(filePathString: String) {
+        try {
+            val file = Paths.get(filePathString)
+            val deleted = Files.deleteIfExists(file)
+            if (deleted) {
+                logger.debug("File deleted successfully: {}", filePathString)
+            } else {
+                logger.warn("File to delete was not found on disk: {}", filePathString)
+            }
+        } catch (e: IOException) {
+            logger.error("Error deleting file: {}", filePathString, e)
+            throw StorageException("Could not delete file: $filePathString", e)
+        }
+    }
+
 }

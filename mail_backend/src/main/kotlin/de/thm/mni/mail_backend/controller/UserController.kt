@@ -23,6 +23,10 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.ResponseStatus
+
 @DefaultApiErrors
 @RestController
 @RequestMapping("/users")
@@ -38,6 +42,7 @@ class UserController(
      * @return The registered user
      */
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     fun registerUser(@Valid @RequestBody userCreate: UserCreate): UserResponse {
         val user = userService.registerUser(userCreate)
 
@@ -74,11 +79,15 @@ class UserController(
      * GET /users/{id} Returns a user by id
      *
      * @param id The id of the user
+     * @param currentUser The current authenticated user
      * @return The user with the given id
      */
     @GetMapping("/{id}")
-    fun getUserById(@PathVariable id: UUID): UserResponse {
-        val user = userService.getUserById(id)
+    fun getUserById(
+        @PathVariable id: UUID,
+        @AuthenticationPrincipal currentUser: UserDetails
+    ): UserResponse {
+        val user = userService.getUserById(id, UUID.fromString(currentUser.username))
         return user.toResponse()
     }
 
@@ -125,7 +134,8 @@ class UserController(
      * @param currentUser The current authenticated user
      */
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteUser(@PathVariable id: UUID, @AuthenticationPrincipal currentUser: UserDetails) {
-        return userService.deleteUser(id, UUID.fromString(currentUser.username))
+        userService.deleteUser(id, UUID.fromString(currentUser.username))
     }
 }
