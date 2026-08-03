@@ -1,0 +1,50 @@
+/* TODO: Redesign */
+
+.profile-container {
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.profile-card {
+  margin-bottom: 24px;
+  padding: 16px;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.success-message {
+  color: #2e7d32;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.error-message {
+  color: #d32f2f;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.danger-card {
+  border: 1px solid #ffcdd2;
+  background-color: #fff8f8;
+}
+
+.confirm-box {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

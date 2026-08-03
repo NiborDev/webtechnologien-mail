@@ -7,6 +7,13 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
+/**
+ * Filter for authenticating requests with JWT
+ * It checks for a valid JWT token in the Authorization header.
+ * If a valid JWT token is found, it creates an authentication in the SecurityContextHolder.
+ * 
+ * @param jwtService Service for JWT operations
+ */
 @Component
 class JwtAuthFilter(private val jwtService: JwtService) : OncePerRequestFilter() {
     override fun doFilterInternal(
