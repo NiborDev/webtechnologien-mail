@@ -3,6 +3,7 @@ package de.thm.mni.mail_backend.dto.mail
 import de.thm.mni.mail_backend.data.Attachment
 import de.thm.mni.mail_backend.data.Mail
 import de.thm.mni.mail_backend.data.enums.EMailStatus
+import de.thm.mni.mail_backend.data.enums.Source
 import jakarta.validation.Valid
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
@@ -32,7 +33,7 @@ data class MailCreate(
     @field:Valid
     var attachments: List<Attachment>,
     @field:Valid
-    var source: String,
+    var source: Source,
     var createdAt: LocalDateTime = LocalDateTime.now(),
     var updatedAt: LocalDateTime = LocalDateTime.now(),
     var sentAt: LocalDateTime? = null
@@ -41,10 +42,10 @@ data class MailCreate(
         return Mail(
             mailId = mailId,
             from = from,
-            to = to,
-            cc = cc,
-            bcc = bcc,
-            replyTo = replyTo,
+            to = to.toMutableList(),
+            cc = cc.toMutableList(),
+            bcc = bcc.toMutableList(),
+            replyTo = replyTo.toMutableList(),
             subject = subject,
             bodyText = bodyText,
             status = status,

@@ -29,9 +29,9 @@ data class MailUpdateData(
         return Mail(
             mailId = originalMail.mailId,
             from = from,
-            to = to ?: originalMail.to,
-            cc = cc ?: originalMail.cc,
-            bcc = bcc ?: originalMail.bcc,
+            to = (to ?: originalMail.to).toMutableList(),
+            cc = (cc ?: originalMail.cc).toMutableList(),
+            bcc = (bcc ?: originalMail.bcc).toMutableList(),
             replyTo = originalMail.replyTo,
             subject = subject ?: originalMail.subject,
             bodyText = bodyText ?: originalMail.bodyText,

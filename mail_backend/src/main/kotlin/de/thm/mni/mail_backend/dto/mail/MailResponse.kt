@@ -2,6 +2,7 @@ package de.thm.mni.mail_backend.dto.mail
 
 import de.thm.mni.mail_backend.data.Attachment
 import de.thm.mni.mail_backend.data.enums.EMailStatus
+import de.thm.mni.mail_backend.data.enums.Source
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -22,5 +23,5 @@ data class MailResponse(
     var receivedAt: LocalDateTime? = null,
     var createdAt: LocalDateTime = LocalDateTime.now(),
     var updatedAt: LocalDateTime = LocalDateTime.now(),
-    var source: String,
+    var source: Source,
 )

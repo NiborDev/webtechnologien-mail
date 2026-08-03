@@ -1,6 +1,7 @@
 package de.thm.mni.mail_backend.data
 
 import de.thm.mni.mail_backend.data.enums.EMailStatus
+import de.thm.mni.mail_backend.data.enums.Source
 import de.thm.mni.mail_backend.dto.mail.MailResponse
 import jakarta.persistence.CascadeType
 import jakarta.persistence.CollectionTable
@@ -17,8 +18,6 @@ import jakarta.persistence.Table
 import java.time.LocalDateTime
 import java.util.UUID
 
-//TODO: finale implementierung von source
-
 @Entity
 @Table(name = "mails")
 class Mail(
@@ -31,22 +30,22 @@ class Mail(
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "mail_to_addresses", joinColumns = [JoinColumn(name = "mail_id")])
     @Column(name = "to_email")
-    var to: List<String> = emptyList(),
+    var to: MutableList<String> = mutableListOf(),
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "mail_cc_addresses", joinColumns = [JoinColumn(name = "mail_id")])
     @Column(name = "cc_email")
-    var cc: List<String> = emptyList(),
+    var cc: MutableList<String> = mutableListOf(),
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "mail_bcc_addresses", joinColumns = [JoinColumn(name = "mail_id")])
     @Column(name = "bcc_email")
-    var bcc: List<String> = emptyList(),
+    var bcc: MutableList<String> = mutableListOf(),
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "mail_reply_to_addresses", joinColumns = [JoinColumn(name = "mail_id")])
     @Column(name = "reply_to_email")
-    var replyTo: List<String> = emptyList(),
+    var replyTo: MutableList<String> = mutableListOf(),
 
     var subject: String = "",
     var bodyText: String = "",
@@ -63,7 +62,7 @@ class Mail(
     @JoinColumn(name = "mail_id")
     var attachments: MutableList<Attachment> = mutableListOf(),
 
-    var source: String = "INTERNAL",
+    var source: Source = Source.INTERN,
 ) {
     fun toResponse(): MailResponse {
         return MailResponse(
