@@ -8,9 +8,9 @@ import de.thm.mni.mail_backend.data.enums.MailUserRelation
 import de.thm.mni.mail_backend.dto.mail.MailUpdateData
 import de.thm.mni.mail_backend.dto.mail.MailUpdateIsRead
 import de.thm.mni.mail_backend.dto.mail.MailUpdateStatus
-import de.thm.mni.mail_backend.repositories.MailRepository
-import de.thm.mni.mail_backend.repositories.MailUserRepository
-import de.thm.mni.mail_backend.repositories.UserRepository
+import de.thm.mni.mail_backend.repositories.interfaces.MailRepository
+import de.thm.mni.mail_backend.repositories.interfaces.MailUserRepository
+import de.thm.mni.mail_backend.repositories.interfaces.UserRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -231,24 +231,28 @@ class MailService(
      * @throws IllegalArgumentException if mailId or userId is null
      */
     private fun receiveMail(mail: Mail, user: User): Mail {
-        val receivedMail = mail.copy(
+        val receivedMail = Mail(
             mailId = UUID.randomUUID(),
-            isRead = false,
-            isMarked = false,
-            receivedAt = LocalDateTime.now(),
-            status = EMailStatus.RECEIVED,
-
+            from = mail.from,
             to = mail.to.toMutableList(),
             cc = mail.cc.toMutableList(),
             bcc = mail.bcc.toMutableList(),
             replyTo = mail.replyTo.toMutableList(),
+            subject = mail.subject,
+            bodyText = mail.bodyText,
+            status = EMailStatus.RECEIVED,
+            isRead = false,
+            isMarked = false,
+            sentAt = mail.sentAt,
+            receivedAt = LocalDateTime.now(),
             attachments = mail.attachments.toMutableList(),
+            source = mail.source
         )
         val savedMail = mailRepository.save(receivedMail)
         mailUserRepository.save(
             MailUser(
-                mailId = savedMail.mailId?: throw IllegalArgumentException("Mail Id Should not be null"),
-                userId = user.userId?: throw IllegalArgumentException("User Id Should not be null"),
+                mailId = savedMail.mailId ?: throw IllegalArgumentException("Mail Id Should not be null"),
+                userId = user.userId ?: throw IllegalArgumentException("User Id Should not be null"),
                 relationType = MailUserRelation.RECIPIENT
             )
         )

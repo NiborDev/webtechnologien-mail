@@ -1,7 +1,6 @@
-package de.thm.mni.mail_backend.repositories
+package de.thm.mni.mail_backend.repositories.interfaces
 
 import de.thm.mni.mail_backend.data.MailUser
-import de.thm.mni.mail_backend.data.enums.MailUserRelation
 import org.springframework.data.repository.CrudRepository
 import java.util.Optional
 import java.util.UUID
