@@ -21,9 +21,6 @@ data class MailUser (
 
     var mailId: UUID,
 
-    var isDeleted: Boolean = false,
-    var isRead : Boolean = false,
-
     @Enumerated(EnumType.STRING)
     var relationType: MailUserRelation
 )

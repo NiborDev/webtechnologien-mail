@@ -1,12 +1,16 @@
 package de.thm.mni.mail_backend.controller
 
 import de.thm.mni.mail_backend.annotations.DefaultApiErrors
+import de.thm.mni.mail_backend.data.enums.EMailStatus
 import de.thm.mni.mail_backend.dto.mail.MailCreate
 import de.thm.mni.mail_backend.dto.mail.MailResponse
 import de.thm.mni.mail_backend.dto.mail.MailUpdateData
+import de.thm.mni.mail_backend.dto.mail.MailUpdateIsRead
 import de.thm.mni.mail_backend.dto.mail.MailUpdateStatus
 import de.thm.mni.mail_backend.services.MailService
 import jakarta.validation.Valid
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
@@ -40,7 +45,7 @@ class MailController(val mailService: MailService) {
      */
     @DeleteMapping("/{id}")
     fun deleteMail(@PathVariable id: UUID) {
-        mailService.deleteMailForUser(id)
+        mailService.deleteMail(id)
     }
 
     /**
@@ -67,6 +72,12 @@ class MailController(val mailService: MailService) {
         return mail.toResponse()
     }
 
+    @PatchMapping("/{id}/isRead")
+    fun updateMailIsRead(@PathVariable id: UUID, @Valid @RequestBody mailUpdateIsRead: MailUpdateIsRead): MailResponse {
+        val mail = mailService.updateMailIsRead(id, mailUpdateIsRead)
+        return mail.toResponse()
+    }
+
     /**
      * GET /mails/{id} gets a Mail with a certain ID
      * @param id The ID of the Mail
@@ -79,22 +90,29 @@ class MailController(val mailService: MailService) {
     }
 
     /**
-     * GET /mails gets all Mails from the current User
+     * GET /mails gets all Mails from the current User with the selected Status
+     * @param status RequestParam for the selected Status
+     * @param pageable Pageable Object for paging
      * @return A List of the Mails from the current User
      */
     @GetMapping
-    fun getAllMailsFromUser(): List<MailResponse> {
-        val mails = mailService.getAllFromUser()
-        return mails.map { it.toResponse() }
+    fun getMails(
+        @RequestParam status: EMailStatus,
+        pageable: Pageable
+        ): Page<MailResponse> {
+
+        return mailService
+            .getAllFromUserWithStatus(status, pageable)
+            .map { it.toResponse() }
     }
 
     /**
-     * GET /mails/inbox gets all Mails addressed to the current User (To, Cc or Bcc)
-     * @return A List of the Mails addressed to the current User
+     * POST /mails/{id}/transmissions triggers sending a Mail
+     * @param id the ID of the Mail to send
+     * @return the send mail
      */
-    @GetMapping("/inbox")
-    fun getAllMailsToUser(): List<MailResponse> {
-        val mails = mailService.getAllToUser()
-        return mails.map { it.toResponse() }
+    @PostMapping("/{id}/transmissions")
+    fun sendMail(@PathVariable id: UUID): MailResponse{
+        return mailService.sendMail(id).toResponse()
     }
 }

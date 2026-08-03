@@ -6,15 +6,19 @@ import de.thm.mni.mail_backend.data.User
 import de.thm.mni.mail_backend.data.enums.EMailStatus
 import de.thm.mni.mail_backend.data.enums.MailUserRelation
 import de.thm.mni.mail_backend.dto.mail.MailUpdateData
+import de.thm.mni.mail_backend.dto.mail.MailUpdateIsRead
 import de.thm.mni.mail_backend.dto.mail.MailUpdateStatus
 import de.thm.mni.mail_backend.repositories.MailRepository
 import de.thm.mni.mail_backend.repositories.MailUserRepository
 import de.thm.mni.mail_backend.repositories.UserRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 import java.util.UUID
 
-//TODO auth (get real data!), paging
+//TODO auth (get real data!)
 
 @Service
 class MailService(
@@ -73,23 +77,19 @@ class MailService(
     }
 
     /**
-     * Sets a Mail as deleted for the User currently logged in
+     * Deletes a Mail
      * @param mailId The ID of the mail to delete
      * @throws IllegalStateException if no User is logged in
-     * @throws NoSuchElementException if Mail does not exist or User does not own the Mail
      */
     @Transactional
-    fun deleteMailForUser(mailId: UUID) {
+    fun deleteMail(mailId: UUID) {
+
+        checkUserHasMail(mailId)
 
         val userId: UUID = getCurrentUser().userId ?: throw IllegalStateException("No Logged in User")
 
-        val mailUser = mailUserRepository
-            .findByUserIdAndMailId(userId, mailId)
-            .orElseThrow { NoSuchElementException("Mail does not exist or User has no permissions to delete it!") }
-
-        mailUser.isDeleted = true
-
-        mailUserRepository.save(mailUser)
+        mailUserRepository.deleteByUserIdAndMailId(userId, mailId)
+        mailRepository.deleteById(mailId)
     }
 
     /**
@@ -128,29 +128,15 @@ class MailService(
 
     /**
      * Gets all Mails that are from the current User
-     * @return List of the Mails from that User
+     * @param eMailStatus status of mails to select
+     * @param pageable Pageable Object for Paging
+     * @throws IllegalStateException if no User is logged in
+     * @return List of the Mails from that User that have the selected Status
      */
-    fun getAllFromUser(): List<Mail> {
+    fun getAllFromUserWithStatus(eMailStatus: EMailStatus ,pageable: Pageable): Page<Mail> {
 
-        val mailAddress = getCurrentUser().email
-        return mailRepository.findByFrom(mailAddress)
-    }
-
-    /**
-     * Gets all Mails sent to thr current User (To, CC and BCC)
-     * @return List of the Mails sent to that User (User E-Mail Address in To, Cc or Bcc and Status SENT)
-     */
-    fun getAllToUser(): List<Mail> {
-
-        val mailAddress = getCurrentUser().email
-
-        //get all máils that have the address in to/cc/bcc and are sent
-        val mailsTo = mailRepository.findByToAndStatus(mailAddress, EMailStatus.SENT)
-        val mailsCC = mailRepository.findByCcAndStatus(mailAddress, EMailStatus.SENT)
-        val mailsBcc = mailRepository.findByBccAndStatus(mailAddress, EMailStatus.SENT)
-
-        return (mailsTo + mailsCC + mailsBcc).distinctBy { it.mailId }
-
+        val userId = getCurrentUser().userId ?: throw IllegalStateException("No Logged in User")
+        return mailRepository.findByUserIdAndStatus(userId, eMailStatus, pageable)
     }
 
     /**
@@ -181,6 +167,94 @@ class MailService(
         updated.status = mailUpdateStatus.status!!
 
        return mailRepository.save(updated)
+    }
+
+    /**
+     * Updates the isRead status of a Mail
+     * @param mailId The ID of the existing Mail
+     * @param mailUpdateIsRead The Status to update to
+     * @return The updated Mail
+     * @throws IllegalArgumentException if the Mail does not exist
+     * @throws IllegalArgumentException if the status to update to is null
+     *
+     */
+    fun updateMailIsRead(mailId: UUID, mailUpdateIsRead: MailUpdateIsRead) : Mail {
+
+        checkUserHasMail(mailId)
+
+        val current = mailRepository.findById(mailId).orElseThrow { NoSuchElementException("Mail not found!") }
+
+        if (mailUpdateIsRead.isRead == null) {
+            throw IllegalArgumentException("Status to update to can not be null")
+        }
+
+        val updated = current
+        updated.isRead = mailUpdateIsRead.isRead!!
+
+        return mailRepository.save(updated)
+    }
+
+    /**
+     * Mock-Function: Mocks the sending of a Mail (sends it to all Addresses that are internal to the System, ignores other Addresses)
+     * @param mailID The ID of the Mail to send
+     * @return mail the send Mail
+     * @throws NoSuchElementException if the Mail doesnt exist
+     */
+    @Transactional
+    fun sendMail(mailID: UUID): Mail{
+        checkUserHasMail(mailID)
+
+        val mail = mailRepository.findById(mailID).orElseThrow { NoSuchElementException("Mail not found!") }
+
+        val recipients = (mail.to + mail.cc + mail.bcc)
+
+        recipients.forEach {
+
+            val user = userRepository.findByEmail(it)
+
+            if (user != null) {
+                receiveMail(mail, user)
+            }
+
+        }
+
+        mail.status = EMailStatus.SENT
+        return mailRepository.save(mail)
+
+    }
+
+    /**
+     * Mock-Function: Mocks the Process of Receiving an Email
+     * @param mail the Mail to receive
+     * @param user the recipient
+     * @return The received Mail
+     * @throws IllegalArgumentException if mailId or userId is null
+     */
+    private fun receiveMail(mail: Mail, user: User): Mail {
+        val receivedMail = mail.copy(
+            mailId = UUID.randomUUID(),
+            isRead = false,
+            isMarked = false,
+            receivedAt = LocalDateTime.now(),
+            status = EMailStatus.RECEIVED,
+
+            to = mail.to.toMutableList(),
+            cc = mail.cc.toMutableList(),
+            bcc = mail.bcc.toMutableList(),
+            replyTo = mail.replyTo.toMutableList(),
+            attachments = mail.attachments.toMutableList(),
+        )
+        val savedMail = mailRepository.save(receivedMail)
+        mailUserRepository.save(
+            MailUser(
+                mailId = savedMail.mailId?: throw IllegalArgumentException("Mail Id Should not be null"),
+                userId = user.userId?: throw IllegalArgumentException("User Id Should not be null"),
+                relationType = MailUserRelation.RECIPIENT
+            )
+        )
+
+        return savedMail
+
     }
 
 }
