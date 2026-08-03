@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.util.UUID
 
-//TODO auth (get real data!)
 
 @Service
 class MailService(
@@ -27,32 +26,19 @@ class MailService(
     private val userRepository: UserRepository
 ) {
 
-    //TODO for test purposes only!!
-    private fun getCurrentUser(): User {
-        return User(
-            userId = UUID.fromString("00000000-0000-0000-0000-000000000001"),
-            email = "test@example.com",
-            firstName = "Test",
-            lastName = "User"
-        )
-    }
-
     /**
-     * Helper function: Checks if Mail is owned by the User currently logged in
+     * Helper function: Checks if Mail is owned by the currently logged-in User
      * @param mailId The ID of the Mail to check
-     * @throws IllegalAccessException if User does not own the Mail
-     * @throws IllegalStateException if no User is logged in
+     * @param currentUserId The ID of the currently logged-in User
+     * @throws NoSuchElementException if User does not own the Mail
      */
-    private fun checkUserHasMail(mailId: UUID) {
-
-        val userId = getCurrentUser().userId
-            ?: throw IllegalStateException("No Logged in User")
+    private fun checkUserHasMail(mailId: UUID, currentUserId: UUID) {
 
         mailUserRepository
-            .findByUserIdAndMailId(userId, mailId)
+            .findByUserIdAndMailId(currentUserId, mailId)
             .orElseThrow {
-                IllegalAccessException(
-                    "User has no access to this mail"
+                NoSuchElementException(
+                    "Mail not found!"
                 )
             }
     }
@@ -79,35 +65,34 @@ class MailService(
     /**
      * Deletes a Mail
      * @param mailId The ID of the mail to delete
-     * @throws IllegalStateException if no User is logged in
+     * @param currentUserId The ID of the currently logged-in User
      */
     @Transactional
-    fun deleteMail(mailId: UUID) {
+    fun deleteMail(mailId: UUID, currentUserId: UUID) {
 
-        checkUserHasMail(mailId)
+        checkUserHasMail(mailId, currentUserId)
 
-        val userId: UUID = getCurrentUser().userId ?: throw IllegalStateException("No Logged in User")
-
-        mailUserRepository.deleteByUserIdAndMailId(userId, mailId)
+        mailUserRepository.deleteByUserIdAndMailId(currentUserId, mailId)
         mailRepository.deleteById(mailId)
     }
 
     /**
-     * Updates a existing Mail (Status can not be SENT)
+     * Updates a existing Mail (DRAFT)
      * @param mailId The ID of the existing Mail
      * @param mailUpdateData The Information to update
+     * @param currentUserId The ID of the currently logged-in User
      * @return The updated Mail
      * @throws NoSuchElementException if there is no Mail with the given ID
-     * @throws IllegalStateException if the Mail is already sent (status SENT, can not be updated)
+     * @throws IllegalStateException if the Mail is not a draft (status SENT/RECEIVED, can not be updated)
      */
-    fun updateMail(mailId: UUID,mailUpdateData: MailUpdateData): Mail {
+    fun updateMail(mailId: UUID,mailUpdateData: MailUpdateData, currentUserId: UUID): Mail {
 
-        checkUserHasMail(mailId)
+        checkUserHasMail(mailId, currentUserId)
 
         val current = mailRepository.findById(mailId).orElseThrow { NoSuchElementException("Mail not found!") }
 
-        if (current.status == EMailStatus.SENT) {
-            throw IllegalStateException("A Sent Mail cannot be edited")
+        if (current.status != EMailStatus.DRAFT) {
+            throw IllegalStateException("A Mail can only be edited if its a draft")
         }
 
         val updated = mailUpdateData.toMail(current)
@@ -118,45 +103,46 @@ class MailService(
     /**
      * Gets a Mail by ID
      * @param mailId The ID of the Mail
+     * @param currentUserId The ID of the currently logged-in User
      * @return The Mail
      * @throws NoSuchElementException if the Mail was not found
      */
-    fun getById(mailId: UUID): Mail {
-        checkUserHasMail(mailId)
+    fun getById(mailId: UUID, currentUserId: UUID): Mail {
+        checkUserHasMail(mailId, currentUserId)
         return mailRepository.findById(mailId).orElseThrow { NoSuchElementException("Mail not found!") }
     }
 
     /**
-     * Gets all Mails that are from the current User
+     * Gets all Mails that are from the current User and have the selected Status (with Pagination)
      * @param eMailStatus status of mails to select
      * @param pageable Pageable Object for Paging
-     * @throws IllegalStateException if no User is logged in
-     * @return List of the Mails from that User that have the selected Status
+     * @param currentUserId The ID of the currently logged-in User
+     * @return Page of the Mails from that User that have the selected Status
      */
-    fun getAllFromUserWithStatus(eMailStatus: EMailStatus ,pageable: Pageable): Page<Mail> {
+    fun getAllFromUserWithStatus(eMailStatus: EMailStatus ,pageable: Pageable, currentUserId: UUID): Page<Mail> {
 
-        val userId = getCurrentUser().userId ?: throw IllegalStateException("No Logged in User")
-        return mailRepository.findByUserIdAndStatus(userId, eMailStatus, pageable)
+        return mailRepository.findByUserIdAndStatus(currentUserId, eMailStatus, pageable)
     }
 
     /**
      * Updates the status of a Mail
      * @param mailId The ID of the existing Mail
      * @param mailUpdateStatus The Status to update to
+     * @param currentUserId The ID of the currently logged-in User
      * @return The updated Mail
-     * @throws IllegalArgumentException if the Mail does not exist
-     * @throws IllegalStateException if the Mail is already sent (status SENT, can not be updated)
+     * @throws NoSuchElementException if the Mail does not exist
+     * @throws IllegalStateException if the Mail is not a draft (status SENT/RECEIVED, can not be updated)
      * @throws IllegalArgumentException if the status to update to is null
      *
      */
-    fun updateMailStatus(mailId: UUID, mailUpdateStatus: MailUpdateStatus) : Mail {
+    fun updateMailStatus(mailId: UUID, mailUpdateStatus: MailUpdateStatus, currentUserId: UUID) : Mail {
 
-        checkUserHasMail(mailId)
+        checkUserHasMail(mailId, currentUserId)
 
         val current = mailRepository.findById(mailId).orElseThrow { NoSuchElementException("Mail not found!") }
 
-        if (current.status == EMailStatus.SENT) {
-            throw IllegalStateException("A Sent Mail cannot be edited")
+        if (current.status != EMailStatus.DRAFT) {
+            throw IllegalStateException("A Mail can only be edited if its a draft")
         }
 
         if (mailUpdateStatus.status == null) {
@@ -173,14 +159,15 @@ class MailService(
      * Updates the isRead status of a Mail
      * @param mailId The ID of the existing Mail
      * @param mailUpdateIsRead The Status to update to
+     * @param currentUserId The ID of the currently logged-in User
      * @return The updated Mail
-     * @throws IllegalArgumentException if the Mail does not exist
+     * @throws NoSuchElementException if the Mail does not exist
      * @throws IllegalArgumentException if the status to update to is null
      *
      */
-    fun updateMailIsRead(mailId: UUID, mailUpdateIsRead: MailUpdateIsRead) : Mail {
+    fun updateMailIsRead(mailId: UUID, mailUpdateIsRead: MailUpdateIsRead, currentUserId: UUID) : Mail {
 
-        checkUserHasMail(mailId)
+        checkUserHasMail(mailId, currentUserId)
 
         val current = mailRepository.findById(mailId).orElseThrow { NoSuchElementException("Mail not found!") }
 
@@ -197,12 +184,13 @@ class MailService(
     /**
      * Mock-Function: Mocks the sending of a Mail (sends it to all Addresses that are internal to the System, ignores other Addresses)
      * @param mailID The ID of the Mail to send
+     * @param currentUserId The ID of the currently logged-in User
      * @return mail the send Mail
      * @throws NoSuchElementException if the Mail doesnt exist
      */
     @Transactional
-    fun sendMail(mailID: UUID): Mail{
-        checkUserHasMail(mailID)
+    fun sendMail(mailID: UUID, currentUserId: UUID): Mail{
+        checkUserHasMail(mailID, currentUserId)
 
         val mail = mailRepository.findById(mailID).orElseThrow { NoSuchElementException("Mail not found!") }
 
@@ -210,10 +198,10 @@ class MailService(
 
         recipients.forEach {
 
-            val user = userRepository.findByEmail(it)
+            val recipient = userRepository.findByEmail(it)
 
-            if (user != null) {
-                receiveMail(mail, user)
+            if (recipient != null) {
+                receiveMail(mail, recipient)
             }
 
         }

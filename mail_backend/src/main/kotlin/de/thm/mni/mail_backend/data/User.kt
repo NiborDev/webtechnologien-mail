@@ -1,5 +1,6 @@
 package de.thm.mni.mail_backend.data
 
+import de.thm.mni.mail_backend.dto.user.UserListResponse
 import de.thm.mni.mail_backend.dto.user.UserResponse
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -29,8 +30,14 @@ class User(
             email = email,
             firstName = firstName,
             lastName = lastName,
-            createdAt = createdAt,
-            updatedAt = updatedAt,
+        )
+    }
+
+    fun toUserListResponse(): UserListResponse {
+        return UserListResponse(
+            email = email,
+            firstName = firstName,
+            lastName = lastName,
         )
     }
 }

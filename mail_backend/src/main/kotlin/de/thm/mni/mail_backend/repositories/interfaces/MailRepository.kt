@@ -20,6 +20,5 @@ interface MailRepository: CrudRepository<Mail, UUID> {
         AND m.status = :emailStatus
     """)
     fun findByUserIdAndStatus(@Param("userId") userId: UUID,@Param("emailStatus") eMailStatus: EMailStatus , pageable: Pageable): Page<Mail>
-
-    fun findByFrom(from: String, pageable: Pageable): Page<Mail>
+    fun findByAttachmentsAttachmentId(@Param("attachmentId") attachmentId: UUID ): Mail?
 }

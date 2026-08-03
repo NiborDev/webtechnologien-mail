@@ -12,6 +12,8 @@ import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
+import org.springframework.http.HttpMethod
+
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(@Value("\${app.secret}") private val pepper: String) {
@@ -43,7 +45,7 @@ class SecurityConfig(@Value("\${app.secret}") private val pepper: String) {
         .csrf { it.disable() } // Explicitly disable CSRF protection for stateless APIs
         .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
         .authorizeHttpRequests {
-            it.requestMatchers("/users").permitAll()
+            it.requestMatchers(HttpMethod.POST, "/users").permitAll()
             it.requestMatchers("/users/login").permitAll()
             it.requestMatchers("/v3/api-docs/**").permitAll()
             it.requestMatchers("/swagger-ui/**").permitAll()

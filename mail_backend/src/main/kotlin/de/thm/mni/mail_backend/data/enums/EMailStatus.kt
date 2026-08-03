@@ -4,6 +4,4 @@ enum class EMailStatus {
     DRAFT,
     SENT,
     RECEIVED,
-    DELETED,
-    ARCHIVED,
 }
