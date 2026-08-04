@@ -4,7 +4,11 @@
       <h2>Konto erstellen</h2>
       <p>Willkommen! Bitte füllen Sie die Felder aus.</p>
     </div>
+    @if (errorMessage()) {
+      <p class="error-message">{{ errorMessage() }}</p>
+    }
     <app-registration (register)="handleRegistration($event)"></app-registration>
     <p class="auth-switch-text">Bereits ein Konto? <a routerLink="/login">Hier einloggen</a></p>
   </div>
 </main>
+

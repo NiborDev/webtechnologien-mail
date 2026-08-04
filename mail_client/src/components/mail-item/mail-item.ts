@@ -6,7 +6,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MailModel } from '../../models/mail.model';
 
 /**
- * MAil Item Component
+ * Mail Item Component
  *
  * This component is used to display a single email in the mail list.
  */

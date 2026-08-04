@@ -13,6 +13,9 @@ import { UserPageResponseDto } from '../dtos/user-page-response.dto';
 export type { UserListResponseDto } from '../dtos/user-list-response.dto';
 export type { UserPageResponseDto } from '../dtos/user-page-response.dto';
 
+/**
+ * Service for managing user operations including fetching, creation, updating, and deletion.
+ */
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private readonly httpClient: HttpClient = inject(HttpClient);
@@ -20,6 +23,8 @@ export class UserService {
 
   /**
    * Fetches all users and transforms them into an email-to-fullName map Observable.
+   *
+   * @returns Observable emitting a Map connecting user emails to full display names.
    */
   public getUserMap(): Observable<Map<string, string>> {
     return this.getAllUsers().pipe(
@@ -38,6 +43,14 @@ export class UserService {
     );
   }
 
+  /**
+   * Fetches a paginated list of users, with an optional search query.
+   *
+   * @param search - Optional search string to filter users.
+   * @param page - Page number index (default: 0).
+   * @param size - Number of records per page (default: 100).
+   * @returns Observable emitting an array of UserListResponseDto.
+   */
   public getAllUsers(search?: string, page = 0, size = 100): Observable<UserListResponseDto[]> {
     const params: Record<string, string> = {
       page: page.toString(),
@@ -52,30 +65,56 @@ export class UserService {
       .pipe(map((res) => res.content || []));
   }
 
-  public findOne(id: string): Observable<User> {
-    return this.httpClient
-      .get<UserResponse>(`${this.apiBasePath}/users/${id}`)
-      .pipe(map(this.mapToUser));
-  }
-
+  /**
+   * Fetches a single user by ID.
+   *
+   * @param id - Unique user ID.
+   * @returns Observable emitting domain User instance.
+   */
   public getById(id: string): Observable<User> {
     return this.httpClient.get<UserResponse>(`${this.apiBasePath}/users/${id}`).pipe(map(this.mapToUser));
   }
 
+  /**
+   * Creates a new user account.
+   *
+   * @param u - UserCreate DTO containing new user details.
+   * @returns Observable emitting created domain User instance.
+   */
   public create(u: UserCreate): Observable<User> {
     return this.httpClient
       .post<UserResponse>(`${this.apiBasePath}/users`, u)
       .pipe(map(this.mapToUser));
   }
 
+  /**
+   * Updates existing user profile fields (first name, last name, email).
+   *
+   * @param id - ID of the target user.
+   * @param userUpdate - UserUpdate DTO containing updated profile fields.
+   * @returns Observable emitting updated domain User instance.
+   */
   public updateUser(id: string, userUpdate: UserUpdate): Observable<User> {
     return this.httpClient.put<UserResponse>(`${this.apiBasePath}/users/${id}`, userUpdate).pipe(map(this.mapToUser));
   }
 
+  /**
+   * Updates user password credentials.
+   *
+   * @param id - ID of the target user.
+   * @param passwordUpdate - UserPasswordUpdate DTO containing old and new passwords.
+   * @returns Observable emitting updated domain User instance.
+   */
   public updatePassword(id: string, passwordUpdate: UserPasswordUpdate): Observable<User> {
     return this.httpClient.patch<UserResponse>(`${this.apiBasePath}/users/${id}/password`, passwordUpdate).pipe(map(this.mapToUser));
   }
 
+  /**
+   * Deletes a user account by ID.
+   *
+   * @param id - ID of the target user to delete.
+   * @returns Observable completing on successful deletion.
+   */
   public deleteUser(id: string): Observable<void> {
     return this.httpClient.delete<void>(`${this.apiBasePath}/users/${id}`);
   }
@@ -84,3 +123,4 @@ export class UserService {
     return new User(res.userId, res.email, res.firstName, res.lastName);
   }
 }
+

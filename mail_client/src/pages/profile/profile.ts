@@ -1,5 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,11 +16,21 @@ import { AuthService } from '../../services/auth-service';
 import { UserService } from '../../services/user-service';
 import { fromUser } from '../../dtos/UserResponse';
 
-// TODO: Redesign and Controll Code!!!
-
+/**
+ * Regular expression matching backend password requirements:
+ * At least 8 characters, containing a letter, a number, and a special character (@$!%*#?&).
+ */
 const BACKEND_PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
 
-const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+/**
+ * Validator to verify the new password and confirm password match.
+ *
+ * @param control - The form group control.
+ * @returns ValidationErrors object if mismatch, null otherwise.
+ */
+const passwordMatchValidator: ValidatorFn = (
+  control: AbstractControl,
+): ValidationErrors | null => {
   const newPassword = control.get('newPassword');
   const newPasswordConfirm = control.get('newPasswordConfirm');
   if (newPassword && newPasswordConfirm && newPassword.value !== newPasswordConfirm.value) {
@@ -22,6 +39,12 @@ const passwordMatchValidator: ValidatorFn = (control: AbstractControl): Validati
   return null;
 };
 
+/**
+ * User Profile page component.
+ *
+ * Provides form interfaces for updating personal user information, changing account password,
+ * and deleting the user account.
+ */
 @Component({
   selector: 'app-profile',
   imports: [
@@ -40,19 +63,27 @@ export class Profile implements OnInit {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
 
+  /** Success message signal for profile update. */
   protected readonly profileSuccessMessage = signal<string | null>(null);
+  /** Error message signal for profile update. */
   protected readonly profileErrorMessage = signal<string | null>(null);
+  /** Success message signal for password change. */
   protected readonly passwordSuccessMessage = signal<string | null>(null);
+  /** Error message signal for password change. */
   protected readonly passwordErrorMessage = signal<string | null>(null);
+  /** Error message signal for account deletion. */
   protected readonly deleteErrorMessage = signal<string | null>(null);
+  /** Signal governing display of account deletion confirmation prompt. */
   protected readonly showDeleteConfirm = signal<boolean>(false);
 
+  /** Form group for user profile information. */
   protected readonly profileForm = this.fb.nonNullable.group({
     firstName: ['', [Validators.required]],
     lastName: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
   });
 
+  /** Form group for changing user password. */
   protected readonly passwordForm = this.fb.nonNullable.group(
     {
       oldPassword: ['', [Validators.required]],
@@ -62,6 +93,7 @@ export class Profile implements OnInit {
     { validators: [passwordMatchValidator] },
   );
 
+  /** Lifecycle hook to initialize form values from current user context. */
   ngOnInit(): void {
     const user = this.authService.currentUser();
     if (user) {
@@ -69,6 +101,11 @@ export class Profile implements OnInit {
     }
   }
 
+  /**
+   * Fills the form with the user's data.
+   *
+   * @param user The user data.
+   */
   private populateForm(user: { firstName: string; lastName: string; email: string }): void {
     this.profileForm.patchValue({
       firstName: user.firstName,
@@ -77,11 +114,19 @@ export class Profile implements OnInit {
     });
   }
 
+  /**
+   * Gets the user ID.
+   *
+   * @returns The user ID.
+   */
   private getUserId(): string | null {
     const current = this.authService.currentUser();
     return current?.userId || null;
   }
 
+  /**
+   * Submits updated profile information (first name, last name, email) to the backend.
+   */
   onUpdateProfile(): void {
     this.profileSuccessMessage.set(null);
     this.profileErrorMessage.set(null);
@@ -103,13 +148,15 @@ export class Profile implements OnInit {
         this.authService.setCurrentUser(fromUser(updatedUser));
         this.profileSuccessMessage.set('Profil erfolgreich aktualisiert.');
       },
-      error: (err: unknown) => {
-        console.error('Error updating profile:', err);
+      error: () => {
         this.profileErrorMessage.set('Fehler beim Aktualisieren des Profils.');
       },
     });
   }
 
+  /**
+   * Submits old password and new password to update account credentials.
+   */
   onChangePassword(): void {
     this.passwordSuccessMessage.set(null);
     this.passwordErrorMessage.set(null);
@@ -131,17 +178,22 @@ export class Profile implements OnInit {
         this.passwordSuccessMessage.set('Passwort erfolgreich geändert.');
         this.passwordForm.reset();
       },
-      error: (err: unknown) => {
-        console.error('Error changing password:', err);
+      error: () => {
         this.passwordErrorMessage.set('Fehler beim Ändern des Passworts. Bitte altes Passwort prüfen.');
       },
     });
   }
 
+  /**
+   * Toggles the delete account confirmation prompt UI.
+   */
   toggleDeleteConfirm(): void {
     this.showDeleteConfirm.update((val) => !val);
   }
 
+  /**
+   * Deletes the user account permanently.
+   */
   onDeleteAccount(): void {
     this.deleteErrorMessage.set(null);
     const userId = this.getUserId();
@@ -155,10 +207,10 @@ export class Profile implements OnInit {
         this.authService.logout();
         this.router.navigate(['/login']);
       },
-      error: (err: unknown) => {
-        console.error('Error deleting user:', err);
+      error: () => {
         this.deleteErrorMessage.set('Fehler beim Löschen des Kontos.');
       },
     });
   }
 }
+

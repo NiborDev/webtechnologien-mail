@@ -4,7 +4,11 @@
       <h2>Login</h2>
       <p>Willkommen zurück! Bitte loggen Sie sich ein.</p>
     </div>
+    @if (errorMessage()) {
+      <p class="error-message">{{ errorMessage() }}</p>
+    }
     <app-login-form (login)="handleLogin($event)"></app-login-form>
     <p class="auth-switch-text">Noch kein Konto? <a routerLink="/register">Hier registrieren</a></p>
   </div>
 </main>
+
