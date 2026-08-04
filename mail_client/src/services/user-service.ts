@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { User } from '../models/User';
 import { Environment } from '../environment';
 import { UserResponse } from '../dtos/UserResponse';
@@ -17,6 +17,26 @@ export type { UserPageResponseDto } from '../dtos/user-page-response.dto';
 export class UserService {
   private readonly httpClient: HttpClient = inject(HttpClient);
   private readonly apiBasePath: string = Environment.apiBasePath;
+
+  /**
+   * Fetches all users and transforms them into an email-to-fullName map Observable.
+   */
+  public getUserMap(): Observable<Map<string, string>> {
+    return this.getAllUsers().pipe(
+      map((users) => {
+        const map = new Map<string, string>();
+        users.forEach((u) => {
+          const fullName =
+            `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.firstName || u.email;
+          if (u.email) {
+            map.set(u.email.toLowerCase().trim(), fullName);
+          }
+        });
+        return map;
+      }),
+      catchError(() => of(new Map<string, string>())),
+    );
+  }
 
   public getAllUsers(search?: string, page = 0, size = 100): Observable<UserListResponseDto[]> {
     const params: Record<string, string> = {

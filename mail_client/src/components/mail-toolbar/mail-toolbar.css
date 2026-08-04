@@ -1,0 +1,19 @@
+.actions-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 4px 0;
+  flex-shrink: 0;
+}
+
+.left-actions,
+.right-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+button mat-icon {
+  margin-right: 6px;
+}

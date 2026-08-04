@@ -1,0 +1,46 @@
+<div class="page-container">
+  <header class="page-header">
+    <h1>Mail Inbox</h1>
+  </header>
+
+  <main class="page-content">
+    <!-- Toolbar -->
+    <app-mail-toolbar
+      [selectedCount]="selectedMailCount()"
+      [isDraftTab]="isDraftTab"
+      (createMail)="onCreateMail()"
+      (editSelected)="onEditSelectedMail()"
+      (deleteSelected)="onDeleteSelectedMails()"
+    >
+    </app-mail-toolbar>
+
+    <!-- Tabs to filter the Mails by Status -->
+    <app-mail-status-tabs
+      [activeStatusTab]="activeStatusTab()"
+      (tabChange)="onTabChange($event)"
+    >
+    </app-mail-status-tabs>
+
+    <!-- List of Mails -->
+    <app-mail-list
+      [mails]="mails()"
+      [activeStatusTab]="activeStatusTab()"
+      [selectedMailIds]="selectedMailIds()"
+      [userMap]="userMap()"
+      [totalElements]="totalElements()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      [isLoading]="isLoading()"
+      [sortField]="sortField()"
+      [sortDirection]="sortDirection()"
+      (toggleSelect)="onToggleSelect($event)"
+      (toggleAll)="onToggleAll($event)"
+      (pageChange)="onPageChange($event)"
+      (sortChange)="onSortChange($event)"
+      (editMail)="onOpenMail($event)"
+      (deleteMail)="onDeleteSingleMail($event)"
+      (openMail)="onOpenMail($event)"
+    >
+    </app-mail-list>
+  </main>
+</div>

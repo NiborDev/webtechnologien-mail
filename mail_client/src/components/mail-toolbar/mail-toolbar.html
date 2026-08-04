@@ -1,0 +1,48 @@
+<div class="actions-toolbar">
+
+  <!-- Create mail -->
+  <div class="left-actions">
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="onCreateMail()"
+      matTooltip="New Email"
+    >
+      <mat-icon>edit</mat-icon>
+      <span>New Email</span>
+    </button>
+  </div>
+
+  <!-- Edit and delete selected mails -->
+  <div class="right-actions">
+    @if (isDraftTab() && selectedCount() === 1) {
+      <button
+        mat-stroked-button
+        color="primary"
+        (click)="onEditSelected()"
+        matTooltip="Edit selected draft"
+        class="edit-draft-btn"
+      >
+        <mat-icon>edit_note</mat-icon>
+        <span>Edit</span>
+      </button>
+    }
+
+    @if (selectedCount() > 0) {
+      <button
+        mat-stroked-button
+        color="warn"
+        (click)="onDeleteSelected()"
+        matTooltip="Delete selected emails"
+      >
+        <mat-icon>delete</mat-icon>
+        <span
+          [matBadge]="selectedCount()"
+          matBadgeColor="warn"
+          matBadgeOverlap="false"
+          >Delete Selected</span
+        >
+      </button>
+    }
+  </div>
+</div>

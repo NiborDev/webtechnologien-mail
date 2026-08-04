@@ -1,0 +1,60 @@
+<div class="list-container mat-elevation-z1">
+  @if (isLoading()) {
+    <div class="loading-overlay">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  }
+
+  <!-- Header Control -->
+  <app-mail-header-control
+    [isAllSelected]="isAllSelected"
+    [isSomeSelected]="isSomeSelected"
+    [sortField]="sortField()"
+    [sortDirection]="sortDirection()"
+    (toggleAll)="onToggleAll($event)"
+    (sortChange)="onSortChange($event)"
+  >
+  </app-mail-header-control>
+
+  <mat-divider></mat-divider>
+
+  <!-- Email Items -->
+  <div class="list-scroll-wrapper">
+    <div class="email-rows-container">
+      @for (mail of mails(); track mail.mailId) {
+        <app-mail-item
+          [mail]="mail"
+          [isSelected]="isMailSelected(mail.mailId)"
+          [isReceivedTab]="isReceivedTab"
+          [isDraftTab]="isDraftTab"
+          [displayName]="getMailDisplayName(mail)"
+          (toggleSelect)="onToggleMail($event)"
+          (editMail)="onEditSingle($event)"
+          (deleteMail)="onDeleteSingle($event)"
+          (openMail)="onRowClick($event)"
+        >
+        </app-mail-item>
+        <mat-divider></mat-divider>
+      } @empty {
+        @if (!isLoading()) {
+          <div class="empty-state">
+            <mat-icon class="empty-icon">mail_outline</mat-icon>
+            <p>No emails found in this folder.</p>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <mat-paginator
+    [length]="totalElements()"
+    [pageSize]="pageSize()"
+    [pageIndex]="pageIndex()"
+    [pageSizeOptions]="pageSizeOptions"
+    (page)="onPaginatorChange($event)"
+    aria-label="Select page of emails"
+    showFirstLastButtons
+  >
+  </mat-paginator>
+</div>

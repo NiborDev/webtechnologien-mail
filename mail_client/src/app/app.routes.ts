@@ -10,7 +10,7 @@ export const routes: Routes = [
   {
     path: 'mails',
     loadComponent: () =>
-      import('../pages/mail-list-page/mail-list-page.component').then((m) => m.MailListPageComponent),
+      import('../pages/mail-list/mail-list').then((m) => m.MailListPageComponent),
     canActivate: [AuthGuard],
   },
   {
