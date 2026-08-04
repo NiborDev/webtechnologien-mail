@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service
 import java.util.NoSuchElementException
 import java.util.UUID
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.transaction.annotation.Transactional
 
 @Service
@@ -66,12 +68,20 @@ class UserService(
     }
 
     /**
-     * Returns all Users
+     * Returns all Users with pagination and optional search filter (firstName, lastName, email)
      * 
-     * @return A list of all users
+     * @param search Optional search query string
+     * @param pageable Pageable object for paging
+     * @return A page of users matching search criteria
      */
-    fun getAllUsers(): List<User> {
-        return userRepository.findAll().toList()
+    fun getAllUsers(search: String?, pageable: Pageable): Page<User> {
+        if (!search.isNullOrBlank()) {
+            val query = search.trim()
+            return userRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                query, query, query, pageable
+            )
+        }
+        return userRepository.findAll(pageable)
     }
 
     /**

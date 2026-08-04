@@ -27,7 +27,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ResponseStatus
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import de.thm.mni.mail_backend.dto.user.UserListResponse
+
+import org.springframework.web.bind.annotation.RequestParam
 
 @DefaultApiErrors
 @RestController
@@ -67,13 +71,18 @@ class UserController(
 
 
     /**
-     * GET /users Returns all users for recipient selection (email, firstName, lastName) without exposing user IDs
+     * GET /users Returns all users with pagination and optional search filtering (email, firstName, lastName) without exposing user IDs
      *
-     * @return A list of user information
+     * @param search Optional search query string for filtering users
+     * @param pageable Pageable Object for paging
+     * @return A Page of user information
      */
     @GetMapping
-    fun getAllUsers(): List<UserListResponse> {
-        val users = userService.getAllUsers()
+    fun getAllUsers(
+        @RequestParam(required = false) search: String?,
+        pageable: Pageable
+    ): Page<UserListResponse> {
+        val users = userService.getAllUsers(search, pageable)
         return users.map { it.toUserListResponse() }
     }
 
