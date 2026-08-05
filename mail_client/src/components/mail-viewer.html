@@ -1,0 +1,93 @@
+<div class="mail-view">
+
+  <div class="header">
+
+    <div class="row">
+      <strong>Von:</strong>
+      <span>{{ mail().from }}</span>
+    </div>
+
+
+    <div class="row">
+      <strong>An:</strong>
+      <span>
+        @for(recipient of mail().to; track recipient){
+          {{ recipient }}
+        }
+      </span>
+    </div>
+
+
+    @if(mail().cc.length){
+      <div class="row">
+        <strong>Cc:</strong>
+        <span>
+          @for(recipient of mail().cc; track recipient){
+            {{ recipient }}
+          }
+        </span>
+      </div>
+    }
+
+
+    @if(mail().bcc.length){
+      <div class="row">
+        <strong>Bcc:</strong>
+        <span>
+          @for(recipient of mail().bcc; track recipient){
+            {{ recipient }}
+          }
+        </span>
+      </div>
+    }
+
+
+    @if(mail().replyTo.length){
+      <div class="row">
+        <strong>Reply-To:</strong>
+        <span>
+          @for(recipient of mail().replyTo; track recipient){
+            {{ recipient }}
+          }
+        </span>
+      </div>
+    }
+
+
+    <div class="row">
+      <strong>Betreff:</strong>
+      <span>{{ mail().subject }}</span>
+    </div>
+
+  </div>
+
+
+  <mat-divider></mat-divider>
+
+
+  <div class="body">
+    {{ mail().bodyText }}
+  </div>
+
+  @if (mail().status == EMailStatus.DRAFT){
+
+    <div class="actions">
+
+      <button
+        mat-raised-button
+        color="primary"
+        type="button"
+        (click)="onEdit()"
+      >
+        Bearbeiten
+      </button>
+
+    </div>
+
+  }
+
+
+
+
+
+</div>

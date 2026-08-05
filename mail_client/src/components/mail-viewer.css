@@ -1,0 +1,28 @@
+.mail-view {
+  padding: 20px;
+}
+
+
+.row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+
+.row strong {
+  width: 100px;
+}
+
+
+.body {
+  white-space: pre-wrap;
+  margin-top: 20px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+

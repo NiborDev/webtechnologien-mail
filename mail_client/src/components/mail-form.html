@@ -1,0 +1,104 @@
+<form
+  [formGroup]="form"
+  (ngSubmit)="onSend()">
+
+  <app-recipient-input
+    label="An"
+    formControlName="to">
+  </app-recipient-input>
+
+  <app-recipient-input
+    label="Cc"
+    formControlName="cc">
+  </app-recipient-input>
+
+  <app-recipient-input
+    label="Bcc"
+    formControlName="bcc">
+  </app-recipient-input>
+
+  <app-recipient-input
+    label="Reply-To"
+    formControlName="replyTo">
+  </app-recipient-input>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Von</mat-label>
+
+    <input
+      matInput
+      type="email"
+      formControlName="from">
+
+    @if(form.controls.from.hasError('required')){
+      <mat-error>
+        Absender ist erforderlich.
+      </mat-error>
+    }
+
+    @if(form.controls.from.hasError('email')){
+      <mat-error>
+        Ungültige E-Mail-Adresse.
+      </mat-error>
+    }
+
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Betreff</mat-label>
+
+    <input
+      matInput
+      formControlName="subject">
+
+    @if(form.controls.subject.hasError('required')){
+      <mat-error>
+        Bitte einen Betreff angeben.
+      </mat-error>
+    }
+
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Nachricht</mat-label>
+
+    <textarea
+      matInput
+      rows="15"
+      formControlName="bodyText">
+    </textarea>
+
+  </mat-form-field>
+
+  @if(form.hasError('noRecipient')){
+    <mat-error>
+      Mindestens ein Empfänger muss angegeben werden.
+    </mat-error>
+  }
+
+  <div class="actions">
+
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit">
+
+      Senden
+
+    </button>
+
+    <button
+      mat-raised-button
+      color="primary"
+      type="button"
+    (click)="onSave()">
+
+      Entwurf speichern
+
+    </button>
+
+
+
+  </div>
+
+</form>
