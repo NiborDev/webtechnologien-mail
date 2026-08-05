@@ -1,0 +1,34 @@
+.mail-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+app-recipient-input,
+mat-form-field {
+  width: 100%;
+}
+
+.recipient-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+mat-form-field {
+  margin-bottom: -8px;
+}
+
+.body-field textarea {
+  min-height: 250px;
+  resize: vertical;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}

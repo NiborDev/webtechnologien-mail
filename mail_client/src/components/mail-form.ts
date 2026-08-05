@@ -1,4 +1,4 @@
-import { Component, inject, output } from '@angular/core';
+import {Component, effect, inject, input, output} from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -17,9 +17,9 @@ import {RecipientInputComponent} from './recipient-input';
 
 //validate if there is a recipient
 const recipientValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-  const to = control.get('to')?.value as string []
-  const cc = control.get('cc')?.value as string []
-  const bcc = control.get('bcc')?.value as string []
+  const to = control.get('to')?.value as string [] ?? []
+  const cc = control.get('cc')?.value as string [] ?? []
+  const bcc = control.get('bcc')?.value as string [] ?? []
   if (to.length+cc.length+bcc.length <1) {
     return { noRecipient: true };
   }
@@ -36,6 +36,8 @@ export class MailForm {
   private readonly formBuilder = inject(FormBuilder);
 
   public readonly save = output<MailCreate>();
+  public readonly send = output<MailCreate>();
+  public readonly initialValue = input<Partial<MailCreate>>();
 
   protected readonly form = this.formBuilder.nonNullable.group({
     from: ['', [Validators.required, Validators.email]],
@@ -57,6 +59,25 @@ export class MailForm {
 
     const values = this.form.getRawValue()
 
+
+//TODO attachments
+    const mail: MailCreate = {
+      ...values,
+      status: EMailStatus.DRAFT,
+      attachments: [],
+      source: Source.INTERN
+
+    }
+
+    this.send.emit(mail)
+
+  }
+
+  onSave(){
+
+    const values = this.form.getRawValue()
+
+
 //TODO attachments
     const mail: MailCreate = {
       ...values,
@@ -68,6 +89,26 @@ export class MailForm {
 
     this.save.emit(mail)
 
+  }
+
+  constructor() {
+    effect(() => {
+      const value = this.initialValue();
+
+      if (!value) {
+        return;
+      }
+
+      this.form.reset({
+        from: value.from ?? '',
+        to: value.to ?? [],
+        cc: value.cc ?? [],
+        bcc: value.bcc ?? [],
+        replyTo: value.replyTo ?? [],
+        subject: value.subject ?? '',
+        bodyText: value.bodyText ?? ''
+      });
+    });
   }
 
 

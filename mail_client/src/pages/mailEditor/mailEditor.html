@@ -1,0 +1,8 @@
+<main class="register-container">
+  <div class="register-card">
+    <div class="register-header">
+      <h2>E-Mail bearbeiten</h2>
+    </div>
+    <app-mail-form [initialValue]="mail() ?? undefined" (save)="handleUpdate($event)" (send)="handleSend($event)"></app-mail-form>
+  </div>
+</main>
