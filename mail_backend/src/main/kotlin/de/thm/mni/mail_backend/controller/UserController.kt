@@ -24,15 +24,21 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ResponseStatus
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import de.thm.mni.mail_backend.dto.user.UserListResponse
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 
 import org.springframework.web.bind.annotation.RequestParam
 
+@Tag(
+    name = "User",
+    description = "Manage user accounts so Delete, Update, Create and Edit is possible"
+)
 @DefaultApiErrors
 @RestController
 @RequestMapping("/users")
@@ -47,6 +53,12 @@ class UserController(
      * @param userCreate The user to register
      * @return The registered user
      */
+    @Operation(
+        operationId = "registerUser",
+        summary = "Create a new user",
+        description = "Creates a new user with the provided …",
+    )
+    @SecurityRequirement // Removes the default security requirement defined in OpenApiConfiguration
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun registerUser(@Valid @RequestBody userCreate: UserCreate): UserResponse {
@@ -61,6 +73,7 @@ class UserController(
      * @param userLogin The login credentials
      * @return The logged in user with JWT token
      */
+    @SecurityRequirement // Removes the default security requirement defined in OpenApiConfiguration
     @PostMapping("/login")
     fun loginUser(@Valid @RequestBody userLogin: UserLogin): LoginResponse {
         val user = userService.login(userLogin)

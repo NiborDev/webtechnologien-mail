@@ -1,12 +1,14 @@
 package de.thm.mni.mail_backend.dto.user
 
 import de.thm.mni.mail_backend.data.User
+import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import java.time.LocalDateTime
 import java.util.UUID
 
+@Schema(description = "Request payload for creating a user account.")
 data class UserCreate(
     @field:NotBlank(message = "Password cannot be blank")
     @field:Pattern(
