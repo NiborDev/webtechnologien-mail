@@ -1,5 +1,5 @@
-import {EMailStatus} from '../enums/email-status';
+import {EmailStatus} from '../enums/email-status';
 
 export type MailUpdateStatus = {
-  status: EMailStatus
+  status: EmailStatus
 }

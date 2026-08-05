@@ -7,11 +7,11 @@ import { UserResponse } from '../dtos/UserResponse';
 import { UserCreate } from '../dtos/UserCreate';
 import { UserUpdate } from '../dtos/UserUpdate';
 import { UserPasswordUpdate } from '../dtos/UserPasswordUpdate';
-import { UserListResponseDto } from '../dtos/user-list-response.dto';
-import { UserPageResponseDto } from '../dtos/user-page-response.dto';
+import { UserListResponse } from '../dtos/UserListResponse';
+import { UserPageResponse } from '../dtos/UserPageResponse';
 
-export type { UserListResponseDto } from '../dtos/user-list-response.dto';
-export type { UserPageResponseDto } from '../dtos/user-page-response.dto';
+export type { UserListResponse } from '../dtos/UserListResponse';
+export type { UserPageResponse } from '../dtos/UserPageResponse';
 
 /**
  * Service for managing user operations including fetching, creation, updating, and deletion.
@@ -49,9 +49,9 @@ export class UserService {
    * @param search - Optional search string to filter users.
    * @param page - Page number index (default: 0).
    * @param size - Number of records per page (default: 100).
-   * @returns Observable emitting an array of UserListResponseDto.
+   * @returns Observable emitting an array of UserListResponse.
    */
-  public getAllUsers(search?: string, page = 0, size = 100): Observable<UserListResponseDto[]> {
+  public getAllUsers(search?: string, page = 0, size = 100): Observable<UserListResponse[]> {
     const params: Record<string, string> = {
       page: page.toString(),
       size: size.toString(),
@@ -61,7 +61,7 @@ export class UserService {
     }
 
     return this.httpClient
-      .get<UserPageResponseDto>(`${this.apiBasePath}/users`, { params })
+      .get<UserPageResponse>(`${this.apiBasePath}/users`, { params })
       .pipe(map((res) => res.content || []));
   }
 

@@ -6,7 +6,7 @@
  * @property {string} firstName - The first name of the user.
  * @property {string} lastName - The last name of the user.
  */
-export interface UserListResponseDto {
+export interface UserListResponse {
   email: string;
   firstName: string;
   lastName: string;

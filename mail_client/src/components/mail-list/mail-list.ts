@@ -3,9 +3,9 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
-import { MailModel } from '../../models/mail.model';
-import { MailStatusEnum } from '../../models/mail-status.enum';
-import { formatSenderName, formatRecipientNames } from '../../utils/user-formatter.util';
+import { Mail } from '../../models/Mail';
+import { EmailStatus } from '../../enums/email-status';
+import { formatSenderName, formatRecipientNames } from '../../utils/user-formatter';
 import { MailHeaderControlComponent } from '../mail-list-header-control/mail-list-header-control';
 import { MailItemComponent } from '../mail-item/mail-item';
 
@@ -29,8 +29,8 @@ import { MailItemComponent } from '../mail-item/mail-item';
 })
 export class MailListComponent {
   // Inputs
-  readonly mails = input.required<MailModel[]>();
-  readonly activeStatusTab = input.required<MailStatusEnum>();
+  readonly mails = input.required<Mail[]>();
+  readonly activeStatusTab = input.required<EmailStatus>();
   readonly selectedMailIds = input.required<Set<string>>();
   readonly userMap = input<Map<string, string>>(new Map());
   readonly isLoading = input<boolean>(false);
@@ -66,7 +66,7 @@ export class MailListComponent {
    * @returns True if the active status tab is the received tab.
    */
   get isReceivedTab(): boolean {
-    return this.activeStatusTab() === MailStatusEnum.RECEIVED;
+    return this.activeStatusTab() === EmailStatus.RECEIVED;
   }
 
   /**
@@ -74,7 +74,7 @@ export class MailListComponent {
    * @returns True if the active status tab is the draft tab.
    */
   get isDraftTab(): boolean {
-    return this.activeStatusTab() === MailStatusEnum.DRAFT;
+    return this.activeStatusTab() === EmailStatus.DRAFT;
   }
 
   /**
@@ -115,7 +115,7 @@ export class MailListComponent {
    * @param mail - The mail to get the display name for.
    * @returns The display name for the mail.
    */
-  getMailDisplayName(mail: MailModel): string {
+  getMailDisplayName(mail: Mail): string {
     return this.isReceivedTab
       ? formatSenderName(mail.from, this.userMap())
       : formatRecipientNames(mail.to, this.userMap());

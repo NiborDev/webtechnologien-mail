@@ -2,13 +2,13 @@ import { Component, inject } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MailService} from '../../services/mail-service';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {MailViewer} from '../../components/mail-viewer';
+import {MailViewer} from '../../components/mail-viewer/mail-viewer';
 
 @Component({
   selector: 'app-mail-detail',
   imports: [MailViewer],
-  templateUrl: './mailDetail.html',
-  styleUrl: './mailDetail.css',
+  templateUrl: './mail-detail.html',
+  styleUrl: './mail-detail.css',
 })
 export class MailDetail {
   private readonly router: Router = inject(Router);

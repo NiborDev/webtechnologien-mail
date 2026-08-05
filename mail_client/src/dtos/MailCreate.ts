@@ -1,4 +1,4 @@
-import {EMailStatus} from '../enums/email-status';
+import {EmailStatus} from '../enums/email-status';
 import {Attachment} from '../models/Attachment';
 import {Source} from '../enums/source';
 
@@ -10,7 +10,7 @@ export type MailCreate = {
   replyTo: string [],
   subject: string,
   bodyText: string,
-  status: EMailStatus,
+  status: EmailStatus,
   attachments: Attachment[]
   source: Source
 }

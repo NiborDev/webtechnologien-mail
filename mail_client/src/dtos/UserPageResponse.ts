@@ -1,16 +1,16 @@
-import { UserListResponseDto } from './user-list-response.dto';
+import { UserListResponse } from './UserListResponse';
 
 /**
  * Data Transfer Object to list Users with pagination data
  *
- * @property {UserListResponseDto[]} content - An array of {@link UserListResponseDto}.
+ * @property {UserListResponse[]} content - An array of {@link UserListResponse}.
  * @property {number} totalElements - The total number of users.
  * @property {number} totalPages - The total number of pages.
  * @property {number} size - The size of the page.
  * @property {number} number - The current page number.
  */
-export interface UserPageResponseDto {
-  content: UserListResponseDto[];
+export interface UserPageResponse {
+  content: UserListResponse[];
   totalElements: number;
   totalPages: number;
   size: number;

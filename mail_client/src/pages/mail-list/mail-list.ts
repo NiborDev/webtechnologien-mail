@@ -8,8 +8,8 @@ import { MailActionsToolbarComponent } from '../../components/mail-toolbar/mail-
 import { MailListComponent } from '../../components/mail-list/mail-list';
 import { MailService } from '../../services/mail-service';
 import { UserService } from '../../services/user-service';
-import { MailStatusEnum } from '../../models/mail-status.enum';
-import { MailModel } from '../../models/mail.model';
+import { EmailStatus } from '../../enums/email-status';
+import { Mail } from '../../models/Mail';
 
 /**
  * Page component for orchestrating the email list view.
@@ -34,13 +34,13 @@ export class MailListPageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
 
-  readonly activeStatusTab = signal<MailStatusEnum>(MailStatusEnum.RECEIVED);
+  readonly activeStatusTab = signal<EmailStatus>(EmailStatus.RECEIVED);
   readonly pageIndex = signal<number>(0);
   readonly pageSize = signal<number>(10);
   readonly totalElements = signal<number>(0);
 
   /** List of email models for the current page. */
-  readonly mails = signal<MailModel[]>([]);
+  readonly mails = signal<Mail[]>([]);
   readonly isLoading = signal<boolean>(false);
   readonly selectedMailIds = signal<Set<string>>(new Set());
   readonly errorMessage = signal<string | null>(null);
@@ -63,14 +63,14 @@ export class MailListPageComponent implements OnInit {
 
   /** Checks if the active folder is the Drafts folder. */
   get isDraftTab(): boolean {
-    return this.activeStatusTab() === MailStatusEnum.DRAFT;
+    return this.activeStatusTab() === EmailStatus.DRAFT;
   }
 
   /** Constructs the sorting parameter string for API requests. */
   get sortParam(): string {
     let field = this.sortField();
     if (field === 'date') {
-      field = this.activeStatusTab() === MailStatusEnum.RECEIVED ? 'receivedAt' : 'sentAt';
+      field = this.activeStatusTab() === EmailStatus.RECEIVED ? 'receivedAt' : 'sentAt';
     }
     return `${field},${this.sortDirection()}`;
   }
@@ -112,7 +112,7 @@ export class MailListPageComponent implements OnInit {
         finalize(() => this.isLoading.set(false)),
       )
       .subscribe((pageDto) => {
-        const domainMails = pageDto.content.map((dto) => MailModel.fromDto(dto));
+        const domainMails = pageDto.content.map((dto) => Mail.fromDto(dto));
         this.mails.set(domainMails);
         this.totalElements.set(pageDto.totalElements);
         this.selectedMailIds.set(new Set());
@@ -124,7 +124,7 @@ export class MailListPageComponent implements OnInit {
    *
    * @param status - The newly selected email status.
    */
-  onTabChange(status: MailStatusEnum): void {
+  onTabChange(status: EmailStatus): void {
     if (this.activeStatusTab() === status) return;
     this.activeStatusTab.set(status);
     this.pageIndex.set(0);
