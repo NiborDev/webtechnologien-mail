@@ -4,7 +4,13 @@ import { AuthGuard } from '../guards/auth-guard';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('../pages/home/home').then((m) => m.Home),
+    redirectTo: 'mails',
+    pathMatch: 'full',
+  },
+  {
+    path: 'mails',
+    loadComponent: () =>
+      import('../pages/mail-list/mail-list').then((m) => m.MailListPageComponent),
     canActivate: [AuthGuard],
   },
   {

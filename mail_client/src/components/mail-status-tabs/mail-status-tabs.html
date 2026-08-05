@@ -1,0 +1,15 @@
+<mat-tab-group
+  [selectedIndex]="selectedIndex"
+  (selectedIndexChange)="onTabChange($event)"
+  animationDuration="200ms"
+  class="mail-status-tabs"
+>
+  @for (option of statusOptions; track option.status) {
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">{{ option.icon }}</mat-icon>
+        <span>{{ option.label }}</span>
+      </ng-template>
+    </mat-tab>
+  }
+</mat-tab-group>

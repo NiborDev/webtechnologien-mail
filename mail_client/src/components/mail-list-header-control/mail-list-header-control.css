@@ -1,0 +1,34 @@
+.list-header-bar {
+  padding: 6px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.select-all-label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sort-menu-btn {
+  font-size: 0.85rem;
+  color: #444;
+}
+
+.sort-menu-btn ::ng-deep .mdc-button__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sort-direction-btn {
+  width: 36px;
+  height: 36px;
+}

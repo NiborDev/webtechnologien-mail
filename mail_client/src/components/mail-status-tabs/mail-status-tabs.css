@@ -1,0 +1,9 @@
+.mail-status-tabs {
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.tab-icon {
+  margin-right: 8px;
+  vertical-align: middle;
+}

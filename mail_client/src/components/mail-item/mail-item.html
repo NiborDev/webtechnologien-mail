@@ -1,0 +1,64 @@
+<div
+  class="mail-row"
+  [class.unread-row]="!mail().isRead && isReceivedTab()"
+  [class.selected-row]="isSelected()"
+  (click)="onRowClick()"
+>
+  <!-- Checkbox -->
+  <div class="row-checkbox" (click)="$event.stopPropagation()">
+    <mat-checkbox
+      (change)="onToggleMail()"
+      [checked]="isSelected()"
+      [aria-label]="'Select email ' + mail().subject"
+    >
+    </mat-checkbox>
+  </div>
+
+  <!-- Attachment Icon -->
+  @if (mail().hasAttachments) {
+    <mat-icon class="attachment-icon" matTooltip="Contains attachments">attach_file</mat-icon>
+  }
+
+  <div class="sender-col" [class.unread-text]="!mail().isRead && isReceivedTab()">
+    {{ displayName() }}
+  </div>
+
+  <!-- Subject & Body Snippet Column -->
+  <div class="subject-body-col">
+    <span class="subject-text" [class.unread-text]="!mail().isRead && isReceivedTab()">
+      {{ mail().subject }}
+    </span>
+    <span class="body-snippet"> - {{ mail().bodySnippet }}</span>
+  </div>
+
+  <!-- Date & Action Buttons Column -->
+  <div class="right-col">
+    <span class="date-text" [class.unread-text]="!mail().isRead && isReceivedTab()">
+      {{ mail().displayDate }}
+    </span>
+
+    <!-- Edit Button for Drafts -->
+    @if (isDraftTab() || mail().status === 'DRAFT') {
+      <button
+        mat-icon-button
+        color="primary"
+        class="edit-btn"
+        (click)="onEditSingle($event)"
+        matTooltip="Edit Draft"
+      >
+        <mat-icon>edit_note</mat-icon>
+      </button>
+    }
+
+    <!-- Delete Button -->
+    <button
+      mat-icon-button
+      color="warn"
+      class="delete-btn"
+      (click)="onDeleteSingle($event)"
+      matTooltip="Delete Email"
+    >
+      <mat-icon>delete_outline</mat-icon>
+    </button>
+  </div>
+</div>
