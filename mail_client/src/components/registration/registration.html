@@ -31,7 +31,7 @@
     @if (form.controls.password.hasError('required')) {
       <mat-error>Passwort ist erforderlich</mat-error>
     } @else if (form.controls.password.hasError('pattern')) {
-      <mat-error>Mind. 8 Zeichen, Buchstabe, Zahl & Sonderzeichen (@$!%*#?&)</mat-error>
+      <mat-error>Mind. 8 Zeichen, Buchstabe, Zahl & Sonderzeichen (&#64;$!%*#?&)</mat-error>
     }
   </mat-form-field>
 
