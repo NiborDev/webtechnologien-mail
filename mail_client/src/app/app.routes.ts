@@ -27,6 +27,10 @@ export const routes: Routes = [
   {
     path: 'new',
     loadComponent: () => import('../pages/mailCreator/mailCreator').then((m) => m.MailCreator)
+  },
+  {
+    path: 'mails/:id',
+    loadComponent: () => import('../pages/mailDetail/mailDetail').then((m) => m.MailDetail)
   }
 
 ];
