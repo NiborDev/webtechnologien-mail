@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Registration } from '../../components/registration';
+import { Registration } from '../../components/registration/registration';
 import { UserService } from '../../services/user-service';
 import { RegistrationData } from '../../dtos/RegistrationData';
 import { Router, RouterLink } from '@angular/router';

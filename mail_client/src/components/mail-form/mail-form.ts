@@ -10,10 +10,11 @@ import {
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
-import {MailCreate} from '../dtos/MailCreate';
-import {EMailStatus} from '../enums/email-status';
-import {Source} from '../enums/source';
-import {RecipientInputComponent} from './recipient-input';
+import {MailCreate} from '../../dtos/MailCreate';
+import {EmailStatus} from '../../enums/email-status';
+import {Source} from '../../enums/source';
+import {RecipientInputComponent} from '../recipient-input/recipient-input';
+import {Mail} from '../../models/Mail';
 
 //validate if there is a recipient
 const recipientValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
@@ -37,7 +38,7 @@ export class MailForm {
 
   public readonly save = output<MailCreate>();
   public readonly send = output<MailCreate>();
-  public readonly initialValue = input<Partial<MailCreate>>();
+  public readonly initialValue = input<Partial<Mail>>();
 
   protected readonly form = this.formBuilder.nonNullable.group({
     from: ['', [Validators.required, Validators.email]],
@@ -63,7 +64,7 @@ export class MailForm {
 //TODO attachments
     const mail: MailCreate = {
       ...values,
-      status: EMailStatus.DRAFT,
+      status: EmailStatus.DRAFT,
       attachments: [],
       source: Source.INTERN
 
@@ -81,7 +82,7 @@ export class MailForm {
 //TODO attachments
     const mail: MailCreate = {
       ...values,
-      status: EMailStatus.DRAFT,
+      status: EmailStatus.DRAFT,
       attachments: [],
       source: Source.INTERN
 

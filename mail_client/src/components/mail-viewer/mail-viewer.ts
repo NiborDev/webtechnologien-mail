@@ -1,9 +1,9 @@
 import {Component, inject, input} from '@angular/core';
 import {MatDivider} from '@angular/material/list';
-import {Mail} from '../models/Mail';
+import {Mail} from '../../models/Mail';
 import {MatButton} from '@angular/material/button';
 import {Router} from '@angular/router';
-import {EMailStatus} from '../enums/email-status';
+import {EmailStatus} from '../../enums/email-status';
 
 @Component({
   selector: 'app-mail-viewer',
@@ -16,12 +16,12 @@ import {EMailStatus} from '../enums/email-status';
 })
 export class MailViewer {
 
-  private readonly router = inject(Router)
+  private readonly _router = inject(Router)
   public readonly mail = input.required<Mail>()
 
   onEdit() {
-    this.router.navigate(['/edit', this.mail().mailId])
+    this._router.navigate(['/mails', this.mail().mailId, 'edit'])
   }
 
-  protected readonly EMailStatus = EMailStatus;
+  protected readonly EmailStatus = EmailStatus;
 }

@@ -6,7 +6,7 @@
  * @property {string} contentType - The content type of the attachment.
  * @property {number} size - The size of the attachment in bytes.
  */
-export interface AttachmentDto {
+export interface Attachment {
   attachmentId?: string;
   filename?: string;
   contentType?: string;

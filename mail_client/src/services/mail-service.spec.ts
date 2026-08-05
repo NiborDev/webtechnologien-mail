@@ -3,15 +3,15 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { MailService } from './mail-service';
-import { MailStatusEnum } from '../models/mail-status.enum';
-import { MailPageDto } from '../dtos/mail-page.dto';
+import { EmailStatus } from '../enums/email-status';
+import { MailPage } from '../dtos/MailPage';
 import { Environment } from '../environment';
 
 describe('MailService', () => {
   let service: MailService;
   let httpMock: HttpTestingController;
 
-  const mockPageDto: MailPageDto = {
+  const mockPageDto: MailPage = {
     content: [
       {
         mailId: '123-abc',
@@ -22,7 +22,7 @@ describe('MailService', () => {
         replyTo: [],
         subject: 'Test Subject',
         bodyText: 'Test Body Content',
-        status: MailStatusEnum.RECEIVED,
+        status: EmailStatus.RECEIVED,
         attachments: [],
         isRead: false,
         isMarked: false,
@@ -53,7 +53,7 @@ describe('MailService', () => {
   });
 
   it('should fetch mails via getMails with query parameters', () => {
-    service.getMails(MailStatusEnum.RECEIVED, 0, 10, 'receivedAt,desc').subscribe((page) => {
+    service.getMails(EmailStatus.RECEIVED, 0, 10, 'receivedAt,desc').subscribe((page) => {
       expect(page).toEqual(mockPageDto);
       expect(page.content.length).toBe(1);
       expect(page.content[0].subject).toBe('Test Subject');
@@ -62,7 +62,7 @@ describe('MailService', () => {
     const req = httpMock.expectOne((request) => {
       return (
         request.url === `${Environment.apiBasePath}/mails` &&
-        request.params.get('status') === MailStatusEnum.RECEIVED &&
+        request.params.get('status') === EmailStatus.RECEIVED &&
         request.params.get('page') === '0' &&
         request.params.get('size') === '10' &&
         request.params.get('sort') === 'receivedAt,desc'

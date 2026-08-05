@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
-import { LoginData } from '../dtos/LoginData';
+import { LoginData } from '../../dtos/LoginData';
 
 /**
  * Form component for the login.

@@ -27,16 +27,16 @@ export const routes: Routes = [
     loadComponent: () => import('../pages/register/register').then((m) => m.Register),
   },
   {
-    path: 'edit/:id',
-    loadComponent: () => import('../pages/mailEditor/mailEditor').then((m) => m.MailEditor)
+    path: 'mails/:id/edit',
+    loadComponent: () => import('../pages/mail-editor/mail-editor').then((m) => m.MailEditor)
   },
   {
-    path: 'new',
-    loadComponent: () => import('../pages/mailCreator/mailCreator').then((m) => m.MailCreator)
+    path: 'mails/new',
+    loadComponent: () => import('../pages/mail-creator/mail-creator').then((m) => m.MailCreator)
   },
   {
     path: 'mails/:id',
-    loadComponent: () => import('../pages/mailDetail/mailDetail').then((m) => m.MailDetail)
+    loadComponent: () => import('../pages/mail-detail/mail-detail').then((m) => m.MailDetail)
   }
 
 ];

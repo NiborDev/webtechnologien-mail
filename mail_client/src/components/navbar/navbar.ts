@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
-import { AuthService } from '../services/auth-service';
+import { AuthService } from '../../services/auth-service';
 
 /**
  * Navigation bar component displayed at the top of the application layout.

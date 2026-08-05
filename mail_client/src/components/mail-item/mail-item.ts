@@ -3,7 +3,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MailModel } from '../../models/mail.model';
+import { Mail } from '../../models/Mail';
 
 /**
  * Mail Item Component
@@ -22,7 +22,7 @@ import { MailModel } from '../../models/mail.model';
   styleUrl: './mail-item.css',
 })
 export class MailItemComponent {
-  readonly mail = input.required<MailModel>();
+  readonly mail = input.required<Mail>();
 
   readonly isSelected = input<boolean>(false);
   readonly isReceivedTab = input<boolean>(true);

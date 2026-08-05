@@ -10,7 +10,7 @@ import {
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
-import { RegistrationData } from '../dtos/RegistrationData';
+import { RegistrationData } from '../../dtos/RegistrationData';
 
 /** Backend password pattern: >= 8 characters, min 1 letter, 1 number, and 1 special character (@$!%*#?&) */
 const BACKEND_PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;

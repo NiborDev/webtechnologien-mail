@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MailService} from '../../services/mail-service';
-import {MailForm} from '../../components/mail-form';
+import {MailForm} from '../../components/mail-form/mail-form';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {MailCreate} from '../../dtos/MailCreate';
 import {MailUpdate} from '../../dtos/MailUpdate';
@@ -9,8 +9,8 @@ import {MailUpdate} from '../../dtos/MailUpdate';
 @Component({
   selector: 'app-mailEditor',
   imports: [MailForm],
-  templateUrl: './mailEditor.html',
-  styleUrl: './mailEditor.css',
+  templateUrl: './mail-editor.html',
+  styleUrl: './mail-editor.css',
 })
 export class MailEditor {
   private readonly router: Router = inject(Router);

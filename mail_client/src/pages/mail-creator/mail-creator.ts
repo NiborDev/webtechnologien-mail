@@ -1,14 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import {MailService} from '../../services/mail-service';
-import {MailForm} from '../../components/mail-form';
+import {MailForm} from '../../components/mail-form/mail-form';
 import {MailCreate} from '../../dtos/MailCreate';
 
 @Component({
   selector: 'app-mailCreator',
   imports: [MailForm],
-  templateUrl: './mailCreator.html',
-  styleUrl: './mailCreator.css',
+  templateUrl: './mail-creator.html',
+  styleUrl: './mail-creator.css',
 })
 export class MailCreator {
   private readonly mailService = inject(MailService);

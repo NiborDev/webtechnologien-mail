@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
-import { MailStatusEnum } from '../../models/mail-status.enum';
+import { EmailStatus } from '../../enums/email-status';
 
 /**
  * Component for switching between mail status tabs.
@@ -17,13 +17,13 @@ import { MailStatusEnum } from '../../models/mail-status.enum';
   styleUrl: './mail-status-tabs.css',
 })
 export class MailStatusTabsComponent {
-  readonly activeStatusTab = input.required<MailStatusEnum>();
-  readonly tabChange = output<MailStatusEnum>();
+  readonly activeStatusTab = input.required<EmailStatus>();
+  readonly tabChange = output<EmailStatus>();
 
   readonly statusOptions = [
-    { status: MailStatusEnum.RECEIVED, label: 'Inbox / Received', icon: 'inbox' },
-    { status: MailStatusEnum.SENT, label: 'Sent', icon: 'send' },
-    { status: MailStatusEnum.DRAFT, label: 'Drafts', icon: 'drafts' },
+    { status: EmailStatus.RECEIVED, label: 'Inbox / Received', icon: 'inbox' },
+    { status: EmailStatus.SENT, label: 'Sent', icon: 'send' },
+    { status: EmailStatus.DRAFT, label: 'Drafts', icon: 'drafts' },
   ];
 
   /**
