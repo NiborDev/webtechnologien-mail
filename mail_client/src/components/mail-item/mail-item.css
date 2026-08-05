@@ -1,0 +1,96 @@
+.mail-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  cursor: pointer;
+  background-color: #ffffff;
+  transition: background-color 0.15s ease-in-out;
+  user-select: none;
+  min-height: 48px;
+}
+
+.mail-row:hover {
+  background-color: #f2f6fc;
+}
+
+.unread-row {
+  background-color: #ffffff;
+}
+
+.selected-row {
+  background-color: #c2e7ff !important;
+}
+
+.row-checkbox {
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.attachment-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #747775;
+  margin-right: 8px;
+}
+
+.sender-col {
+  width: 200px;
+  min-width: 160px;
+  font-size: 0.9rem;
+  color: #3c4043;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 16px;
+}
+
+.subject-body-col {
+  flex: 1;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 16px;
+}
+
+.subject-text {
+  color: #202124;
+}
+
+.body-snippet {
+  color: #5f6368;
+}
+
+.right-col {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 120px;
+
+  .edit-btn,
+  .delete-btn {
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+    margin-left: 4px;
+    width: 36px;
+    height: 36px;
+  }
+}
+
+.mail-row:hover .right-col .edit-btn,
+.mail-row:hover .right-col .delete-btn {
+  opacity: 1;
+}
+
+.date-text {
+  font-size: 0.85rem;
+  color: #5f6368;
+  white-space: nowrap;
+}
+
+.unread-text {
+  font-weight: 700 !important;
+  color: #000000 !important;
+}

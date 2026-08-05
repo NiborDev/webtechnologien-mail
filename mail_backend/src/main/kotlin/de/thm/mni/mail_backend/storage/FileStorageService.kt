@@ -39,28 +39,36 @@ class FileStorageService(properties: StorageProperties) {
     }
 
     /**
-     * Stores the file on the storage and returns the path
+     * Stores the file in a user-specific subdirectory and returns the stored path.
      *
      */
-    fun store(file: MultipartFile): Path {
+    fun store(file: MultipartFile, userId: UUID): Path {
         if (file.isEmpty) {
             logger.warn("Attempted to store empty file: {}", file.originalFilename)
             throw StorageException("File is empty")
         }
         
-        val orgFilename = file.originalFilename ?: "attachment"
-        // Generates unique präfix, to avoid name conflicts
-        val destFilename= "${UUID.randomUUID()}_$orgFilename"
-        val destFile = rootLocation.resolve(destFilename).normalize()
+        val userLocation = rootLocation.resolve(userId.toString()).normalize()
+        try {
+            Files.createDirectories(userLocation)
+        } catch (e: IOException) {
+            logger.error("Failed to create user directory: {}", userLocation, e)
+            throw StorageException("Could not create user directory", e)
+        }
 
-        if (destFile.parent != rootLocation) {
+        val orgFilename = file.originalFilename ?: "attachment"
+        // Generates unique prefix to avoid name conflicts
+        val destFilename = "${UUID.randomUUID()}_$orgFilename"
+        val destFile = userLocation.resolve(destFilename).normalize()
+
+        if (!destFile.startsWith(rootLocation)) {
             logger.error("File path traversal attempt detected for file: {}", orgFilename)
             throw StorageException("Cannot store file outside of storage")
         }
 
         try {
             file.inputStream.use { inputStream -> Files.copy(inputStream, destFile, StandardCopyOption.REPLACE_EXISTING) }
-            logger.debug("File stored successfully: {} ({}bytes)", destFilename, file.size)
+            logger.debug("File stored successfully for user {}: {} ({}bytes)", userId, destFilename, file.size)
             return destFile
         } catch (e: IOException) {
             logger.error("Error storing file: {}", file.originalFilename, e)
@@ -85,6 +93,24 @@ class FileStorageService(properties: StorageProperties) {
         }catch (e: Exception) {
             logger.error("Error loading file resource: {}", filePathString, e)
             throw StorageFileNotFoundException("Could not read file: $filePathString", e)
+        }
+    }
+
+    /**
+     * Deletes the file at the given path from the file storage.
+     */
+    fun delete(filePathString: String) {
+        try {
+            val file = Paths.get(filePathString)
+            val deleted = Files.deleteIfExists(file)
+            if (deleted) {
+                logger.debug("File deleted successfully: {}", filePathString)
+            } else {
+                logger.warn("File to delete was not found on disk: {}", filePathString)
+            }
+        } catch (e: IOException) {
+            logger.error("Error deleting file: {}", filePathString, e)
+            throw StorageException("Could not delete file: $filePathString", e)
         }
     }
 

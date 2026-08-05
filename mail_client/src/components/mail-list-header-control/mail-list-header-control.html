@@ -1,0 +1,46 @@
+<div class="list-header-bar">
+  <mat-checkbox
+    (change)="onToggleAll($event.checked)"
+    [checked]="isAllSelected()"
+    [indeterminate]="isSomeSelected()"
+    [aria-label]="'Select all emails'"
+  >
+    <span class="select-all-label">Select All</span>
+  </mat-checkbox>
+
+  <div class="sort-controls">
+    <!-- Sort Field Menu Trigger -->
+    <button
+      mat-button
+      [matMenuTriggerFor]="sortMenu"
+      class="sort-menu-btn"
+      matTooltip="Sort emails by"
+    >
+      <mat-icon>sort</mat-icon>
+      <span>Sort: {{ sortFieldLabel }}</span>
+      <mat-icon iconPositionEnd>arrow_drop_down</mat-icon>
+    </button>
+
+    <mat-menu #sortMenu="matMenu">
+      <button mat-menu-item (click)="onSelectSortField('date')">
+        <span>Date</span>
+      </button>
+      <button mat-menu-item (click)="onSelectSortField('from')">
+        <span>Name / Sender</span>
+      </button>
+      <button mat-menu-item (click)="onSelectSortField('subject')">
+        <span>Subject</span>
+      </button>
+    </mat-menu>
+
+    <!-- Sort Direction (Ascending / Descending) -->
+    <button
+      mat-icon-button
+      (click)="onToggleSortDirection()"
+      [matTooltip]="sortDirection() === 'desc' ? 'Sort Descending' : 'Sort Ascending'"
+      class="sort-direction-btn"
+    >
+      <mat-icon>{{ sortDirection() === 'desc' ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+    </button>
+  </div>
+</div>

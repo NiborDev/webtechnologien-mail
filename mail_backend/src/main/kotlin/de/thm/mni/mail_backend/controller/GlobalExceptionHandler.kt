@@ -27,12 +27,11 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse)
     }
 
-    //TODO: Check if this error messages can be secured!
     @ExceptionHandler(AccessDeniedException::class)
     fun handleAccessDenied(ex: AccessDeniedException): ResponseEntity<Map<String, String>> {
         logger.warn("Authorization denied: ${ex.message}")
-        val errorResponse = mapOf("error" to (ex.message ?: "Access denied"))
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse)
+        val errorResponse = mapOf("error" to "Resource not found")
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse)
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)

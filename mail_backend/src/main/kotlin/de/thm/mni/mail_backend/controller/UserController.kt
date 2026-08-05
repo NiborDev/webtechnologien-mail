@@ -23,6 +23,16 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.ResponseStatus
+
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import de.thm.mni.mail_backend.dto.user.UserListResponse
+
+import org.springframework.web.bind.annotation.RequestParam
+
 @DefaultApiErrors
 @RestController
 @RequestMapping("/users")
@@ -38,6 +48,7 @@ class UserController(
      * @return The registered user
      */
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     fun registerUser(@Valid @RequestBody userCreate: UserCreate): UserResponse {
         val user = userService.registerUser(userCreate)
 
@@ -60,25 +71,34 @@ class UserController(
 
 
     /**
-     * GET /users Returns all users
+     * GET /users Returns all users with pagination and optional search filtering (email, firstName, lastName) without exposing user IDs
      *
-     * @return A list of all users
+     * @param search Optional search query string for filtering users
+     * @param pageable Pageable Object for paging
+     * @return A Page of user information
      */
     @GetMapping
-    fun getAllUsers(): List<UserResponse> {
-        val users = userService.getAllUsers()
-        return users.map { it.toResponse() }
+    fun getAllUsers(
+        @RequestParam(required = false) search: String?,
+        pageable: Pageable
+    ): Page<UserListResponse> {
+        val users = userService.getAllUsers(search, pageable)
+        return users.map { it.toUserListResponse() }
     }
 
     /**
      * GET /users/{id} Returns a user by id
      *
      * @param id The id of the user
+     * @param currentUser The current authenticated user
      * @return The user with the given id
      */
     @GetMapping("/{id}")
-    fun getUserById(@PathVariable id: UUID): UserResponse {
-        val user = userService.getUserById(id)
+    fun getUserById(
+        @PathVariable id: UUID,
+        @AuthenticationPrincipal currentUser: UserDetails
+    ): UserResponse {
+        val user = userService.getUserById(id, UUID.fromString(currentUser.username))
         return user.toResponse()
     }
 
@@ -125,7 +145,8 @@ class UserController(
      * @param currentUser The current authenticated user
      */
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteUser(@PathVariable id: UUID, @AuthenticationPrincipal currentUser: UserDetails) {
-        return userService.deleteUser(id, UUID.fromString(currentUser.username))
+        userService.deleteUser(id, UUID.fromString(currentUser.username))
     }
 }

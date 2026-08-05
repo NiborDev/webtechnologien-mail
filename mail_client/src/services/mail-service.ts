@@ -10,11 +10,38 @@ import { MailResponse } from '../dtos/MailResponse';
 import { MailCreate } from '../dtos/MailCreate';
 import { MailUpdate } from '../dtos/MailUpdate';
 import { MailUpdateStatus } from '../dtos/MailUpdateStatus';
+import { MailStatusEnum } from '../models/mail-status.enum';
+import { MailPageDto } from '../dtos/mail-page.dto';
 
 @Injectable({ providedIn: 'root' })
 export class MailService {
   private readonly httpClient: HttpClient = inject(HttpClient);
   private readonly apiBasePath: string = Environment.apiBasePath;
+
+  /**
+   * Get all mails
+   *
+   * @param status Mail status (INBOX, SENT, DRAFTS)
+   * @param page Page number (default: 0)
+   * @param size Number of mails per page (default: 10)
+   * @param sort Sort order (default: 'sentAt,desc')
+   * @returns Observable with mail page
+   */
+  public getMails(
+    status: MailStatusEnum,
+    page = 0,
+    size = 10,
+    sort = 'sentAt,desc'
+  ): Observable<MailPageDto> {
+    const params: Record<string, string> = {
+      status,
+      page: page.toString(),
+      size: size.toString(),
+      sort,
+    };
+
+    return this.httpClient.get<MailPageDto>(`${this.apiBasePath}/mails`, { params });
+  }
 
   public getById(id: string): Observable<Mail> {
     return this.httpClient

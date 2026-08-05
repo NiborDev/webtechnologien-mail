@@ -1,29 +1,49 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { LoginForm } from '../../components/login-form';
 import { AuthService } from '../../services/auth-service';
 import { LoginData } from '../../dtos/LoginData';
 import { Router, RouterLink } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
+/**
+ * Login page component.
+ *
+ * It shows the login form and handles authentication by passing the request to the AuthService.
+ * If successful, it navigates to the home route.
+ */
 @Component({
   selector: 'app-login',
-  imports: [LoginForm, RouterLink],
+  imports: [LoginForm, RouterLink, MatSnackBarModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
 export class Login {
   private readonly authService: AuthService = inject(AuthService);
   private readonly router: Router = inject(Router);
+  private readonly snackBar: MatSnackBar = inject(MatSnackBar);
 
-  handleLogin(loginData: LoginData) {
+  /** Error message to display when login fails. */
+  protected readonly errorMessage = signal<string | null>(null);
+
+  /**
+   * Handles the login form submission.
+   *
+   * @param loginData - The user's login credentials.
+   */
+  handleLogin(loginData: LoginData): void {
+    this.errorMessage.set(null);
     this.authService.loginWithCredentials(loginData).subscribe({
-      next: (response) => {
-        console.log('Login successful', response);
+      next: () => {
         this.router.navigate(['/']);
       },
       error: (err: unknown) => {
-        console.error('Error logging in:', err);
+        const message =
+          (err as { error?: { message?: string } })?.error?.message ||
+          'Login fehlgeschlagen. Bitte überprüfen Sie Ihre Zugangsdaten.';
+        this.errorMessage.set(message);
+        this.snackBar.open(message, 'Schließen', { duration: 5000 });
       },
-      complete: () => console.log('Login request completed'),
     });
   }
 }
+

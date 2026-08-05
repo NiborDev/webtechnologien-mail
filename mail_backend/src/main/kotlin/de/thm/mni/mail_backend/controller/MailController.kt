@@ -25,6 +25,9 @@ import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
 
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.ResponseStatus
+
 @DefaultApiErrors
 @RestController
 @RequestMapping("/mails")
@@ -36,6 +39,7 @@ class MailController(val mailService: MailService) {
      * @return The created Mail
      */
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     fun createMail(@Valid @RequestBody mailCreate: MailCreate): MailResponse {
         val mail = mailService.createMail(mailCreate.toMail())
         return mail.toResponse()
@@ -47,6 +51,7 @@ class MailController(val mailService: MailService) {
      * @param userDetails User Data from JWT
      */
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteMail(@PathVariable id: UUID, @AuthenticationPrincipal userDetails: UserDetails) {
         mailService.deleteMail(id, UUID.fromString(userDetails.username))
     }

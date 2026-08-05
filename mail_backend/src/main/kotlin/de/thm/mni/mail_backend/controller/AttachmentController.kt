@@ -1,5 +1,6 @@
 package de.thm.mni.mail_backend.controller
 
+import de.thm.mni.mail_backend.annotations.DefaultApiErrors
 import de.thm.mni.mail_backend.dto.attachments.AttachmentResponse
 import de.thm.mni.mail_backend.services.AttachmentService
 import org.slf4j.LoggerFactory
@@ -11,54 +12,52 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import java.util.UUID
 
 /**
  * Controller for managing file attachments.
- * Provides endpoints for uploading and downloading attachments.
+ * Provides endpoints for uploading, downloading, and deleting attachments.
  */
+@DefaultApiErrors
 @RestController
 @RequestMapping("/attachments")
 class AttachmentController(
     private val attachmentService: AttachmentService
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
+
     /**
      * POST /attachments
      * Upload the provided attachments and returns JSON metadata.
      * 
      * @param files The files to upload
-     * @return 201 Created with attachment metadata, or 400 Bad Request if files are invalid
+     * @return 201 Created with attachment metadata
      */
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @ResponseStatus(HttpStatus.CREATED)
     fun uploadFiles(
-        @RequestParam("files") files: List<MultipartFile>
-    ): ResponseEntity<List<AttachmentResponse>> {
-        logger.info("Received upload request for {} file(s)", files.size)
+        @RequestParam("files") files: List<MultipartFile>,
+        @AuthenticationPrincipal currentUser: UserDetails
+    ): List<AttachmentResponse> {
+        logger.info("Received upload request for {} file(s) from user {}", files.size, currentUser.username)
         
         if (files.isEmpty()) {
             logger.warn("Upload request received with no files")
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
+            throw IllegalArgumentException("Upload request must contain at least one file.")
         }
         
-        return try {
-            val result = attachmentService.saveAttachments(files)
-            logger.info("Upload successful: {} file(s) saved", result.size)
-            ResponseEntity.status(HttpStatus.CREATED).body(result)
-        } catch (e: IllegalArgumentException) {
-            logger.warn("Upload validation failed: {}", e.message)
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).build()
-        } catch (e: Exception) {
-            logger.error("Error during file upload", e)
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
-        }
+        val result = attachmentService.saveAttachments(files, UUID.fromString(currentUser.username))
+        logger.info("Upload successful: {} file(s) saved for user {}", result.size, currentUser.username)
+        return result
     }
 
     /**
@@ -68,7 +67,7 @@ class AttachmentController(
      * 
      * @param id The attachment ID
      * @param currentUser The authenticated user
-     * @return 200 OK with file content, 403 Forbidden if no access, or 404 Not Found if attachment doesn't exist
+     * @return 200 OK with file content, or 404 Not Found if attachment doesn't exist or user has no access
      */
     @GetMapping("/{id}")
     fun downloadFile(
@@ -76,23 +75,39 @@ class AttachmentController(
         @AuthenticationPrincipal currentUser: UserDetails
     ): ResponseEntity<Resource> {
         logger.info("Download request for attachment {} by user {}", id, currentUser.username)
+        val (attachment, resource) = attachmentService.loadFileAsResource(id, UUID.fromString(currentUser.username))
         
-        return try {
-            val (attachment, resource) = attachmentService.loadFileAsResource(id, UUID.fromString(currentUser.username))
-            
-            logger.debug("File retrieved successfully: {}", attachment.fileName)
-            ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(attachment.mimeType.toString()))
-                .header(
-                    HttpHeaders.CONTENT_DISPOSITION,
-                    "attachment; filename=\"${attachment.fileName}\""
-                ).body(resource)
-        } catch (e: AccessDeniedException) {
-            logger.warn("Access denied for user {} to attachment {}", currentUser.username, id)
-            ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+        logger.debug("File retrieved successfully: {}", attachment.fileName)
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType(attachment.mimeType.toString()))
+            .header(
+                HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"${attachment.fileName}\""
+            ).body(resource)
+    }
+
+    /**
+     * DELETE /attachments/{id}
+     * Deletes an attachment if the current user is the owner (author) and the email has not yet been sent.
+     * Returns 204 No Content for all deletion requests to ensure status code idempotency and security.
+     * 
+     * @param id The attachment ID
+     * @param currentUser The authenticated user
+     * @return 204 No Content
+     */
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteAttachment(
+        @PathVariable id: UUID,
+        @AuthenticationPrincipal currentUser: UserDetails
+    ) {
+        logger.info("Delete request for attachment {} by user {}", id, currentUser.username)
+
+        try {
+            attachmentService.deleteAttachment(id, UUID.fromString(currentUser.username))
+            logger.info("Attachment {} deleted successfully by user {}", id, currentUser.username)
         } catch (e: Exception) {
-            logger.warn("Attachment not found: {}", id)
-            ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+            logger.warn("Idempotent attachment deletion handling for attachment {}: {}", id, e.message)
         }
     }
 }
