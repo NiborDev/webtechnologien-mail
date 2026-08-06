@@ -51,11 +51,11 @@ class MailService(
      * @param mail The Mail to create
      * @return The Created Mail
      */
-    //TODO User Automatisch setzen
     @Transactional
-    fun createMail(mail: Mail): Mail {
+    fun createMail(mail: Mail, currentUserId: UUID): Mail {
+        val user = userRepository.findByUserId(currentUserId)?: throw NoSuchElementException("User with this Mail-Address doesn't exist")
+        mail.from = user.email
         val savedMail = mailRepository.save(mail)
-        val user = userRepository.findByEmail(savedMail.from)?: throw NoSuchElementException("User with this Mail-Address doesn't exist")
         mailUserRepository.save(
             MailUser(
                 mailId = savedMail.mailId?: throw IllegalArgumentException("Mail Id Should not be null"),

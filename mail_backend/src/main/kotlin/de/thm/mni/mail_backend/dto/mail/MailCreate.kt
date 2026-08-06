@@ -8,14 +8,11 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.NotBlank
+import jdk.internal.net.http.common.TimeSource.source
 import java.time.LocalDateTime
 import java.util.UUID
 
-//TODO soll status und source hier überhaupt gesetzt werden??
-
 data class MailCreate(
-    @field:Valid
-    var from: String,
     @field:Valid
     var to: List<String>,
     @field:Valid
@@ -26,29 +23,26 @@ data class MailCreate(
     var replyTo: List<String> = emptyList(),
     var subject: String,
     var bodyText: String,
-    var status: EMailStatus,
     @field:Valid
     var attachments: List<Attachment>,
-    @field:Valid
-    var source: Source,
-    var createdAt: LocalDateTime = LocalDateTime.now(),
-    var updatedAt: LocalDateTime = LocalDateTime.now(),
-    var sentAt: LocalDateTime? = null
 ){
     fun toMail(mailId: UUID = UUID.randomUUID()): Mail {
         return Mail(
             mailId = mailId,
-            from = from,
+            from = "",
             to = to.toMutableList(),
             cc = cc.toMutableList(),
             bcc = bcc.toMutableList(),
             replyTo = replyTo.toMutableList(),
             subject = subject,
             bodyText = bodyText,
-            status = status,
+            status = EMailStatus.DRAFT,
+            source = Source.INTERN,
             isRead = false,
             isMarked = false,
+            createdAt = LocalDateTime.now(),
             sentAt = null,
+            updatedAt = LocalDateTime.now(),
             receivedAt = null,
             attachments = attachments.toMutableList()
         )

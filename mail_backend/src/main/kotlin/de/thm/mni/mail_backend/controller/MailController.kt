@@ -40,8 +40,8 @@ class MailController(val mailService: MailService) {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun createMail(@Valid @RequestBody mailCreate: MailCreate): MailResponse {
-        val mail = mailService.createMail(mailCreate.toMail())
+    fun createMail(@Valid @RequestBody mailCreate: MailCreate, @AuthenticationPrincipal userDetails: UserDetails): MailResponse {
+        val mail = mailService.createMail(mailCreate.toMail(), UUID.fromString(userDetails.username))
         return mail.toResponse()
     }
 
