@@ -213,6 +213,7 @@ class MailService(
         val recipients = (mail.to + mail.cc + mail.bcc)
 
         mail.bcc = mutableListOf() //remove bcc before sending
+        mail.sentAt = LocalDateTime.now()
 
         recipients.forEach {
 

@@ -23,5 +23,17 @@ export class MailViewer {
     this._router.navigate(['/mails', this.mail().mailId, 'edit'])
   }
 
+  onReply() {
+    this._router.navigate(['/mails', this.mail().mailId, 'reply'])
+  }
+
+  onReplyAll() {
+    this._router.navigate(['/mails', this.mail().mailId, 'reply-all'])
+  }
+
+  onForward() {
+    this._router.navigate(['/mails', this.mail().mailId, 'forward'])
+  }
+
   protected readonly EmailStatus = EmailStatus;
 }
