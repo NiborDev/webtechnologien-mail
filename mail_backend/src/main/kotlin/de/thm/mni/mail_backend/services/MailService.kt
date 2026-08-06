@@ -190,7 +190,7 @@ class MailService(
 
         recipients.forEach {
 
-            val recipient = userRepository.findByEmail(it)
+            val recipient = userRepository.findByEmailIgnoreCase(it)
 
             if (recipient != null) {
                 receiveMail(mail, recipient)

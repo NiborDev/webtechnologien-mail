@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 import {MailService} from '../../services/mail-service';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {MailViewer} from '../../components/mail-viewer/mail-viewer';
@@ -13,7 +13,6 @@ import {MailUpdateIsRead} from '../../dtos/MailUpdateIsRead';
   styleUrl: './mail-detail.css',
 })
 export class MailDetail {
-  private readonly router: Router = inject(Router);
   private readonly mailService: MailService = inject(MailService)
   private readonly route = inject(ActivatedRoute);
 

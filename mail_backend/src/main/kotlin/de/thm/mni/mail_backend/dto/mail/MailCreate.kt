@@ -5,10 +5,6 @@ import de.thm.mni.mail_backend.data.Mail
 import de.thm.mni.mail_backend.data.enums.EMailStatus
 import de.thm.mni.mail_backend.data.enums.Source
 import jakarta.validation.Valid
-import jakarta.validation.constraints.NotEmpty
-import jakarta.validation.constraints.NotNull
-import jakarta.validation.constraints.NotBlank
-import jdk.internal.net.http.common.TimeSource.source
 import java.time.LocalDateTime
 import java.util.UUID
 
