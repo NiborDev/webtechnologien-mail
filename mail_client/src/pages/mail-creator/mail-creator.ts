@@ -6,6 +6,7 @@ import {MailCreate} from '../../dtos/MailCreate';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {map, of} from 'rxjs';
 import {Mail} from '../../models/Mail';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-mailCreator',
@@ -17,6 +18,7 @@ export class MailCreator {
   private readonly mailService = inject(MailService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute)
+  private readonly snackBar = inject(MatSnackBar)
 
   private readonly id = this.route.snapshot.paramMap.get('id');
   private readonly mode = this.route.snapshot.url.at(-1)?.path
@@ -34,7 +36,6 @@ export class MailCreator {
 
   private initialise(mail: Mail): Partial<Mail>{
 
-    console.log("semt:"+mail.sentAt+"recieved"+mail.receivedAt+"created"+mail.createdAt+"updated"+mail.updatedAt)
 
     switch (this.mode) {
 
@@ -76,11 +77,11 @@ ${mail.bodyText}`;
   handleCreate(mail: MailCreate) {
     this.mailService.create(mail).subscribe({
       next: (createdMail) => {
-        console.log(createdMail.mailId) //TODO only for testing
-        this.router.navigate(['/']); //TODO navigiere zur Mail nicht zu home
+        this.snackBar.open("E-Mail wurde erfolgreich gespeichert", "Close", {duration: 3000})
+        this.router.navigate(['/mails', createdMail.mailId]);
       },
       error: (err) => {
-        console.error("Fehler beim speichern der Mail", err)
+        this.snackBar.open(err?.error?.message || "Speichern der E-Mail fehlgeschlagen", "Close", {duration: 3000})
       }
     });
   }
@@ -90,16 +91,16 @@ ${mail.bodyText}`;
       next: (createdMail) => {
         this.mailService.send(createdMail.mailId).subscribe({
           next: () => {
-            console.log('Mail erfolgreich gesendet:', createdMail.mailId);
+            this.snackBar.open("E-Mail wurde erfolgreich gesendet", "Close", {duration: 3000})
             this.router.navigate(['/']);
           },
           error: (err) => {
-            console.error('Fehler beim Senden der Mail:', err);
+            this.snackBar.open(err?.error?.message || "Senden fehlgeschlagen!", "Close", {duration: 3000})
           }
         });
       },
       error: (err) => {
-        console.error('Fehler beim Erstellen der Mail:', err);
+        this.snackBar.open(err?.error?.message||'Fehler beim Erstellen der Mail:', "Close", {duration: 3000});
       }
     });
   }
