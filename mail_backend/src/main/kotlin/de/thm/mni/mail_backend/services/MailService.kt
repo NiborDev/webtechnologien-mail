@@ -11,6 +11,8 @@ import de.thm.mni.mail_backend.dto.mail.MailUpdateStatus
 import de.thm.mni.mail_backend.repositories.interfaces.MailRepository
 import de.thm.mni.mail_backend.repositories.interfaces.MailUserRepository
 import de.thm.mni.mail_backend.repositories.interfaces.UserRepository
+import jakarta.validation.ConstraintViolationException
+import jakarta.validation.Validator
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -23,7 +25,8 @@ import java.util.UUID
 class MailService(
     private val mailRepository: MailRepository,
     private val mailUserRepository: MailUserRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val validator: Validator
 ) {
 
     /**
@@ -48,6 +51,7 @@ class MailService(
      * @param mail The Mail to create
      * @return The Created Mail
      */
+    //TODO User Automatisch setzen
     @Transactional
     fun createMail(mail: Mail): Mail {
         val savedMail = mailRepository.save(mail)
@@ -187,12 +191,24 @@ class MailService(
      * @param currentUserId The ID of the currently logged-in User
      * @return mail the send Mail
      * @throws NoSuchElementException if the Mail doesnt exist
+     * @throws IllegalStateException if the Mail is not a DRAFT
+     * @throws ConstraintViolationException if the validation of the Mail fails
      */
     @Transactional
     fun sendMail(mailID: UUID, currentUserId: UUID): Mail{
         checkUserHasMail(mailID, currentUserId)
 
         val mail = mailRepository.findById(mailID).orElseThrow { NoSuchElementException("Mail not found!") }
+
+        val validationErrors = validator.validate(mail)
+
+        if (validationErrors.isNotEmpty()) {
+            throw ConstraintViolationException(validationErrors)
+        }
+
+        if (mail.status != EMailStatus.DRAFT) {
+            throw IllegalStateException("A Mail can only be send if its a draft")
+        }
 
         val recipients = (mail.to + mail.cc + mail.bcc)
 

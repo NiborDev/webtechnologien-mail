@@ -14,15 +14,12 @@ data class MailUpdateData(
     @field:Valid
     var from: String,
     @field:Valid
-    @field:Size(min = 1, message = "To address list cannot be empty")
     var to: List<String>?,
     @field:Valid
     var cc: List<String>?,
     @field:Valid
     var bcc: List<String>?,
-    @field:NotBlank(message = "Subject cannot be blank")
     var subject: String?,
-    @field:NotBlank(message = "Email body cannot be blank")
     var bodyText: String?,
     @field:Valid
     var attachments: List<Attachment>?,

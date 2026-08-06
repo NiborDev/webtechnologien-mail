@@ -1,6 +1,6 @@
 <form
   [formGroup]="form"
-  (ngSubmit)="onSend()">
+  >
 
   <app-recipient-input
     label="An"
@@ -81,7 +81,8 @@
     <button
       mat-raised-button
       color="primary"
-      type="submit">
+      type="button"
+      (click)="onSend()">
 
       Senden
 
@@ -91,7 +92,7 @@
       mat-raised-button
       color="primary"
       type="button"
-    (click)="onSave()">
+      (click)="onSave()">
 
       Entwurf speichern
 

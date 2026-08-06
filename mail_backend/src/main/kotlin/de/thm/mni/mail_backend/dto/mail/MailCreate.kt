@@ -15,10 +15,8 @@ import java.util.UUID
 
 data class MailCreate(
     @field:Valid
-    @field:NotNull(message = "From address cannot be null")
     var from: String,
     @field:Valid
-    @field:NotEmpty(message = "To address list cannot be empty")
     var to: List<String>,
     @field:Valid
     var cc: List<String> = emptyList(),
@@ -26,11 +24,8 @@ data class MailCreate(
     var bcc: List<String> = emptyList(),
     @field:Valid
     var replyTo: List<String> = emptyList(),
-    @field:NotBlank(message = "Subject cannot be blank")
     var subject: String,
-    @field:NotBlank(message = "Email body cannot be blank")
     var bodyText: String,
-    @field:NotNull(message = "Status cannot be null")
     var status: EMailStatus,
     @field:Valid
     var attachments: List<Attachment>,

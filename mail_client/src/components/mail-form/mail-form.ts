@@ -41,18 +41,33 @@ export class MailForm {
   public readonly initialValue = input<Partial<Mail>>();
 
   protected readonly form = this.formBuilder.nonNullable.group({
-    from: ['', [Validators.required, Validators.email]],
+    from: [''],
     to: this.formBuilder.nonNullable.control<string[]>([]),
     cc: this.formBuilder.nonNullable.control<string[]>([]),
     bcc: this.formBuilder.nonNullable.control<string[]>([]),
     replyTo: this.formBuilder.nonNullable.control<string[]>([]),
-    subject: ['', Validators.required],
+    subject: [''],
     bodyText: ['']
-  },{
-    validators: [recipientValidator]
   });
 
+  private enableValidation(){
+    this.form.controls.from.setValidators([Validators.required, Validators.email])
+    this.form.controls.subject.setValidators(Validators.required)
+    this.form.setValidators(recipientValidator)
+    this.form.updateValueAndValidity()
+  }
+
+  private disableValidation(){
+    this.form.controls.from.setValidators([])
+    this.form.controls.subject.setValidators([])
+    this.form.setValidators([])
+    this.form.updateValueAndValidity()
+  }
+
   onSend(){
+
+    this.enableValidation()
+
     if(this.form.invalid){
       this.form.markAllAsTouched()
       return
@@ -75,6 +90,9 @@ export class MailForm {
   }
 
   onSave(){
+
+    this.disableValidation()
+    this.form.markAsUntouched()
 
     const values = this.form.getRawValue()
 
