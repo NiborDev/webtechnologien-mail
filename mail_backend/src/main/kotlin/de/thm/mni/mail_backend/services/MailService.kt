@@ -212,6 +212,8 @@ class MailService(
 
         val recipients = (mail.to + mail.cc + mail.bcc)
 
+        mail.bcc = mutableListOf() //remove bcc before sending
+
         recipients.forEach {
 
             val recipient = userRepository.findByEmail(it)
