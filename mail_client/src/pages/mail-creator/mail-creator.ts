@@ -7,6 +7,7 @@ import {toSignal} from '@angular/core/rxjs-interop';
 import {map, of} from 'rxjs';
 import {Mail} from '../../models/Mail';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {AuthService} from '../../services/auth-service';
 
 @Component({
   selector: 'app-mailCreator',
@@ -19,6 +20,7 @@ export class MailCreator {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute)
   private readonly snackBar = inject(MatSnackBar)
+  private readonly authService = inject(AuthService)
 
   private readonly id = this.route.snapshot.paramMap.get('id');
   private readonly mode = this.route.snapshot.url.at(-1)?.path
@@ -46,10 +48,12 @@ export class MailCreator {
           bodyText: this.createQuote(mail)
         }
       case 'reply-all':
+        const ownMail = this.authService.currentUser()?.email
+        const to = [...new Set([...(mail.replyTo.length? mail.replyTo: [mail.from] ), ...mail.to])].filter(e => e != ownMail)
 
         return {
-          to: [...new Set([...(mail.replyTo.length? mail.replyTo: [mail.from] ), ...mail.to])],
-          cc: mail.cc,
+          to: to,
+          cc: mail.cc.filter(e => e != ownMail && !to.includes(e)),
           subject: (mail.subject.startsWith("Re: ")? mail.subject: "Re:" + mail.subject),
           bodyText: this.createQuote(mail)
         }
