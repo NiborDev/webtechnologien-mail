@@ -6,6 +6,9 @@ import {MailViewer} from '../../components/mail-viewer/mail-viewer';
 import {tap} from 'rxjs';
 import {MailUpdateIsRead} from '../../dtos/MailUpdateIsRead';
 
+/**
+ * Component for the page to view a Mail
+ */
 @Component({
   selector: 'app-mail-detail',
   imports: [MailViewer],
@@ -18,6 +21,10 @@ export class MailDetail {
 
   private readonly id = this.route.snapshot.paramMap.get('id')!;
 
+  /**
+   * Gets the Mail-Object and sets isRead status to true if currently false
+   * @protected
+   */
   protected readonly mail = toSignal(
     this.mailService.getById(this.id).pipe(
       tap(mail =>{

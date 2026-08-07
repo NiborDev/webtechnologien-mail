@@ -7,6 +7,9 @@ import {MailCreate} from '../../dtos/MailCreate';
 import {MailUpdate} from '../../dtos/MailUpdate';
 import {MatSnackBar} from '@angular/material/snack-bar';
 
+/**
+ * Component for the page to edit an existing Draft-Mail
+ */
 @Component({
   selector: 'app-mailEditor',
   imports: [MailForm],
@@ -22,11 +25,20 @@ export class MailEditor {
 
   private readonly id = this.route.snapshot.paramMap.get('id')!;
 
+  /**
+   * Gets the Mail-Object
+   * @protected
+   */
   protected readonly mail = toSignal(
     this.mailService.getById(this.id),
     { initialValue: null }
   );
 
+  /**
+   * Handler for saving the updated Mail (Saving as Draft)
+   * Saves the Mail and navigates to Detail-View if successful, creates success/error messages
+   * @param mail The Mail to save
+   */
   handleUpdate(mail: MailCreate) {
 
     const mailUpdate: MailUpdate = {
@@ -43,6 +55,12 @@ export class MailEditor {
     });
   }
 
+  /**
+   * Handler for sending the updated Mail
+   * Saves the Mail and trigger the send operation if successful, navigates to Home/Mail-List if successfully send
+   * creates success/error messages
+   * @param mail The Mail to send
+   */
   handleSend(mail: MailCreate): void {
 
     const mailUpdate: MailUpdate = {

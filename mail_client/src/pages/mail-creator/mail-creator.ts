@@ -9,6 +9,9 @@ import {Mail} from '../../models/Mail';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {AuthService} from '../../services/auth-service';
 
+/**
+ * Component for the page to create a mail (new, reply, reply-all, forward)
+ */
 @Component({
   selector: 'app-mailCreator',
   imports: [MailForm],
@@ -25,6 +28,10 @@ export class MailCreator {
   private readonly id = this.route.snapshot.paramMap.get('id');
   private readonly mode = this.route.snapshot.url.at(-1)?.path
 
+  /**
+   * Signal for initialing the MailForm if required (reply, reply-all, forward)
+   * @protected
+   */
   protected readonly initialValue = toSignal(
     this.id
       ? this.mailService.getById(this.id).pipe(
@@ -36,6 +43,12 @@ export class MailCreator {
     }
   );
 
+  /**
+   * Function creating/setting the initial values for the MailForm if mail-creator was called via reply, reply-all or forward
+   * Sets recipients, subject and BodyText, creates prefixes for subject
+   * @param mail The Mail for which reply/reply-all/forward was called
+   * @private
+   */
   private initialise(mail: Mail): Partial<Mail>{
 
 
@@ -70,6 +83,11 @@ export class MailCreator {
 
   }
 
+  /**
+   * Helper Function: creates quote for Body-Text (for reply/reply-all/forward)
+   * @param mail The Mail for which reply/reply-all/forward was called
+   * @private
+   */
   private createQuote(mail: Mail): string {
     return `
 
@@ -78,6 +96,11 @@ Am ${mail.sentAt} schrieb ${mail.from}:
 ${mail.bodyText}`;
   }
 
+  /**
+   * Handler for creating a new mail (saving as draft)
+   * Saves the Mail and creates success/error messages, navigates to detail-view if successful
+   * @param mail The Mail-Object to create
+   */
   handleCreate(mail: MailCreate) {
     this.mailService.create(mail).subscribe({
       next: (createdMail) => {
@@ -90,6 +113,12 @@ ${mail.bodyText}`;
     });
   }
 
+  /**
+   * Handler for sending a Mail
+   * saves Mail as draft and triggers send operation when successful, navigates to Home/Mail-List if successfully send
+   * creates success/error messages
+   * @param mail The Mail-Object to send
+   */
   handleSend(mail: MailCreate): void {
     this.mailService.create(mail).subscribe({
       next: (createdMail) => {
