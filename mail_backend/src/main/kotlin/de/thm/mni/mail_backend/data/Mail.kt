@@ -77,7 +77,7 @@ class Mail(
             subject = subject,
             bodyText = bodyText,
             status = status,
-            attachments = attachments,
+            attachments = attachments.map { it.toResponse() },
             isRead = isRead,
             isMarked = isMarked,
             sentAt = sentAt,

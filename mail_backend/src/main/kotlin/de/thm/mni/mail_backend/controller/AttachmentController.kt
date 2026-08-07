@@ -116,15 +116,15 @@ class AttachmentController(
         @Parameter(description = "UUID of the attachment") @PathVariable id: UUID,
         @AuthenticationPrincipal currentUser: UserDetails
     ): ResponseEntity<Resource> {
-        logger.info("Download request for attachment {} by user {}", id, currentUser.username)
         val (attachment, resource) = attachmentService.loadFileAsResource(id, UUID.fromString(currentUser.username))
+        val response = attachment.toResponse()
         
-        logger.debug("File retrieved successfully: {}", attachment.fileName)
+        logger.debug("File retrieved successfully: {}", response.fileName)
         return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(attachment.mimeType.toString()))
+            .contentType(MediaType.parseMediaType(response.mimeType.toString()))
             .header(
                 HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"${attachment.fileName}\""
+                "attachment; filename=\"${response.fileName}\""
             ).body(resource)
     }
 
