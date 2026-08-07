@@ -47,6 +47,7 @@ export class MailCreator {
    * Function creating/setting the initial values for the MailForm if mail-creator was called via reply, reply-all or forward
    * Sets recipients, subject and BodyText, creates prefixes for subject
    * @param mail The Mail for which reply/reply-all/forward was called
+   * @returns Partial of the Mail with the initial values for the Form
    * @private
    */
   private initialise(mail: Mail): Partial<Mail>{
@@ -86,6 +87,7 @@ export class MailCreator {
   /**
    * Helper Function: creates quote for Body-Text (for reply/reply-all/forward)
    * @param mail The Mail for which reply/reply-all/forward was called
+   * @returns string with the quoted Text of the original Mail
    * @private
    */
   private createQuote(mail: Mail): string {

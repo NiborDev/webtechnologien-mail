@@ -16,7 +16,7 @@ import {Mail} from '../../models/Mail';
 
 /**
  * Validation: Checks if a Mail has at least one recipient
- * @return ValidationError with noRecipient: true if the mail has no recipient, otherwise null
+ * @returns ValidationError with noRecipient: true if the mail has no recipient, otherwise null
  * @param control Object for FormControl
  */
 const recipientValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
@@ -79,7 +79,7 @@ export class MailForm {
   }
 
   /**
-   * Callback for send-Button
+   * Handler for send-Button
    * Validates Form before emitting
    */
   onSend(){
@@ -106,7 +106,7 @@ export class MailForm {
   }
 
   /**
-   * Callback for save-as-draft-Button
+   * Handler for save-as-draft-Button
    */
   onSave(){
 

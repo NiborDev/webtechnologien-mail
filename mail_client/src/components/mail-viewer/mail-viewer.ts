@@ -24,28 +24,28 @@ export class MailViewer {
   public readonly mail = input.required<Mail>()
 
   /**
-   * Callback for edit-Button
+   * Handler for edit-Button
    */
   onEdit() {
     this._router.navigate(['/mails', this.mail().mailId, 'edit'])
   }
 
   /**
-   * Callback for reply-Button
+   * Handler for reply-Button
    */
   onReply() {
     this._router.navigate(['/mails', this.mail().mailId, 'reply'])
   }
 
   /**
-   * Callback for reply-all-Button
+   * Handler for reply-all-Button
    */
   onReplyAll() {
     this._router.navigate(['/mails', this.mail().mailId, 'reply-all'])
   }
 
   /**
-   * Callback for forward Button
+   * Handler for forward Button
    */
   onForward() {
     this._router.navigate(['/mails', this.mail().mailId, 'forward'])
