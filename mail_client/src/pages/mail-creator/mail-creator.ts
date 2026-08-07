@@ -44,23 +44,23 @@ export class MailCreator {
       case 'reply':
         return {
           to: mail.replyTo.length ? mail.replyTo : [mail.from],
-          subject: (mail.subject.startsWith("Re: ")? mail.subject: "Re:" + mail.subject),
+          subject: (mail.subject.startsWith("Re:")? mail.subject: "Re: " + mail.subject),
           bodyText: this.createQuote(mail)
         }
       case 'reply-all':
-        const ownMail = this.authService.currentUser()?.email
-        const to = [...new Set([...(mail.replyTo.length? mail.replyTo: [mail.from] ), ...mail.to])].filter(e => e != ownMail)
+        const ownMail = this.authService.currentUser()?.email.toLowerCase()
+        const to = [...new Set([...(mail.replyTo.length? mail.replyTo: [mail.from] ), ...mail.to])].filter(e => e.toLowerCase() != ownMail)
 
         return {
           to: to,
-          cc: mail.cc.filter(e => e != ownMail && !to.includes(e)),
-          subject: (mail.subject.startsWith("Re: ")? mail.subject: "Re:" + mail.subject),
+          cc: mail.cc.filter(e => e.toLowerCase() != ownMail && !to.includes(e)),
+          subject: (mail.subject.startsWith("Re:")? mail.subject: "Re: " + mail.subject),
           bodyText: this.createQuote(mail)
         }
 
       case 'forward':
         return {
-          subject: (mail.subject.startsWith("Fwd: ")? mail.subject: "Fwd:" + mail.subject),
+          subject: (mail.subject.startsWith("Fwd:")? mail.subject: "Fwd: " + mail.subject),
           bodyText: this.createQuote(mail)
         }
 
