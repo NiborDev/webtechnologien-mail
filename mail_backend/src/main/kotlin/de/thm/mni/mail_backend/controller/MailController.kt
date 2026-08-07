@@ -8,6 +8,7 @@ import de.thm.mni.mail_backend.dto.mail.MailUpdateData
 import de.thm.mni.mail_backend.dto.mail.MailUpdateIsRead
 import de.thm.mni.mail_backend.services.MailService
 import jakarta.validation.Valid
+import org.springdoc.core.annotations.ParameterObject
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -104,7 +105,7 @@ class MailController(val mailService: MailService) {
     @GetMapping
     fun getMails(
         @RequestParam status: EMailStatus,
-        pageable: Pageable,
+        @ParameterObject pageable: Pageable,
         @AuthenticationPrincipal userDetails: UserDetails
         ): Page<MailResponse> {
 

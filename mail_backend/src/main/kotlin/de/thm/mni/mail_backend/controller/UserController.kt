@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
 
+import org.springdoc.core.annotations.ParameterObject
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import de.thm.mni.mail_backend.dto.user.UserListResponse
@@ -93,7 +94,7 @@ class UserController(
     @GetMapping
     fun getAllUsers(
         @RequestParam(required = false) search: String?,
-        pageable: Pageable
+        @ParameterObject pageable: Pageable
     ): Page<UserListResponse> {
         val users = userService.getAllUsers(search, pageable)
         return users.map { it.toUserListResponse() }
