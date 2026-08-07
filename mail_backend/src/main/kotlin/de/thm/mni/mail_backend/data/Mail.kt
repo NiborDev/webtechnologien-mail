@@ -82,8 +82,8 @@ class Mail(
             isMarked = isMarked,
             sentAt = sentAt,
             receivedAt = receivedAt,
-            createdAt = createdAt,
-            updatedAt = updatedAt,
+            createdAt = createdAt ?: LocalDateTime.now(),
+            updatedAt = updatedAt ?: LocalDateTime.now(),
             source = source
         )
     }

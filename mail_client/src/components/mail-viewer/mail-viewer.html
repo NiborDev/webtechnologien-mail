@@ -69,6 +69,14 @@
     {{ mail().bodyText }}
   </div>
 
+  @if (mail().attachments && mail().attachments.length > 0) {
+    <mat-divider></mat-divider>
+    <app-attachment-list
+      [attachments]="mail().attachments"
+      (download)="onDownloadAttachment($event)"
+    ></app-attachment-list>
+  }
+
   <div class="actions">
 
 

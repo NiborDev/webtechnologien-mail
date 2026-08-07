@@ -1,5 +1,5 @@
 import { MailResponse } from '../dtos/MailResponse';
-import { Attachment } from '../dtos/Attachment';
+import { Attachment } from './Attachment';
 import { EmailStatus } from '../enums/email-status';
 import { formatDateDisplay } from '../utils/date-formatter';
 import { truncateText } from '../utils/text-formatter';
@@ -61,7 +61,7 @@ export class Mail {
       dto.subject || '(No Subject)',
       dto.bodyText || '',
       dto.status,
-      dto.attachments || [],
+      (dto.attachments || []).map((att) => Attachment.fromDto(att)),
       dto.isRead,
       dto.isMarked,
       dto.sentAt ? new Date(dto.sentAt) : null,
@@ -69,6 +69,32 @@ export class Mail {
       new Date(dto.createdAt),
       new Date(dto.updatedAt),
     );
+  }
+
+  /**
+   * Converts this Mail model instance to a MailResponse DTO.
+   *
+   * @returns A MailResponse DTO.
+   */
+  public toDto(): MailResponse {
+    return {
+      mailId: this._mailId,
+      from: this._from,
+      to: this._to,
+      cc: this._cc,
+      bcc: this._bcc,
+      replyTo: this._replyTo,
+      subject: this._subject,
+      bodyText: this._bodyText,
+      status: this._status,
+      attachments: this._attachments.map((att) => att.toDto()),
+      isRead: this._isRead,
+      isMarked: this._isMarked,
+      sentAt: this._sentAt ? this._sentAt.toISOString() : null,
+      receivedAt: this._receivedAt ? this._receivedAt.toISOString() : null,
+      createdAt: this._createdAt.toISOString(),
+      updatedAt: this._updatedAt.toISOString(),
+    };
   }
 
   /**
