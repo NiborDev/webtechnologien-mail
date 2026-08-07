@@ -39,7 +39,6 @@ export class LoginForm {
     }
     const { email, password } = this.form.getRawValue();
     this.login.emit(new LoginData(email, password));
-    this.form.reset();
   }
 }
 

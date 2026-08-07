@@ -55,7 +55,6 @@ export class Registration {
     const { firstName, lastName, email, password } = this.form.getRawValue();
     const userData = new RegistrationData(firstName, lastName, email, password);
     this.register.emit(userData);
-    this.form.reset();
   }
 }
 
