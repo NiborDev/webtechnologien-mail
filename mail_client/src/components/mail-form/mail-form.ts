@@ -14,7 +14,11 @@ import {MailCreate} from '../../dtos/MailCreate';
 import {RecipientInputComponent} from '../recipient-input/recipient-input';
 import {Mail} from '../../models/Mail';
 
-//validate if there is a recipient
+/**
+ * Validation: Checks if a Mail has at least one recipient
+ * @return ValidationError with noRecipient: true if the mail has no recipient, otherwise null
+ * @param control Object for FormControl
+ */
 const recipientValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const to = control.get('to')?.value as string [] ?? []
   const cc = control.get('cc')?.value as string [] ?? []
@@ -25,6 +29,9 @@ const recipientValidator: ValidatorFn = (control: AbstractControl): ValidationEr
   return null;
 };
 
+/**
+ * Component for editing a Mail
+ */
 @Component({
   selector: 'app-mail-form',
   imports: [ReactiveFormsModule, MatInputModule, MatFormFieldModule, MatButtonModule, RecipientInputComponent],
@@ -38,6 +45,10 @@ export class MailForm {
   public readonly send = output<MailCreate>();
   public readonly initialValue = input<Partial<Mail>>();
 
+  /**
+   * defines Form for Mail editing
+   * @protected
+   */
   protected readonly form = this.formBuilder.nonNullable.group({
     to: this.formBuilder.nonNullable.control<string[]>([]),
     cc: this.formBuilder.nonNullable.control<string[]>([]),
@@ -47,18 +58,30 @@ export class MailForm {
     bodyText: ['']
   });
 
+  /**
+   * enables validation of the Form (sets validator as required to send a Mail)
+   * @private
+   */
   private enableValidation(){
     this.form.controls.subject.setValidators(Validators.required)
     this.form.setValidators(recipientValidator)
     this.form.updateValueAndValidity()
   }
 
+  /**
+   * disables validation of the Form
+   * @private
+   */
   private disableValidation(){
     this.form.controls.subject.setValidators([])
     this.form.setValidators([])
     this.form.updateValueAndValidity()
   }
 
+  /**
+   * Callback for send-Button
+   * Validates Form before emitting
+   */
   onSend(){
 
     this.enableValidation()
@@ -82,6 +105,9 @@ export class MailForm {
 
   }
 
+  /**
+   * Callback for save-as-draft-Button
+   */
   onSave(){
 
     this.disableValidation()
@@ -101,6 +127,9 @@ export class MailForm {
 
   }
 
+  /**
+   * Constructor to initialise Form with existing data if required
+   */
   constructor() {
     effect(() => {
       const value = this.initialValue();

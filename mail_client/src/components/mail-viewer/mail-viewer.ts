@@ -5,6 +5,10 @@ import {MatButton} from '@angular/material/button';
 import {Router} from '@angular/router';
 import {EmailStatus} from '../../enums/email-status';
 
+/**
+ * Component for displaying a Mail
+ * Shows Author, Recipients, Subject and BodyText allows navigation to edit, forward, or reply if possible
+ */
 @Component({
   selector: 'app-mail-viewer',
   imports: [
@@ -19,21 +23,37 @@ export class MailViewer {
   private readonly _router = inject(Router)
   public readonly mail = input.required<Mail>()
 
+  /**
+   * Callback for edit-Button
+   */
   onEdit() {
     this._router.navigate(['/mails', this.mail().mailId, 'edit'])
   }
 
+  /**
+   * Callback for reply-Button
+   */
   onReply() {
     this._router.navigate(['/mails', this.mail().mailId, 'reply'])
   }
 
+  /**
+   * Callback for reply-all-Button
+   */
   onReplyAll() {
     this._router.navigate(['/mails', this.mail().mailId, 'reply-all'])
   }
 
+  /**
+   * Callback for forward Button
+   */
   onForward() {
     this._router.navigate(['/mails', this.mail().mailId, 'forward'])
   }
 
+  /**
+   * status of the Mail - used to select which Buttons are shown
+   * @protected
+   */
   protected readonly EmailStatus = EmailStatus;
 }
