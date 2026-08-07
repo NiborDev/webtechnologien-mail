@@ -1,6 +1,11 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '../guards/auth-guard';
 
+/**
+ * Application routes.
+ *
+ * @returns Array of application routes
+ */
 export const routes: Routes = [
   {
     path: '',

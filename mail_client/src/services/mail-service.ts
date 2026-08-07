@@ -43,36 +43,74 @@ export class MailService {
     return this.httpClient.get<MailPage>(`${this.apiBasePath}/mails`, { params });
   }
 
+  /**
+   * Get a mail by ID
+   *
+   * @param id Mail ID
+   * @returns Observable with mail
+   */
   public getById(id: string): Observable<Mail> {
     return this.httpClient
       .get<MailResponse>(`${this.apiBasePath}/mails/${id}`)
       .pipe(map(Mail.fromDto));
   }
 
+  /**
+   * Create a new mail
+   *
+   * @param mail Mail to create
+   * @returns Observable with created mail
+   */
   public create(mail: MailCreate): Observable<Mail> {
     return this.httpClient
       .post<MailResponse>(`${this.apiBasePath}/mails`, mail)
       .pipe(map(Mail.fromDto));
   }
 
+  /**
+   * Update a mail
+   *
+   * @param id Mail ID
+   * @param mailUpdateData Mail data to update
+   * @returns Observable with updated mail
+   */
   public updateData(id: string, mailUpdateData: MailUpdate): Observable<Mail> {
     return this.httpClient
       .patch<MailResponse>(`${this.apiBasePath}/mails/${id}`, mailUpdateData)
       .pipe(map(Mail.fromDto));
   }
 
+  /**
+   * Update the read status of a mail
+   *
+   * @param id Mail ID
+   * @param mailUpdateIsRead Mail data to update
+   * @returns Observable with updated mail
+   */
   public updateIsRead(id: string, mailUpdateIsRead: MailUpdateIsRead): Observable<Mail> {
     return this.httpClient
       .patch<MailResponse>(`${this.apiBasePath}/mails/${id}/isRead`, mailUpdateIsRead)
       .pipe(map(Mail.fromDto));
   }
 
+  /**
+   * Send a mail
+   *
+   * @param id Mail ID
+   * @returns Observable with sent mail
+   */
   public send(id: string): Observable<Mail> {
     return this.httpClient
       .post<MailResponse>(`${this.apiBasePath}/mails/${id}/transmissions`, {})
       .pipe(map(Mail.fromDto));
   }
 
+  /**
+   * Delete a mail
+   *
+   * @param id Mail ID
+   * @returns Observable with deleted mail
+   */
   public deleteMail(id: string): Observable<void> {
     return this.httpClient.delete<void>(`${this.apiBasePath}/mails/${id}`);
   }
