@@ -9,7 +9,7 @@ import { Mail } from '../models/Mail';
 import { MailResponse } from '../dtos/MailResponse';
 import { MailCreate } from '../dtos/MailCreate';
 import { MailUpdate } from '../dtos/MailUpdate';
-import { MailUpdateStatus } from '../dtos/MailUpdateStatus';
+import { MailUpdateIsRead } from '../dtos/MailUpdateIsRead';
 import { EmailStatus } from '../enums/email-status';
 import { MailPage } from '../dtos/MailPage';
 
@@ -61,9 +61,9 @@ export class MailService {
       .pipe(map(Mail.fromDto));
   }
 
-  public updateStatus(id: string, mailUpdateStatus: MailUpdateStatus): Observable<Mail> {
+  public updateIsRead(id: string, mailUpdateIsRead: MailUpdateIsRead): Observable<Mail> {
     return this.httpClient
-      .patch<MailResponse>(`${this.apiBasePath}/mails/${id}/status`, mailUpdateStatus)
+      .patch<MailResponse>(`${this.apiBasePath}/mails/${id}/isRead`, mailUpdateIsRead)
       .pipe(map(Mail.fromDto));
   }
 

@@ -5,12 +5,15 @@ import de.thm.mni.mail_backend.data.MailUser
 import de.thm.mni.mail_backend.data.User
 import de.thm.mni.mail_backend.data.enums.EMailStatus
 import de.thm.mni.mail_backend.data.enums.MailUserRelation
+import de.thm.mni.mail_backend.data.enums.Source
 import de.thm.mni.mail_backend.dto.mail.MailUpdateData
 import de.thm.mni.mail_backend.dto.mail.MailUpdateIsRead
-import de.thm.mni.mail_backend.dto.mail.MailUpdateStatus
+import de.thm.mni.mail_backend.repositories.interfaces.AttachmentRepository
 import de.thm.mni.mail_backend.repositories.interfaces.MailRepository
 import de.thm.mni.mail_backend.repositories.interfaces.MailUserRepository
 import de.thm.mni.mail_backend.repositories.interfaces.UserRepository
+import jakarta.validation.ConstraintViolationException
+import jakarta.validation.Validator
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -23,7 +26,9 @@ import java.util.UUID
 class MailService(
     private val mailRepository: MailRepository,
     private val mailUserRepository: MailUserRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val attachmentRepository: AttachmentRepository,
+    private val validator: Validator
 ) {
 
     /**
@@ -46,12 +51,24 @@ class MailService(
     /**
      * Creates a new Mail
      * @param mail The Mail to create
+     * @param currentUserId The ID of the currently logged-in User
      * @return The Created Mail
+     * @throws IllegalArgumentException if mailId or userId is null
+     * @throws NoSuchElementException if the User with the ID currentUserId doesn't exist
      */
     @Transactional
-    fun createMail(mail: Mail): Mail {
+    fun createMail(mail: Mail, currentUserId: UUID): Mail {
+        val user = userRepository.findByUserId(currentUserId)?: throw NoSuchElementException("User with this Mail-Address doesn't exist")
+        mail.from = user.email
+
+        // Maps new Attachments to entities from database (Existing Attachments are already entities)
+        if (mail.attachments.isNotEmpty()) {
+            val attachmentIds = mail.attachments.mapNotNull { it.attachmentId }
+            val loadedAttachments = attachmentRepository.findAllById(attachmentIds)
+            mail.attachments = loadedAttachments.toMutableList()
+        }
+
         val savedMail = mailRepository.save(mail)
-        val user = userRepository.findByEmail(savedMail.from)?: throw NoSuchElementException("User with this Mail-Address doesn't exist")
         mailUserRepository.save(
             MailUser(
                 mailId = savedMail.mailId?: throw IllegalArgumentException("Mail Id Should not be null"),
@@ -85,7 +102,8 @@ class MailService(
      * @throws NoSuchElementException if there is no Mail with the given ID
      * @throws IllegalStateException if the Mail is not a draft (status SENT/RECEIVED, can not be updated)
      */
-    fun updateMail(mailId: UUID,mailUpdateData: MailUpdateData, currentUserId: UUID): Mail {
+    @Transactional
+    fun updateMail(mailId: UUID, mailUpdateData: MailUpdateData, currentUserId: UUID): Mail {
 
         checkUserHasMail(mailId, currentUserId)
 
@@ -96,6 +114,13 @@ class MailService(
         }
 
         val updated = mailUpdateData.toMail(current)
+
+        // Maps new Attachments to entities from database (Existing Attachments are already entities)
+        if (updated.attachments.isNotEmpty()) {
+            val attachmentIds = updated.attachments.mapNotNull { it.attachmentId }
+            val loadedAttachments = attachmentRepository.findAllById(attachmentIds)
+            updated.attachments = loadedAttachments.toMutableList()
+        }
 
         return mailRepository.save(updated)
     }
@@ -124,36 +149,6 @@ class MailService(
         return mailRepository.findByUserIdAndStatus(currentUserId, eMailStatus, pageable)
     }
 
-    /**
-     * Updates the status of a Mail
-     * @param mailId The ID of the existing Mail
-     * @param mailUpdateStatus The Status to update to
-     * @param currentUserId The ID of the currently logged-in User
-     * @return The updated Mail
-     * @throws NoSuchElementException if the Mail does not exist
-     * @throws IllegalStateException if the Mail is not a draft (status SENT/RECEIVED, can not be updated)
-     * @throws IllegalArgumentException if the status to update to is null
-     *
-     */
-    fun updateMailStatus(mailId: UUID, mailUpdateStatus: MailUpdateStatus, currentUserId: UUID) : Mail {
-
-        checkUserHasMail(mailId, currentUserId)
-
-        val current = mailRepository.findById(mailId).orElseThrow { NoSuchElementException("Mail not found!") }
-
-        if (current.status != EMailStatus.DRAFT) {
-            throw IllegalStateException("A Mail can only be edited if its a draft")
-        }
-
-        if (mailUpdateStatus.status == null) {
-            throw IllegalArgumentException("Status to update to can not be null")
-        }
-
-        val updated = current
-        updated.status = mailUpdateStatus.status!!
-
-       return mailRepository.save(updated)
-    }
 
     /**
      * Updates the isRead status of a Mail
@@ -187,6 +182,8 @@ class MailService(
      * @param currentUserId The ID of the currently logged-in User
      * @return mail the send Mail
      * @throws NoSuchElementException if the Mail doesnt exist
+     * @throws IllegalStateException if the Mail is not a DRAFT
+     * @throws ConstraintViolationException if the validation of the Mail fails
      */
     @Transactional
     fun sendMail(mailID: UUID, currentUserId: UUID): Mail{
@@ -194,11 +191,24 @@ class MailService(
 
         val mail = mailRepository.findById(mailID).orElseThrow { NoSuchElementException("Mail not found!") }
 
+        val validationErrors = validator.validate(mail)
+
+        if (validationErrors.isNotEmpty()) {
+            throw ConstraintViolationException(validationErrors)
+        }
+
+        if (mail.status != EMailStatus.DRAFT) {
+            throw IllegalStateException("A Mail can only be send if its a draft")
+        }
+
         val recipients = (mail.to + mail.cc + mail.bcc)
+
+        mail.bcc = mutableListOf() //remove bcc before sending
+        mail.sentAt = LocalDateTime.now()
 
         recipients.forEach {
 
-            val recipient = userRepository.findByEmail(it)
+            val recipient = userRepository.findByEmailIgnoreCase(it)
 
             if (recipient != null) {
                 receiveMail(mail, recipient)
@@ -234,7 +244,7 @@ class MailService(
             sentAt = mail.sentAt,
             receivedAt = LocalDateTime.now(),
             attachments = mail.attachments.toMutableList(),
-            source = mail.source
+            source = Source.EXTERN
         )
         val savedMail = mailRepository.save(receivedMail)
         mailUserRepository.save(

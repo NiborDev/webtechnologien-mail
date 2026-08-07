@@ -199,12 +199,21 @@ export class MailListPageComponent implements OnInit {
   }
 
   /**
-   * Navigates to edit the draft email.
+   * Navigates to edit a draft email by ID.
+   *
+   * @param mailId - The unique ID of the draft email to edit.
+   */
+  onEditMail(mailId: string): void {
+    this.router.navigate(['/mails', mailId, 'edit']);
+  }
+
+  /**
+   * Navigates to edit the selected draft email.
    */
   onEditSelectedMail(): void {
     const selectedIds = Array.from(this.selectedMailIds());
     if (selectedIds.length === 1) {
-      this.router.navigate(['/mails', selectedIds[0]]);
+      this.onEditMail(selectedIds[0]);
     }
   }
 

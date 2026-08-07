@@ -1,12 +1,15 @@
-import {Attachment} from '../models/Attachment';
+import { AttachmentResponse } from './AttachmentResponse';
 
+/**
+ * DTO for updating an existing mail.
+ */
 export type MailUpdate = {
-  mailId: string,
-  from: string,
-  to?: string [],
-  cc?: string [],
-  bcc?: string [],
-  subject?: string,
-  bodyText?: string,
-  attachments?: Attachment[]
-}
+  mailId: string;
+  to?: string[];
+  cc?: string[];
+  bcc?: string[];
+  replyTo?: string[];
+  subject?: string;
+  bodyText?: string;
+  attachments?: AttachmentResponse[];
+};

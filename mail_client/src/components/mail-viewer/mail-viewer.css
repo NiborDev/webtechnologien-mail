@@ -2,18 +2,15 @@
   padding: 20px;
 }
 
-
 .row {
   display: flex;
   gap: 10px;
   margin-bottom: 12px;
 }
 
-
 .row strong {
   width: 100px;
 }
-
 
 .body {
   white-space: pre-wrap;
@@ -23,6 +20,6 @@
 .actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 8px;
+  gap: 12px;
+  margin-top: 20px;
 }
-

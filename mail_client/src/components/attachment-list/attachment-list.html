@@ -1,0 +1,39 @@
+@if (attachments().length > 0) {
+  <div class="attachment-section">
+    <h3 class="attachment-heading">Anhänge ({{ attachments().length }})</h3>
+    <div class="attachment-grid">
+      @for (attachment of attachments(); track attachment.attachmentId) {
+        <div class="attachment-card">
+          <mat-icon class="attachment-icon">insert_drive_file</mat-icon>
+          <div class="attachment-details">
+            <span class="attachment-name">{{ attachment.fileName }}</span>
+            <span class="attachment-size">{{ formatBytes(attachment.sizeBytes) }}</span>
+          </div>
+          <div class="attachment-actions">
+            @if (downloadable()) {
+              <button
+                mat-icon-button
+                type="button"
+                aria-label="Anhang herunterladen"
+                (click)="download.emit(attachment)"
+              >
+                <mat-icon>download</mat-icon>
+              </button>
+            }
+            @if (removable()) {
+              <button
+                mat-icon-button
+                type="button"
+                color="warn"
+                aria-label="Anhang entfernen"
+                (click)="remove.emit(attachment)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}

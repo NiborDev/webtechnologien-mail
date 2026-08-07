@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository
 interface UserRepository : CrudRepository<User, UUID> {
     fun existsByEmail(email: String): Boolean
     fun findByEmail(email: String): User?
+    fun findByEmailIgnoreCase(email: String): User?
+    fun findByUserId(userId: UUID): User?
     fun findAll(pageable: Pageable): Page<User>
     fun findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
         firstName: String,

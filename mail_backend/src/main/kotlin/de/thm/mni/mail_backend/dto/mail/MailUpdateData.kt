@@ -3,8 +3,6 @@ package de.thm.mni.mail_backend.dto.mail
 import de.thm.mni.mail_backend.data.Attachment
 import de.thm.mni.mail_backend.data.Mail
 import jakarta.validation.Valid
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.Size
 import java.util.UUID
 
 //TOOO was ist mit replyTo
@@ -12,17 +10,13 @@ import java.util.UUID
 data class MailUpdateData(
     var mailId: UUID,
     @field:Valid
-    var from: String,
-    @field:Valid
-    @field:Size(min = 1, message = "To address list cannot be empty")
     var to: List<String>?,
     @field:Valid
     var cc: List<String>?,
     @field:Valid
     var bcc: List<String>?,
-    @field:NotBlank(message = "Subject cannot be blank")
     var subject: String?,
-    @field:NotBlank(message = "Email body cannot be blank")
+    var replyTo: List<String>?,
     var bodyText: String?,
     @field:Valid
     var attachments: List<Attachment>?,
@@ -30,11 +24,11 @@ data class MailUpdateData(
     fun toMail(originalMail: Mail): Mail {
         return Mail(
             mailId = originalMail.mailId,
-            from = from,
+            from = originalMail.from,
             to = (to ?: originalMail.to).toMutableList(),
             cc = (cc ?: originalMail.cc).toMutableList(),
             bcc = (bcc ?: originalMail.bcc).toMutableList(),
-            replyTo = originalMail.replyTo,
+            replyTo = (replyTo?: originalMail.replyTo).toMutableList(),
             subject = subject ?: originalMail.subject,
             bodyText = bodyText ?: originalMail.bodyText,
             status = originalMail.status,

@@ -57,6 +57,8 @@ class Mail(
     var isMarked: Boolean = false,
     var sentAt: LocalDateTime? = null,
     var receivedAt: LocalDateTime? = null,
+    var updatedAt: LocalDateTime = LocalDateTime.now(),
+    var createdAt: LocalDateTime = LocalDateTime.now(),
 
     @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "mail_id")
@@ -80,6 +82,8 @@ class Mail(
             isMarked = isMarked,
             sentAt = sentAt,
             receivedAt = receivedAt,
+            createdAt = createdAt ?: LocalDateTime.now(),
+            updatedAt = updatedAt ?: LocalDateTime.now(),
             source = source
         )
     }

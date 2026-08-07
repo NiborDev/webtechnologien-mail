@@ -1,16 +1,14 @@
-import {EmailStatus} from '../enums/email-status';
-import {Attachment} from '../models/Attachment';
-import {Source} from '../enums/source';
+import { AttachmentResponse } from './AttachmentResponse';
 
+/**
+ * DTO for creating a new mail.
+ */
 export type MailCreate = {
-  from: string,
-  to: string [],
-  cc: string [],
-  bcc: string [],
-  replyTo: string [],
-  subject: string,
-  bodyText: string,
-  status: EmailStatus,
-  attachments: Attachment[]
-  source: Source
-}
+  to: string[];
+  cc: string[];
+  bcc: string[];
+  replyTo: string[];
+  subject: string;
+  bodyText: string;
+  attachments: AttachmentResponse[];
+};

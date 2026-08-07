@@ -1,36 +1,17 @@
 import { Component, inject, output } from '@angular/core';
 import {
-  AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
-  ValidationErrors,
-  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { RegistrationData } from '../../dtos/RegistrationData';
-
-/** Backend password pattern: >= 8 characters, min 1 letter, 1 number, and 1 special character (@$!%*#?&) */
-const BACKEND_PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
-
-/**
- * Validator to verify password matching.
- *
- * @param control - AbstractControl representing the form group.
- * @returns ValidationErrors object if mismatch, null otherwise.
- */
-const passwordMatchValidator: ValidatorFn = (
-  control: AbstractControl,
-): ValidationErrors | null => {
-  const password = control.get('password');
-  const passwordConfirm = control.get('passwordConfirm');
-  if (password && passwordConfirm && password.value !== passwordConfirm.value) {
-    return { passwordMismatch: true };
-  }
-  return null;
-};
+import {
+  BACKEND_PASSWORD_PATTERN,
+  passwordMatchValidator,
+} from '../../validators/password-validators';
 
 /**
  * Form component for the user registration.
@@ -59,7 +40,7 @@ export class Registration {
       password: ['', [Validators.required, Validators.pattern(BACKEND_PASSWORD_PATTERN)]],
       passwordConfirm: ['', [Validators.required]],
     },
-    { validators: [passwordMatchValidator] },
+    { validators: [passwordMatchValidator()] },
   );
 
   /**
@@ -74,7 +55,6 @@ export class Registration {
     const { firstName, lastName, email, password } = this.form.getRawValue();
     const userData = new RegistrationData(firstName, lastName, email, password);
     this.register.emit(userData);
-    this.form.reset();
   }
 }
 

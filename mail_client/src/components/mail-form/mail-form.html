@@ -1,6 +1,6 @@
 <form
   [formGroup]="form"
-  (ngSubmit)="onSend()">
+  >
 
   <app-recipient-input
     label="An"
@@ -21,28 +21,6 @@
     label="Reply-To"
     formControlName="replyTo">
   </app-recipient-input>
-
-  <mat-form-field appearance="outline">
-    <mat-label>Von</mat-label>
-
-    <input
-      matInput
-      type="email"
-      formControlName="from">
-
-    @if(form.controls.from.hasError('required')){
-      <mat-error>
-        Absender ist erforderlich.
-      </mat-error>
-    }
-
-    @if(form.controls.from.hasError('email')){
-      <mat-error>
-        Ungültige E-Mail-Adresse.
-      </mat-error>
-    }
-
-  </mat-form-field>
 
   <mat-form-field appearance="outline">
     <mat-label>Betreff</mat-label>
@@ -70,6 +48,42 @@
 
   </mat-form-field>
 
+  <div class="attachment-section">
+    <input
+      #fileUpload
+      type="file"
+      class="file-input"
+      (change)="onFileSelected($event)"
+      multiple
+    />
+
+    <div class="upload-btn-container">
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="fileUpload.click()"
+        [disabled]="isUploading()"
+      >
+        <mat-icon>attach_file</mat-icon>
+        Anhang hinzufügen
+      </button>
+    </div>
+
+    @if (isUploading()) {
+      <div class="progress-container">
+        <mat-progress-bar mode="determinate" [value]="uploadProgress()"></mat-progress-bar>
+        <span>{{ uploadProgress() }}% hochgeladen</span>
+      </div>
+    }
+
+    <app-attachment-list
+      [attachments]="attachments()"
+      [removable]="true"
+      (download)="onDownloadAttachment($event)"
+      (remove)="onRemoveAttachment($event)"
+    ></app-attachment-list>
+  </div>
+
   @if(form.hasError('noRecipient')){
     <mat-error>
       Mindestens ein Empfänger muss angegeben werden.
@@ -81,7 +95,8 @@
     <button
       mat-raised-button
       color="primary"
-      type="submit">
+      type="button"
+      (click)="onSend()">
 
       Senden
 
@@ -91,7 +106,7 @@
       mat-raised-button
       color="primary"
       type="button"
-    (click)="onSave()">
+      (click)="onSave()">
 
       Entwurf speichern
 

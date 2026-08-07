@@ -1,5 +1,5 @@
 import { EmailStatus } from '../enums/email-status';
-import { Attachment } from './Attachment';
+import { AttachmentResponse } from './AttachmentResponse';
 
 /**
  * Data Transfer Object for a mail.
@@ -12,7 +12,7 @@ import { Attachment } from './Attachment';
  * @property {string} subject - The subject of the mail.
  * @property {string} bodyText - The body of the mail.
  * @property {EmailStatus} status - The status of the mail.
- * @property {Attachment[]} attachments - The attachments of the mail.
+ * @property {AttachmentResponse[]} attachments - The attachments of the mail.
  * @property {boolean} isRead - Whether the mail is read.
  * @property {boolean} isMarked - Whether the mail is marked.
  * @property {string | null} sentAt - The sent date of the mail.
@@ -31,7 +31,7 @@ export interface MailResponse {
   subject: string;
   bodyText: string;
   status: EmailStatus;
-  attachments: Attachment[];
+  attachments: AttachmentResponse[];
   isRead: boolean;
   isMarked: boolean;
   sentAt?: string | null;
