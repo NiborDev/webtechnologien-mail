@@ -11,8 +11,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import {MailCreate} from '../../dtos/MailCreate';
-import {EmailStatus} from '../../enums/email-status';
-import {Source} from '../../enums/source';
 import {RecipientInputComponent} from '../recipient-input/recipient-input';
 import {Mail} from '../../models/Mail';
 
@@ -41,18 +39,30 @@ export class MailForm {
   public readonly initialValue = input<Partial<Mail>>();
 
   protected readonly form = this.formBuilder.nonNullable.group({
-    from: ['', [Validators.required, Validators.email]],
     to: this.formBuilder.nonNullable.control<string[]>([]),
     cc: this.formBuilder.nonNullable.control<string[]>([]),
     bcc: this.formBuilder.nonNullable.control<string[]>([]),
     replyTo: this.formBuilder.nonNullable.control<string[]>([]),
-    subject: ['', Validators.required],
+    subject: [''],
     bodyText: ['']
-  },{
-    validators: [recipientValidator]
   });
 
+  private enableValidation(){
+    this.form.controls.subject.setValidators(Validators.required)
+    this.form.setValidators(recipientValidator)
+    this.form.updateValueAndValidity()
+  }
+
+  private disableValidation(){
+    this.form.controls.subject.setValidators([])
+    this.form.setValidators([])
+    this.form.updateValueAndValidity()
+  }
+
   onSend(){
+
+    this.enableValidation()
+
     if(this.form.invalid){
       this.form.markAllAsTouched()
       return
@@ -64,9 +74,7 @@ export class MailForm {
 //TODO attachments
     const mail: MailCreate = {
       ...values,
-      status: EmailStatus.DRAFT,
-      attachments: [],
-      source: Source.INTERN
+      attachments: []
 
     }
 
@@ -76,15 +84,16 @@ export class MailForm {
 
   onSave(){
 
+    this.disableValidation()
+    this.form.markAsUntouched()
+
     const values = this.form.getRawValue()
 
 
 //TODO attachments
     const mail: MailCreate = {
       ...values,
-      status: EmailStatus.DRAFT,
       attachments: [],
-      source: Source.INTERN
 
     }
 
@@ -101,7 +110,6 @@ export class MailForm {
       }
 
       this.form.reset({
-        from: value.from ?? '',
         to: value.to ?? [],
         cc: value.cc ?? [],
         bcc: value.bcc ?? [],

@@ -28,15 +28,33 @@ export const routes: Routes = [
   },
   {
     path: 'mails/:id/edit',
-    loadComponent: () => import('../pages/mail-editor/mail-editor').then((m) => m.MailEditor)
+    loadComponent: () => import('../pages/mail-editor/mail-editor').then((m) => m.MailEditor),
+    canActivate: [AuthGuard]
   },
   {
     path: 'mails/new',
-    loadComponent: () => import('../pages/mail-creator/mail-creator').then((m) => m.MailCreator)
+    loadComponent: () => import('../pages/mail-creator/mail-creator').then((m) => m.MailCreator),
+    canActivate: [AuthGuard]
   },
   {
     path: 'mails/:id',
-    loadComponent: () => import('../pages/mail-detail/mail-detail').then((m) => m.MailDetail)
+    loadComponent: () => import('../pages/mail-detail/mail-detail').then((m) => m.MailDetail),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'mails/:id/reply',
+    loadComponent: () => import('../pages/mail-creator/mail-creator').then((m) => m.MailCreator),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'mails/:id/reply-all',
+    loadComponent: () => import('../pages/mail-creator/mail-creator').then((m) => m.MailCreator),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'mails/:id/forward',
+    loadComponent: () => import('../pages/mail-creator/mail-creator').then((m) => m.MailCreator),
+    canActivate: [AuthGuard]
   }
 
 ];

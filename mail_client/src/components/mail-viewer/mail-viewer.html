@@ -69,10 +69,10 @@
     {{ mail().bodyText }}
   </div>
 
-  @if (mail().status == EmailStatus.DRAFT){
+  <div class="actions">
 
-    <div class="actions">
 
+    @if (mail().status == EmailStatus.DRAFT){
       <button
         mat-raised-button
         color="primary"
@@ -81,10 +81,37 @@
       >
         Bearbeiten
       </button>
+    } @else {
+      <button
+        mat-raised-button
+        color="primary"
+        type="button"
+        (click)="onReply()"
+        >
+        Antworten
+      </button>
 
-    </div>
+      <button
+        mat-raised-button
+        color="primary"
+        type="button"
+        (click)="onReplyAll()"
+      >
+        allen Antworten
+      </button>
 
-  }
+      <button
+        mat-raised-button
+        color="primary"
+        type="button"
+        (click)="onForward()"
+      >
+        Weiterleiten
+      </button>
+    }
+
+  </div>
+
 
 
 
