@@ -81,9 +81,9 @@ class AttachmentController(
             throw IllegalArgumentException("Upload request must contain at least one file.")
         }
         
-        val result = attachmentService.saveAttachments(files, UUID.fromString(currentUser.username))
-        logger.info("Upload successful: {} file(s) saved for user {}", result.size, currentUser.username)
-        return result
+        val attachments = attachmentService.saveAttachments(files, UUID.fromString(currentUser.username))
+        logger.info("Upload successful: {} file(s) saved for user {}", attachments.size, currentUser.username)
+        return attachments.map { it.toResponse() }
     }
 
     /**
@@ -153,12 +153,7 @@ class AttachmentController(
         @AuthenticationPrincipal currentUser: UserDetails
     ) {
         logger.info("Delete request for attachment {} by user {}", id, currentUser.username)
-
-        try {
-            attachmentService.deleteAttachment(id, UUID.fromString(currentUser.username))
-            logger.info("Attachment {} deleted successfully by user {}", id, currentUser.username)
-        } catch (e: Exception) {
-            logger.warn("Idempotent attachment deletion handling for attachment {}: {}", id, e.message)
-        }
+        attachmentService.deleteAttachment(id, UUID.fromString(currentUser.username))
+        logger.info("Attachment {} deleted successfully by user {}", id, currentUser.username)
     }
 }

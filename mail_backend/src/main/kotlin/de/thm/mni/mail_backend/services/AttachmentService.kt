@@ -3,8 +3,6 @@ package de.thm.mni.mail_backend.services
 import de.thm.mni.mail_backend.data.Attachment
 import de.thm.mni.mail_backend.data.enums.EMailStatus
 import de.thm.mni.mail_backend.data.enums.MailUserRelation
-import de.thm.mni.mail_backend.dto.attachments.AttachmentCreate
-import de.thm.mni.mail_backend.dto.attachments.AttachmentResponse
 import de.thm.mni.mail_backend.exceptions.StorageFileNotFoundException
 import de.thm.mni.mail_backend.repositories.interfaces.AttachmentRepository
 import de.thm.mni.mail_backend.repositories.interfaces.MailRepository
@@ -37,7 +35,7 @@ class AttachmentService(
      * @param currentUserId The ID of the currently logged-in User
      * @throws NoSuchElementException if no Mail with the Attachment was found or User does not own the Mail
      */
-    fun checkUserHasAttachment(attachmentId: UUID, currentUserId: UUID) {
+    private fun checkUserHasAttachment(attachmentId: UUID, currentUserId: UUID) {
         val mail = mailRepository.findByAttachmentsAttachmentId(attachmentId)
         if (mail == null) {
             val attachment = attachmentRepository.findById(attachmentId).orElseThrow {
@@ -66,7 +64,7 @@ class AttachmentService(
      * @param currentUserId The ID of the currently logged-in User
      * @throws AccessDeniedException if the user is not the author or the mail has already been sent
      */
-    fun checkUserCanDeleteAttachment(attachmentId: UUID, currentUserId: UUID) {
+    private fun checkUserCanDeleteAttachment(attachmentId: UUID, currentUserId: UUID) {
         val mail = mailRepository.findByAttachmentsAttachmentId(attachmentId)
         if (mail == null) {
             val attachment = attachmentRepository.findById(attachmentId).orElse(null) ?: return
@@ -87,8 +85,8 @@ class AttachmentService(
             throw NoSuchElementException("Resource not found")
         }
 
-        // Verify email status: email must be DRAFT
-        if (mail.status != EMailStatus.DRAFT) {
+        // Verify email status: email must be DRAFT or ERROR
+        if ((mail.status != EMailStatus.DRAFT) && (mail.status != EMailStatus.ERROR)) {
             logger.warn("Attempted to delete attachment {} on mail {} with status {}", attachmentId, mail.mailId, mail.status)
             throw NoSuchElementException("Resource not found")
         }
@@ -99,26 +97,19 @@ class AttachmentService(
      *
      * @param files The list of uploaded multipart files to process and store.
      * @param currentUserId The ID of the currently authenticated user uploading the files.
-     * @return A list of [AttachmentResponse] DTOs representing the saved attachments.
+     * @return A list of [Attachment] entities representing the saved attachments.
      */
     @Transactional
-    fun saveAttachments(files: List<MultipartFile>, currentUserId: UUID): List<AttachmentResponse> {
+    fun saveAttachments(files: List<MultipartFile>, currentUserId: UUID): List<Attachment> {
         logger.info("Starting to save {} attachment(s) for user {}", files.size, currentUserId)
         return files.map { file ->
             // store file in user folder
             val savePath = fileStorageService.store(file, currentUserId)
-
-            // create attachment DTO from file
-            val attachmentCreate = AttachmentCreate.fromFile(file, savePath.toString())
-            
-            // convert to entity and save
-            val attachment = attachmentCreate.toAttachment()
+            val attachment = Attachment.fromFile(file, savePath.toString())
             val saved = attachmentRepository.save(attachment)
             
             logger.debug("Attachment saved with ID: {} ({}) for user {}", saved.attachmentId, file.originalFilename, currentUserId)
-
-            // convert to response
-            saved.toResponse()
+            saved
         }.also { 
             logger.info("Successfully saved {} attachment(s) for user {}", it.size, currentUserId)
         }
@@ -144,32 +135,37 @@ class AttachmentService(
     }
 
     /**
-     * Deletes an attachment if the user is the author/owner and the associated email has not yet been sent.
+     * Deletes an attachment idempotently if the user is the author/owner and the associated email has not yet been sent.
+     * Any non-existent file or authorization error during deletion is handled gracefully.
      *
      * @param id The unique ID of the attachment to delete.
      * @param currentUserId The ID of the currently authenticated user requesting deletion.
-     * @throws NoSuchElementException If the attachment or its associated mail does not exist.
-     * @throws AccessDeniedException If the user is not the owner/author or if the email is already sent.
      */
     @Transactional
     fun deleteAttachment(id: UUID, currentUserId: UUID) {
         logger.info("Delete request for attachment ID: {} by user ID: {}", id, currentUserId)
 
-        val attachment = attachmentRepository.findById(id).orElseThrow {
-            NoSuchElementException("Attachment not found with id $id")
+        try {
+            val attachment = attachmentRepository.findById(id).orElse(null)
+            if (attachment == null) {
+                logger.info("Attachment ID: {} not found or already deleted (idempotent deletion)", id)
+                return
+            }
+
+            checkUserCanDeleteAttachment(id, currentUserId)
+
+            val mail = mailRepository.findByAttachmentsAttachmentId(id)
+            if (mail != null) {
+                mail.attachments.removeIf { it.attachmentId == id }
+                mailRepository.save(mail)
+            }
+
+            attachmentRepository.delete(attachment)
+            fileStorageService.delete(attachment.storageUrl)
+            logger.info("Successfully deleted attachment ID: {}", id)
+        } catch (e: Exception) {
+            logger.warn("Idempotent attachment deletion handling for attachment {}: {}", id, e.message)
         }
-
-        checkUserCanDeleteAttachment(id, currentUserId)
-
-        val mail = mailRepository.findByAttachmentsAttachmentId(id)
-        if (mail != null) {
-            mail.attachments.removeIf { it.attachmentId == id }
-            mailRepository.save(mail)
-        }
-
-        attachmentRepository.delete(attachment)
-        fileStorageService.delete(attachment.storageUrl)
-        logger.info("Successfully deleted attachment ID: {}", id)
     }
 
 }

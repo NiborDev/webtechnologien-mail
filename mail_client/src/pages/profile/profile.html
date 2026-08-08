@@ -63,7 +63,7 @@
         <p class="error-message">{{ passwordErrorMessage() }}</p>
       }
 
-      <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+      <form [formGroup]="passwordForm" #passwordNgForm="ngForm" (ngSubmit)="onChangePassword(passwordNgForm)">
         <mat-form-field class="full-width">
           <mat-label for="pwd-old">Altes Passwort</mat-label>
           <input id="pwd-old" matInput type="password" formControlName="oldPassword" aria-label="Altes Passwort">

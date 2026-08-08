@@ -34,15 +34,20 @@ export class MailListPageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
 
+  /** Currently selected Tab*/
   readonly activeStatusTab = signal<EmailStatus>(EmailStatus.RECEIVED);
+  /** Data for pagination*/
   readonly pageIndex = signal<number>(0);
   readonly pageSize = signal<number>(10);
   readonly totalElements = signal<number>(0);
 
   /** List of email models for the current page. */
   readonly mails = signal<Mail[]>([]);
+  /** Signal for loading state*/
   readonly isLoading = signal<boolean>(false);
+  /** IDs of selected mails*/
   readonly selectedMailIds = signal<Set<string>>(new Set());
+  /** Signal holding the error message if an error occurs*/
   readonly errorMessage = signal<string | null>(null);
 
   /** Map linking email addresses to user display names (managed on page). */
@@ -52,9 +57,19 @@ export class MailListPageComponent implements OnInit {
   readonly sortField = signal<string>('date');
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
 
+  /** amount of mails selected*/
   readonly selectedMailCount = computed(() => this.selectedMailIds().size);
+
+  /**
+   * Indicates whether selection-mode is currently active
+   * @returns true if at least one mail is selected (selection mode active), otherwise false
+   */
   readonly hasSelection = computed(() => this.selectedMailCount() > 0);
 
+  /**
+   * Indicates whether all mails are selected
+   * @returns true if all mails are selected, otherwise false
+   */
   readonly isAllSelected = computed(() => {
     const list = this.mails();
     const sel = this.selectedMailIds();

@@ -7,6 +7,11 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 import java.util.UUID
 
+/**
+ * DTO for a detailed email response.
+ * 
+ * Used to return a full email object with all details.
+ */
 @Schema(description = "Full email detail response payload.")
 data class MailResponse(
     @field:Schema(description = "Unique UUID of the email", example = "987e6543-e21b-12d3-a456-426614174000")

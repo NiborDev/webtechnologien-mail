@@ -7,6 +7,10 @@ import de.thm.mni.mail_backend.dto.mail.MailResponse
 import de.thm.mni.mail_backend.dto.mail.MailUpdateData
 import de.thm.mni.mail_backend.dto.mail.MailUpdateIsRead
 import de.thm.mni.mail_backend.services.MailService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.data.domain.Page
@@ -28,7 +32,8 @@ import java.util.UUID
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
-
+@Tag(name = "Mails",
+    description = "Manages API for Mails including creating, reading, updating, deleting, sending and receiving Mails",)
 @DefaultApiErrors
 @RestController
 @RequestMapping("/mails")
@@ -41,6 +46,16 @@ class MailController(val mailService: MailService) {
      * @param userDetails User Data from JWT
      * @return The created Mail
      */
+    @Operation(
+        operationId = "createMail",
+        summary = "create a new Mail",
+        description = "This Function creates a new Mail, sets the sender (from) and creates relations to attachments and Users"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "201", description = "Mail creation successful.")
+        ]
+    )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createMail(@Valid @RequestBody mailCreate: MailCreate, @AuthenticationPrincipal userDetails: UserDetails): MailResponse {
@@ -55,6 +70,16 @@ class MailController(val mailService: MailService) {
      * @param id The ID of the Mail to delete
      * @param userDetails User Data from JWT
      */
+    @Operation(
+        operationId = "deleteMail",
+        summary = "Deletes a Mail",
+        description = "This function deletes a Mail from the System."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204", description = "User deleted successfully.")
+        ]
+    )
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteMail(@PathVariable id: UUID, @AuthenticationPrincipal userDetails: UserDetails) {
@@ -70,10 +95,23 @@ class MailController(val mailService: MailService) {
      * @param userDetails User Data from JWT
      * @return The updated Mail
      */
+    @Operation(
+        operationId = "updateMailData",
+        summary = "Updates a Mail",
+        description = "This function updates a Mail including recipients, subject, attachments and bodyText."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Mail successfully updated.")
+        ]
+    )
     @PatchMapping("/{id}")
     fun updateMailData(@PathVariable id: UUID, @Valid @RequestBody mailUpdateData: MailUpdateData, @AuthenticationPrincipal userDetails: UserDetails ): MailResponse {
+        val currentUserId = UUID.fromString(userDetails.username)
+        val originalMail = mailService.getById(id, currentUserId)
+        val updatedMail = mailUpdateData.toMail(originalMail)
         logger.info("User {} updating mail {}", userDetails.username, id)
-        val mail = mailService.updateMail(id, mailUpdateData, UUID.fromString(userDetails.username))
+        val mail = mailService.updateMail(id, updatedMail, currentUserId)
         logger.info("Mail {} updated successfully by user {}", id, userDetails.username)
         return mail.toResponse()
     }
@@ -85,10 +123,21 @@ class MailController(val mailService: MailService) {
      * @param userDetails User Data from JWT
      * @return The updated Mail
      */
+    @Operation(
+        operationId = "updateMailIsRead",
+        summary = "Updates the isRead status of a Mail",
+        description = "This function updates the isRead status of a Mail from the System."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "isRead status successfully updated.")
+        ]
+    )
     @PatchMapping("/{id}/isRead")
     fun updateMailIsRead(@PathVariable id: UUID, @Valid @RequestBody mailUpdateIsRead: MailUpdateIsRead, @AuthenticationPrincipal userDetails: UserDetails): MailResponse {
+        val isRead = requireNotNull(mailUpdateIsRead.isRead) { "Status of isRead is null" }
         logger.debug("Mail isRead status of {} updated to {} by user {}", id, mailUpdateIsRead.isRead, userDetails.username)
-        val mail = mailService.updateMailIsRead(id, mailUpdateIsRead, UUID.fromString(userDetails.username))
+        val mail = mailService.updateMailIsRead(id, isRead, UUID.fromString(userDetails.username))
         return mail.toResponse()
     }
 
@@ -98,6 +147,16 @@ class MailController(val mailService: MailService) {
      * @param userDetails User Data from JWT
      * @return The Mail
      */
+    @Operation(
+        operationId = "getMailById",
+        summary = "gets a single mail",
+        description = "This function gets a single mail with a specific ID from the System."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Mail retrieved successfully.")
+        ]
+    )
     @GetMapping("/{id}")
     fun getMailById(@PathVariable id: UUID, @AuthenticationPrincipal userDetails: UserDetails): MailResponse {
         logger.debug("Fetching mail {} for user {}", id, userDetails.username)
@@ -106,12 +165,22 @@ class MailController(val mailService: MailService) {
     }
 
     /**
-     * GET /mails gets all Mails from the current User with the selected Status
+     * GET /mails gets all Mails from the current User with the selected Status as a paginated List
      * @param status RequestParam for the selected Status
      * @param pageable Pageable Object for paging
      * @param userDetails User Data from JWT
-     * @return A List of the Mails from the current User
+     * @returns A Page of the Mails from the current User
      */
+    @Operation(
+        operationId = "getMails",
+        summary = "gets all mails of the current User",
+        description = "This function retrieves all mails of the current User as a paginated List"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Mails retrieved successfully.")
+        ]
+    )
     @GetMapping
     fun getMails(
         @RequestParam status: EMailStatus,
@@ -130,6 +199,16 @@ class MailController(val mailService: MailService) {
      * @param userDetails User Data from JWT
      * @return the send mail
      */
+    @Operation(
+        operationId = "sendMail",
+        summary = "sends a mail",
+        description = "This function triggers the send operation for a mail in the system."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Mail successfully send.")
+        ]
+    )
     @PostMapping("/{id}/transmissions")
     fun sendMail(@PathVariable id: UUID, @AuthenticationPrincipal userDetails: UserDetails): MailResponse{
         logger.info("User {} sending mail {}", userDetails.username, id)

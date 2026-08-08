@@ -76,7 +76,7 @@ class UserController(
     @ResponseStatus(HttpStatus.CREATED)
     fun registerUser(@Valid @RequestBody userCreate: UserCreate): UserResponse {
         logger.info("Registering user with email: {}", userCreate.email)
-        val user = userService.registerUser(userCreate)
+        val user = userService.registerUser(userCreate.toUser())
         logger.info("User registered successfully with ID: {}", user.userId)
         return user.toResponse()
     }
@@ -103,7 +103,7 @@ class UserController(
     @PostMapping("/login")
     fun loginUser(@Valid @RequestBody userLogin: UserLogin): LoginResponse {
         logger.info("Login attempt for email: {}", userLogin.email)
-        val user = userService.login(userLogin)
+        val user = userService.login(userLogin.email, userLogin.password)
         val token = jwtService.createToken(user.userId.toString())
         logger.info("User logged in successfully with ID: {}", user.userId)
         return LoginResponse(token, user.toResponse())
@@ -192,8 +192,11 @@ class UserController(
             @Valid @RequestBody userUpdate: UserUpdate,
             @AuthenticationPrincipal currentUser: UserDetails
     ): UserResponse {
+        val currentUserId = UUID.fromString(currentUser.username)
+        val existingUser = userService.getUserById(id, currentUserId)
+        val userToUpdate = userUpdate.toUser(existingUser)
         logger.info("User {} updating details for user ID {}", currentUser.username, id)
-        val updatedUser = userService.updateUser(id, UUID.fromString(currentUser.username), userUpdate)
+        val updatedUser = userService.updateUser(id, currentUserId, userToUpdate)
         logger.info("User ID {} updated successfully", id)
         return updatedUser.toResponse()
     }
@@ -224,8 +227,9 @@ class UserController(
             @Valid @RequestBody passwordChange: UserPasswordUpdate,
             @AuthenticationPrincipal currentUser: UserDetails
     ): UserResponse {
+        val currentUserId = UUID.fromString(currentUser.username)
         logger.info("User {} changing password for user ID {}", currentUser.username, id)
-        val updatedUser = userService.updatePassword(id, passwordChange, UUID.fromString(currentUser.username))
+        val updatedUser = userService.updatePassword(id, currentUserId, passwordChange.oldPassword, passwordChange.newPassword)
         logger.info("Password updated successfully for user ID {}", id)
         return updatedUser.toResponse()
     }

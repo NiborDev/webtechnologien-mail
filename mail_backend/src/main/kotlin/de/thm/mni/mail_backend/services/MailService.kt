@@ -1,13 +1,12 @@
 package de.thm.mni.mail_backend.services
 
+import de.thm.mni.mail_backend.data.Attachment
 import de.thm.mni.mail_backend.data.Mail
 import de.thm.mni.mail_backend.data.MailUser
 import de.thm.mni.mail_backend.data.User
 import de.thm.mni.mail_backend.data.enums.EMailStatus
 import de.thm.mni.mail_backend.data.enums.MailUserRelation
 import de.thm.mni.mail_backend.data.enums.Source
-import de.thm.mni.mail_backend.dto.mail.MailUpdateData
-import de.thm.mni.mail_backend.dto.mail.MailUpdateIsRead
 import de.thm.mni.mail_backend.repositories.interfaces.AttachmentRepository
 import de.thm.mni.mail_backend.repositories.interfaces.MailRepository
 import de.thm.mni.mail_backend.repositories.interfaces.MailUserRepository
@@ -22,7 +21,11 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.util.UUID
 
-
+/**
+ * Service for Mail entities.
+ * 
+ * This service is used to perform the business logic for mail management.
+ */
 @Service
 class MailService(
     private val mailRepository: MailRepository,
@@ -101,34 +104,32 @@ class MailService(
     /**
      * Updates a existing Mail (DRAFT)
      * @param mailId The ID of the existing Mail
-     * @param mailUpdateData The Information to update
+     * @param updatedMail The updated Mail entity
      * @param currentUserId The ID of the currently logged-in User
      * @return The updated Mail
      * @throws NoSuchElementException if there is no Mail with the given ID
      * @throws IllegalStateException if the Mail is not a draft (status SENT/RECEIVED, can not be updated)
      */
     @Transactional
-    fun updateMail(mailId: UUID, mailUpdateData: MailUpdateData, currentUserId: UUID): Mail {
+    fun updateMail(mailId: UUID, updatedMail: Mail, currentUserId: UUID): Mail {
 
         checkUserHasMail(mailId, currentUserId)
 
         val current = mailRepository.findById(mailId).orElseThrow { NoSuchElementException("Mail not found!") }
 
-        if (current.status != EMailStatus.DRAFT) {
+        if ((current.status != EMailStatus.DRAFT) && (current.status != EMailStatus.ERROR)) {
             logger.warn("Update failed: Mail {} is not a DRAFT (current status: {})", mailId, current.status)
             throw IllegalStateException("A Mail can only be edited if its a draft")
         }
 
-        val updated = mailUpdateData.toMail(current)
-
         // Maps new Attachments to entities from database (Existing Attachments are already entities)
-        if (updated.attachments.isNotEmpty()) {
-            val attachmentIds = updated.attachments.mapNotNull { it.attachmentId }
+        if (updatedMail.attachments.isNotEmpty()) {
+            val attachmentIds = updatedMail.attachments.mapNotNull { it.attachmentId }
             val loadedAttachments = attachmentRepository.findAllById(attachmentIds)
-            updated.attachments = loadedAttachments.toMutableList()
+            updatedMail.attachments = loadedAttachments.toMutableList()
         }
 
-        val savedMail = mailRepository.save(updated)
+        val savedMail = mailRepository.save(updatedMail)
         logger.info("Updated draft mail {} for user {}", mailId, currentUserId)
         return savedMail
     }
@@ -161,27 +162,20 @@ class MailService(
     /**
      * Updates the isRead status of a Mail
      * @param mailId The ID of the existing Mail
-     * @param mailUpdateIsRead The Status to update to
+     * @param isRead The status to update to
      * @param currentUserId The ID of the currently logged-in User
      * @return The updated Mail
      * @throws NoSuchElementException if the Mail does not exist
-     * @throws IllegalArgumentException if the status to update to is null
-     *
      */
-    fun updateMailIsRead(mailId: UUID, mailUpdateIsRead: MailUpdateIsRead, currentUserId: UUID) : Mail {
+    fun updateMailIsRead(mailId: UUID, isRead: Boolean, currentUserId: UUID) : Mail {
 
         checkUserHasMail(mailId, currentUserId)
 
         val current = mailRepository.findById(mailId).orElseThrow { NoSuchElementException("Mail not found!") }
 
-        if (mailUpdateIsRead.isRead == null) {
-            throw IllegalArgumentException("Status to update to can not be null")
-        }
+        current.isRead = isRead
 
-        val updated = current
-        updated.isRead = mailUpdateIsRead.isRead!!
-
-        return mailRepository.save(updated)
+        return mailRepository.save(current)
     }
 
     /**
@@ -202,16 +196,20 @@ class MailService(
         val validationErrors = validator.validate(mail)
 
         if (validationErrors.isNotEmpty()) {
+            mail.status = EMailStatus.ERROR
+            mailRepository.save(mail)
             logger.warn("Send failed: Mail {} failed validation with {} errors", mailID, validationErrors.size)
             throw ConstraintViolationException(validationErrors)
         }
 
-        if (mail.status != EMailStatus.DRAFT) {
+        if ((mail.status != EMailStatus.DRAFT) && (mail.status != EMailStatus.ERROR)) {
+            mail.status = EMailStatus.ERROR
+            mailRepository.save(mail)
             logger.warn("Send failed: Mail {} is not a DRAFT (status: {})", mailID, mail.status)
             throw IllegalStateException("A Mail can only be send if its a draft")
         }
 
-        val recipients = (mail.to + mail.cc + mail.bcc)
+        val recipients = (mail.to + mail.cc + mail.bcc).distinct()
 
         mail.bcc = mutableListOf() //remove bcc before sending
         mail.sentAt = LocalDateTime.now()
@@ -255,7 +253,17 @@ class MailService(
             isMarked = false,
             sentAt = mail.sentAt,
             receivedAt = LocalDateTime.now(),
-            attachments = mail.attachments.toMutableList(),
+            attachments = mail.attachments.map { attachment ->
+                Attachment(
+                    attachmentId = UUID.randomUUID(),
+                    fileName = attachment.fileName,
+                    sizeBytes = attachment.sizeBytes,
+                    storageUrl = attachment.storageUrl,
+                    createdAt = attachment.createdAt,
+                    updatedAt = LocalDateTime.now(),
+                    mimeType = attachment.mimeType
+                )
+            }.toMutableList(),
             source = Source.EXTERN
         )
         val savedMail = mailRepository.save(receivedMail)

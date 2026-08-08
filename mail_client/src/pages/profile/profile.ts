@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import {
   FormBuilder,
+  FormGroupDirective,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -135,7 +136,7 @@ export class Profile implements OnInit {
   /**
    * Submits old password and new password to update account credentials.
    */
-  onChangePassword(): void {
+  onChangePassword(formDirective?: FormGroupDirective): void {
     this.passwordSuccessMessage.set(null);
     this.passwordErrorMessage.set(null);
 
@@ -154,7 +155,7 @@ export class Profile implements OnInit {
     this.userService.updatePassword(userId, { oldPassword, newPassword }).subscribe({
       next: () => {
         this.passwordSuccessMessage.set('Passwort erfolgreich geändert.');
-        this.passwordForm.reset();
+        formDirective?.resetForm();
       },
       error: () => {
         this.passwordErrorMessage.set('Fehler beim Ändern des Passworts. Bitte altes Passwort prüfen.');

@@ -26,6 +26,10 @@ export class MailCreator {
   private readonly snackBar = inject(MatSnackBar);
   private readonly authService = inject(AuthService);
 
+  /**
+   * URL parameters required for reply/reply-all/forward
+   * @private
+   */
   private readonly id = this.route.snapshot.paramMap.get('id');
   private readonly mode = this.route.snapshot.url.at(-1)?.path;
 

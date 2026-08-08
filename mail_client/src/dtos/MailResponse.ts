@@ -38,5 +38,5 @@ export interface MailResponse {
   receivedAt?: string | null;
   createdAt: string;
   updatedAt: string;
-  source?: string;
+  source: string;
 }

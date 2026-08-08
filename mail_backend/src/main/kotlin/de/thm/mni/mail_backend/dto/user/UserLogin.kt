@@ -5,6 +5,11 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 
+/**
+ * DTO for user login.
+ * 
+ * Used to send a request to log in.
+ */
 @Schema(description = "The data of the user that is used to log in.")
 data class UserLogin(
     @field:Schema(description = "User email address", example = "john.doe@example.com")

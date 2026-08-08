@@ -75,6 +75,11 @@ class Mail(
 
     var source: Source = Source.INTERN,
 ) {
+    /**
+     * Converts the Mail to a MailResponse.
+     * 
+     * @return The MailResponse.
+     */
     fun toResponse(): MailResponse {
         return MailResponse(
             mailId = requireNotNull(mailId) { "mailId must not be null" },

@@ -7,6 +7,11 @@ import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.Valid
 import java.util.UUID
 
+/**
+ * DTO for updating a mail.
+ * 
+ * Used to send a request to update a mail.
+ */
 @Schema(description = "Request payload for updating editable content of a draft email.")
 data class MailUpdateData(
     @field:Schema(description = "UUID of the email to update", example = "987e6543-e21b-12d3-a456-426614174000")
