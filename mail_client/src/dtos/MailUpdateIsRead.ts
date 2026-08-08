@@ -1,7 +1,6 @@
 /**
- * DTO for updating the read status of a mail.
- *
- * @property isRead - boolean indicating if the mail is read
+ * Data Transfer Object for updating the isRead status of a Mail
+ * @property {boolean} isRead The status to update to
  */
 export type MailUpdateIsRead = {
   isRead: boolean

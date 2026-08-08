@@ -17,6 +17,9 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
 import { MatFormFieldModule } from "@angular/material/form-field";
 
+/**
+ * Component for managing input of multiple mail-addresses
+ */
 @Component({
   selector: 'app-recipient-input',
   standalone: true,
@@ -69,6 +72,10 @@ export class RecipientInputComponent
     this.disabled = disabled;
   }
 
+  /**
+   * Validate and add a Mail-Address
+   * @param event
+   */
   add(event: MatChipInputEvent): void {
 
     const value = event.value.trim();
@@ -96,6 +103,10 @@ export class RecipientInputComponent
     this.onTouched();
   }
 
+  /**
+   * Remove a mail-address
+   * @param mail
+   */
   remove(mail: string): void {
 
     const mails = this.recipients()
