@@ -85,7 +85,7 @@
 
     <div class="row">
       <strong>Status:</strong>
-      <span>{{ mail().status }}</span>
+      <span>{{ mail().status.toString() }}</span>
     </div>
 
     <div class="row">
@@ -119,7 +119,7 @@
   <div class="actions">
 
 
-    @if (mail().status == EmailStatus.DRAFT){
+    @if ((mail().status == EmailStatus.DRAFT) || (mail().status == EmailStatus.ERROR)){
       <button
         mat-raised-button
         color="primary"

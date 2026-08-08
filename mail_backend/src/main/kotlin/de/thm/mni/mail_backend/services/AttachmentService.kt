@@ -88,8 +88,8 @@ class AttachmentService(
             throw NoSuchElementException("Resource not found")
         }
 
-        // Verify email status: email must be DRAFT
-        if (mail.status != EMailStatus.DRAFT) {
+        // Verify email status: email must be DRAFT or ERROR
+        if ((mail.status != EMailStatus.DRAFT) || (mail.status != EMailStatus.ERROR)) {
             logger.warn("Attempted to delete attachment {} on mail {} with status {}", attachmentId, mail.mailId, mail.status)
             throw NoSuchElementException("Resource not found")
         }
