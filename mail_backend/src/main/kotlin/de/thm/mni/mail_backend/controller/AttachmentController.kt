@@ -153,12 +153,7 @@ class AttachmentController(
         @AuthenticationPrincipal currentUser: UserDetails
     ) {
         logger.info("Delete request for attachment {} by user {}", id, currentUser.username)
-
-        try {
-            attachmentService.deleteAttachment(id, UUID.fromString(currentUser.username))
-            logger.info("Attachment {} deleted successfully by user {}", id, currentUser.username)
-        } catch (e: Exception) {
-            logger.warn("Idempotent attachment deletion handling for attachment {}: {}", id, e.message)
-        }
+        attachmentService.deleteAttachment(id, UUID.fromString(currentUser.username))
+        logger.info("Attachment {} deleted successfully by user {}", id, currentUser.username)
     }
 }
