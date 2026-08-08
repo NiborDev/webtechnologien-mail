@@ -118,7 +118,12 @@ export class UserService {
   public deleteUser(id: string): Observable<void> {
     return this.httpClient.delete<void>(`${this.apiBasePath}/users/${id}`);
   }
-
+  /**
+   * Maps a UserResponse object to a User model instance.
+   *
+   * @param res - UserResponse DTO.
+   * @returns User model instance.
+   */
   private mapToUser(res: UserResponse): User {
     return new User(res.userId, res.email, res.firstName, res.lastName);
   }

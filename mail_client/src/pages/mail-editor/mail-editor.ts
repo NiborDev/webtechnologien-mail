@@ -23,7 +23,10 @@ export class MailEditor {
   private readonly route = inject(ActivatedRoute);
   private readonly snackBar = inject(MatSnackBar)
 
-
+  /**
+   * URL parameter for the ID of the Mail
+   * @private
+   */
   private readonly id = this.route.snapshot.paramMap.get('id')!;
 
   /**

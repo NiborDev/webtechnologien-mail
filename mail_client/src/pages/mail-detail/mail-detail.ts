@@ -20,6 +20,10 @@ export class MailDetail {
   private readonly mailService: MailService = inject(MailService)
   private readonly route = inject(ActivatedRoute);
 
+  /**
+   * URL parameter for the Mail ID
+   * @private
+   */
   private readonly id = this.route.snapshot.paramMap.get('id')!;
 
   /**

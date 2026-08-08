@@ -20,7 +20,6 @@ import { Mail } from '../../models/Mail';
 import { Attachment } from '../../models/Attachment';
 import { AttachmentResponse } from '../../dtos/AttachmentResponse';
 import { AttachmentService } from '../../services/attachment-service';
-import { formatBytes } from '../../utils/file-formatter';
 
 import { AttachmentList } from '../attachment-list/attachment-list';
 
@@ -188,15 +187,6 @@ export class MailForm {
     }
   }
 
-  /**
-   * Formats raw bytes into a human-readable file size string.
-   *
-   * @param bytes Number of bytes to format.
-   * @returns Formatted string representation.
-   */
-  protected formatBytes(bytes: number): string {
-    return formatBytes(bytes);
-  }
 
   /**
    * Validates form inputs and emits the `send` output event with the created mail payload.
