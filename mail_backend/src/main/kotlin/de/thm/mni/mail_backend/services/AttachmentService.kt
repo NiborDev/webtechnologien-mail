@@ -13,10 +13,7 @@ import org.springframework.core.io.Resource
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.util.MimeType
-import org.springframework.util.MimeTypeUtils
 import org.springframework.web.multipart.MultipartFile
-import java.time.LocalDateTime
 import java.util.UUID
 
 /**
@@ -89,7 +86,7 @@ class AttachmentService(
         }
 
         // Verify email status: email must be DRAFT or ERROR
-        if ((mail.status != EMailStatus.DRAFT) || (mail.status != EMailStatus.ERROR)) {
+        if ((mail.status != EMailStatus.DRAFT) && (mail.status != EMailStatus.ERROR)) {
             logger.warn("Attempted to delete attachment {} on mail {} with status {}", attachmentId, mail.mailId, mail.status)
             throw NoSuchElementException("Resource not found")
         }

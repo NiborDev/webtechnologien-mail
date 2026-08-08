@@ -117,7 +117,7 @@ class MailService(
 
         val current = mailRepository.findById(mailId).orElseThrow { NoSuchElementException("Mail not found!") }
 
-        if ((current.status != EMailStatus.DRAFT) || (current.status != EMailStatus.ERROR)) {
+        if ((current.status != EMailStatus.DRAFT) && (current.status != EMailStatus.ERROR)) {
             logger.warn("Update failed: Mail {} is not a DRAFT (current status: {})", mailId, current.status)
             throw IllegalStateException("A Mail can only be edited if its a draft")
         }
@@ -202,7 +202,7 @@ class MailService(
             throw ConstraintViolationException(validationErrors)
         }
 
-        if ((mail.status != EMailStatus.DRAFT) || (mail.status != EMailStatus.DRAFT)) {
+        if ((mail.status != EMailStatus.DRAFT) && (mail.status != EMailStatus.ERROR)) {
             mail.status = EMailStatus.ERROR
             mailRepository.save(mail)
             logger.warn("Send failed: Mail {} is not a DRAFT (status: {})", mailID, mail.status)
