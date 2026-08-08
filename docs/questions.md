@@ -15,7 +15,7 @@ Bsp: Es soll ein neuer Nutzer angelegt werden. Durch den UserService wird die re
 
 **4\. Draw a 3 tier application architecture of your current email system**
 
-**![][image1]**
+**![architecture](./diagram.png)**
 
 ---
 
