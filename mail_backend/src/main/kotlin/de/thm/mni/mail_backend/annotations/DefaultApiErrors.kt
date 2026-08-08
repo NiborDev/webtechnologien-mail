@@ -5,7 +5,15 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.http.MediaType
 
-
+/**
+ * Annotation for default API error responses.
+ * Adds the following error responses to a controller:
+ * - 400: Bad Request - Validation failed or invalid argument.
+ * - 401: Unauthorized - Authentication required.
+ * - 403: Forbidden - Access denied.
+ * - 404: Not Found - Resource not found.
+ * - 500: Internal Server Error.
+ */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 @ApiResponse(responseCode = "400", description = "Bad Request - Validation failed or invalid argument.")

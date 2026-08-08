@@ -8,6 +8,11 @@ import jakarta.validation.constraints.Pattern
 import java.time.LocalDateTime
 import java.util.UUID
 
+/**
+ * DTO for creating a new user account.
+ * 
+ * Used to send a request to create a new user account.
+ */
 @Schema(description = "Request payload for creating a user account.")
 data class UserCreate(
     @field:Schema(description = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number and one special character", example = "Secret123!")
@@ -31,6 +36,12 @@ data class UserCreate(
     @field:NotBlank(message = "Last Name cannot be blank")
     var lastName: String,
 ){
+    /**
+     * Converts the UserCreate to a User entity.
+     * 
+     * @param userId The ID of the user, defaults to a random UUID.
+     * @return The User entity.
+     */
     fun toUser(userId: UUID = UUID.randomUUID()): User {
         return User(
             userId = userId,

@@ -26,6 +26,12 @@ data class UserPasswordUpdate(
     )
     val newPassword: String,
 ) {
+    /**
+     * Converts the UserPasswordUpdate to a User entity.
+     * 
+     * @param user The user to update.
+     * @return The updated user.
+     */
     fun toUser(user: User): User {
         return User(
             userId = user.userId,

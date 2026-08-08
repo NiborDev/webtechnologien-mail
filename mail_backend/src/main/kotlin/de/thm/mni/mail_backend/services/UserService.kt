@@ -13,6 +13,11 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.transaction.annotation.Transactional
 
+/**
+ * Service for User management.
+ * 
+ * This service is used to perform the business logic for user management.
+ */
 @Service
 class UserService(
     private val userRepository: UserRepository,

@@ -10,10 +10,20 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.dao.InvalidDataAccessApiUsageException
 import java.util.NoSuchElementException
 
+/**
+ * Global exception handler for the application.
+ * Catches common exceptions and returns appropriate error responses.
+ */
 @RestControllerAdvice
 class GlobalExceptionHandler {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
+    /**
+     * Handles IllegalArgumentException.
+     * 
+     * @param ex The exception to handle.
+     * @return A response with the error message.
+     */
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgumentException(ex: IllegalArgumentException): ResponseEntity<Map<String, String>> {
         logger.warn("Illegal argument: ${ex.message}")
@@ -21,6 +31,12 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
     }
 
+    /**
+     * Handles NoSuchElementException.
+     * 
+     * @param ex The exception to handle.
+     * @return A response with the error message.
+     */
     @ExceptionHandler(NoSuchElementException::class)
     fun handleNoSuchElementException(ex: NoSuchElementException): ResponseEntity<Map<String, String>> {
         logger.warn("Resource not found: ${ex.message}")
@@ -28,6 +44,12 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse)
     }
 
+    /**
+     * Handles AccessDeniedException.
+     * 
+     * @param ex The exception to handle.
+     * @return A response with the error message.
+     */
     @ExceptionHandler(AccessDeniedException::class)
     fun handleAccessDenied(ex: AccessDeniedException): ResponseEntity<Map<String, String>> {
         logger.warn("Authorization denied: ${ex.message}")
@@ -35,6 +57,12 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse)
     }
 
+    /**
+     * Handles MethodArgumentNotValidException.
+     * 
+     * @param ex The exception to handle.
+     * @return A response with the validation errors.
+     */
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationException(ex: MethodArgumentNotValidException): ResponseEntity<Map<String, Any>> {
         logger.warn("Validation failed: ${ex.message}")
@@ -42,6 +70,12 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mapOf("errors" to errors))
     }
 
+    /**
+     * Handles InvalidDataAccessApiUsageException.
+     * 
+     * @param ex The exception to handle.
+     * @return A response with the error message.
+     */
     @ExceptionHandler(InvalidDataAccessApiUsageException::class)
     fun handleInvalidDataAccess(ex: InvalidDataAccessApiUsageException): ResponseEntity<Map<String, String>> {
         logger.warn("Invalid data access query or sort parameter: ${ex.message}")
@@ -49,6 +83,12 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
     }
 
+    /**
+     * Handles generic exceptions.
+     * 
+     * @param ex The exception to handle.
+     * @return A response with the error message.
+     */
     @ExceptionHandler(Exception::class)
     fun handleGenericException(ex: Exception): ResponseEntity<Map<String, String>> {
         logger.error("Unexpected error", ex)

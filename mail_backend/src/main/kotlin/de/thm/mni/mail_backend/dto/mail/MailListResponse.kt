@@ -2,6 +2,11 @@ package de.thm.mni.mail_backend.dto.mail
 
 import io.swagger.v3.oas.annotations.media.Schema
 
+/**
+ * DTO for a paginated list of emails.
+ * 
+ * Used to return a list of email objects with pagination information.
+ */
 @Schema(description = "Paginated list response container for emails.")
 data class MailListResponse(
     @field:Schema(description = "List of email items in the current page")

@@ -20,7 +20,11 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.util.UUID
 
-
+/**
+ * Service for Mail entities.
+ * 
+ * This service is used to perform the business logic for mail management.
+ */
 @Service
 class MailService(
     private val mailRepository: MailRepository,

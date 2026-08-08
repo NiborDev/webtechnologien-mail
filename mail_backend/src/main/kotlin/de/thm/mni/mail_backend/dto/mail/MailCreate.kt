@@ -10,6 +10,11 @@ import jakarta.validation.Valid
 import java.time.LocalDateTime
 import java.util.UUID
 
+/**
+ * DTO for creating a new email draft.
+ * 
+ * Used to send a request to create a new email.
+ */
 @Schema(description = "Request payload for creating a new email draft.")
 data class MailCreate(
     @field:Schema(description = "List of recipient email addresses", example = "[\"jane.doe@example.com\"]")
@@ -38,6 +43,11 @@ data class MailCreate(
     @field:Valid
     var attachments: List<AttachmentResponse> = emptyList(),
 ){
+    /**
+     * Converts the MailCreate to a Mail entity.
+     * 
+     * @return The Mail entity.
+     */
     fun toMail(mailId: UUID = UUID.randomUUID()): Mail {
         return Mail(
             mailId = mailId,

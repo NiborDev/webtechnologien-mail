@@ -24,6 +24,11 @@ class User(
     var createdAt: LocalDateTime = LocalDateTime.now(),
     var updatedAt: LocalDateTime = LocalDateTime.now(),
 ) {
+    /**
+     * Converts the User to a UserResponse.
+     * 
+     * @return The UserResponse.
+     */
     fun toResponse(): UserResponse {
         return UserResponse(
             userId = requireNotNull(userId) { "userId must not be null" },
@@ -33,6 +38,11 @@ class User(
         )
     }
 
+    /**
+     * Converts the User to a UserListResponse.
+     * 
+     * @return The UserListResponse.
+     */
     fun toUserListResponse(): UserListResponse {
         return UserListResponse(
             email = email,
