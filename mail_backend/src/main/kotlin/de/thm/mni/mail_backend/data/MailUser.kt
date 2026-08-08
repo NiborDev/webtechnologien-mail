@@ -10,6 +10,13 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import java.util.UUID
 
+/**
+ * Entity representing the relation between a User and a Mail
+ * @param id The ID of the entry
+ * @param userId The ID of the User
+ * @param mailId The ID of the Mail
+ * @param relationType The relation type between the User and the Mail
+ */
 @Entity
 @Table(name = "mail_user")
 class MailUser (

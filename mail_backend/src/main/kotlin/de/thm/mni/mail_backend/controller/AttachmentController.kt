@@ -3,13 +3,20 @@ package de.thm.mni.mail_backend.controller
 import de.thm.mni.mail_backend.annotations.DefaultApiErrors
 import de.thm.mni.mail_backend.dto.attachments.AttachmentResponse
 import de.thm.mni.mail_backend.services.AttachmentService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.ArraySchema
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -27,6 +34,10 @@ import java.util.UUID
  * Controller for managing file attachments.
  * Provides endpoints for uploading, downloading, and deleting attachments.
  */
+@Tag(
+    name = "Attachment",
+    description = "Operations for uploading, downloading, and deleting file attachments"
+)
 @DefaultApiErrors
 @RestController
 @RequestMapping("/attachments")
@@ -42,10 +53,25 @@ class AttachmentController(
      * @param files The files to upload
      * @return 201 Created with attachment metadata
      */
+    @Operation(
+        operationId = "uploadFiles",
+        summary = "Upload file attachments",
+        description = "Uploads one or more files as multipart form data and returns their stored metadata."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "201",
+                description = "Files uploaded successfully.",
+                content = [Content(mediaType = MediaType.APPLICATION_JSON_VALUE, array = ArraySchema(schema = Schema(implementation = AttachmentResponse::class)))]
+            ),
+            ApiResponse(responseCode = "400", description = "No files provided or invalid file data.")
+        ]
+    )
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
     fun uploadFiles(
-        @RequestParam("files") files: List<MultipartFile>,
+        @Parameter(description = "List of files to upload") @RequestParam("files") files: List<MultipartFile>,
         @AuthenticationPrincipal currentUser: UserDetails
     ): List<AttachmentResponse> {
         logger.info("Received upload request for {} file(s) from user {}", files.size, currentUser.username)
@@ -69,20 +95,35 @@ class AttachmentController(
      * @param currentUser The authenticated user
      * @return 200 OK with file content, or 404 Not Found if attachment doesn't exist or user has no access
      */
+    @Operation(
+        operationId = "downloadFile",
+        summary = "Download attachment by ID",
+        description = "Downloads the file attachment by its UUID if the user has access to the containing email."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "File successfully downloaded.",
+                content = [Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE)]
+            ),
+            ApiResponse(responseCode = "404", description = "Attachment not found or user does not have access.")
+        ]
+    )
     @GetMapping("/{id}")
     fun downloadFile(
-        @PathVariable id: UUID,
+        @Parameter(description = "UUID of the attachment") @PathVariable id: UUID,
         @AuthenticationPrincipal currentUser: UserDetails
     ): ResponseEntity<Resource> {
-        logger.info("Download request for attachment {} by user {}", id, currentUser.username)
         val (attachment, resource) = attachmentService.loadFileAsResource(id, UUID.fromString(currentUser.username))
+        val response = attachment.toResponse()
         
-        logger.debug("File retrieved successfully: {}", attachment.fileName)
+        logger.debug("File retrieved successfully: {}", response.fileName)
         return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(attachment.mimeType.toString()))
+            .contentType(MediaType.parseMediaType(response.mimeType.toString()))
             .header(
                 HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"${attachment.fileName}\""
+                "attachment; filename=\"${response.fileName}\""
             ).body(resource)
     }
 
@@ -95,10 +136,20 @@ class AttachmentController(
      * @param currentUser The authenticated user
      * @return 204 No Content
      */
+    @Operation(
+        operationId = "deleteAttachment",
+        summary = "Delete attachment",
+        description = "Deletes an attachment from a draft email if the user is the owner."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204", description = "Attachment deleted.")
+        ]
+    )
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteAttachment(
-        @PathVariable id: UUID,
+        @Parameter(description = "UUID of the attachment to delete") @PathVariable id: UUID,
         @AuthenticationPrincipal currentUser: UserDetails
     ) {
         logger.info("Delete request for attachment {} by user {}", id, currentUser.username)

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service
 import java.util.NoSuchElementException
 import java.util.UUID
 
+import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.transaction.annotation.Transactional
@@ -21,6 +22,7 @@ class UserService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PepperedPasswordEncoder
 ) {
+    private val logger = LoggerFactory.getLogger(this::class.java)
     private val userNotFoundEncodedPassword = passwordEncoder.encode("userNotFoundPassword")
 
     /**
@@ -33,6 +35,7 @@ class UserService(
     fun registerUser(user: UserCreate): User {
         // Check if Email exists
         if (userRepository.existsByEmail(user.email)) {
+            logger.warn("Registration failed: Email {} already exists", user.email)
             throw IllegalArgumentException("Email already exists")
         }
 
@@ -42,7 +45,9 @@ class UserService(
         }
 
         // Save the user to the database
-        return userRepository.save(newUser)
+        val savedUser = userRepository.save(newUser)
+        logger.info("User registered successfully with ID {}", savedUser.userId)
+        return savedUser
     }
 
     /**
@@ -55,15 +60,18 @@ class UserService(
         val user = userRepository.findByEmail(userLogin.email)
 
         if (user == null) {
+            logger.warn("Login failed: Email {} not found", userLogin.email)
             // Timing attacks prevention
             passwordEncoder.matches(userLogin.password, userNotFoundEncodedPassword)
             throw IllegalArgumentException("Email or password incorrect")
         }
 
         if (!passwordEncoder.matches(userLogin.password, user.password)) {
+            logger.warn("Login failed: Invalid password for user {}", userLogin.email)
             throw IllegalArgumentException("Email or password incorrect")
         }
 
+        logger.info("User {} authenticated successfully", user.userId)
         return user
     }
 
@@ -93,6 +101,7 @@ class UserService(
      */
     fun getUserById(id: UUID, currentUserId: UUID): User {
         if (id != currentUserId) {
+            logger.warn("Access denied: User {} attempted to access user profile {}", currentUserId, id)
             throw AccessDeniedException("User $currentUserId attempted to access user $id")
         }
         return userRepository.findById(id).orElseThrow { NoSuchElementException("User not found") }
@@ -110,6 +119,7 @@ class UserService(
     fun updateUser(id: UUID, currentUserId: UUID, userUpdate: UserUpdate): User {
         // Check User have Permissions to update
         if (id != currentUserId) {
+            logger.warn("Access denied: User {} attempted to update user {}", currentUserId, id)
             throw AccessDeniedException("User $currentUserId attempted to update user $id")
         }
         val existingUser = userRepository.findById(id).orElseThrow { NoSuchElementException("User not found") }
@@ -119,10 +129,13 @@ class UserService(
         
         // Check if Email exists
         if (updatedUser.email != existingUser.email && userRepository.existsByEmail(updatedUser.email)) {
+            logger.warn("User update failed: Email {} already exists", updatedUser.email)
             throw IllegalArgumentException("Email already exists")
         }
 
-        return userRepository.save(updatedUser)
+        val savedUser = userRepository.save(updatedUser)
+        logger.info("User {} updated profile successfully", id)
+        return savedUser
     }
 
     /**
@@ -137,19 +150,23 @@ class UserService(
     fun updatePassword(id: UUID, passwordChange: UserPasswordUpdate, currentUserId: UUID): User {
         // Check User have Permissions to update
         if (id != currentUserId) {
+            logger.warn("Access denied: User {} attempted to change password of user {}", currentUserId, id)
             throw AccessDeniedException("User $currentUserId attempted to change password of user $id")
         }
         val existingUser = userRepository.findById(id).orElseThrow { NoSuchElementException("User not found") }
 
         // Check if Password is correct
         if (!passwordEncoder.matches(passwordChange.oldPassword, existingUser.password)) {
+            logger.warn("Password change failed: Incorrect old password for user {}", id)
             throw IllegalArgumentException("Password is incorrect")
         }
 
         val hashedPassword = passwordEncoder.encode(passwordChange.newPassword)
         existingUser.password = hashedPassword
 
-        return userRepository.save(existingUser)
+        val savedUser = userRepository.save(existingUser)
+        logger.info("Password updated successfully for user {}", id)
+        return savedUser
     }
 
     /**
@@ -161,9 +178,11 @@ class UserService(
     @Transactional
     fun deleteUser(id: UUID, currentUserId: UUID) {
         if (id != currentUserId) {
+            logger.warn("Access denied: User {} attempted to delete user {}", currentUserId, id)
             throw AccessDeniedException("User $currentUserId attempted to delete user $id")
         }
         userRepository.deleteById(id)
+        logger.info("User {} account deleted successfully", id)
     }
 
 }

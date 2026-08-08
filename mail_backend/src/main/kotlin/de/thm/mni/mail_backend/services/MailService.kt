@@ -14,6 +14,7 @@ import de.thm.mni.mail_backend.repositories.interfaces.MailUserRepository
 import de.thm.mni.mail_backend.repositories.interfaces.UserRepository
 import jakarta.validation.ConstraintViolationException
 import jakarta.validation.Validator
+import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -30,6 +31,7 @@ class MailService(
     private val attachmentRepository: AttachmentRepository,
     private val validator: Validator
 ) {
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     /**
      * Helper function: Checks if Mail is owned by the currently logged-in User
@@ -42,6 +44,7 @@ class MailService(
         mailUserRepository
             .findByUserIdAndMailId(currentUserId, mailId)
             .orElseThrow {
+                logger.warn("Access denied: User {} attempted to access mail {}", currentUserId, mailId)
                 NoSuchElementException(
                     "Mail not found!"
                 )
@@ -76,6 +79,7 @@ class MailService(
                 relationType = MailUserRelation.AUTHOR
             )
         )
+        logger.info("Created new draft mail {} for user {}", savedMail.mailId, currentUserId)
         return savedMail
     }
 
@@ -91,6 +95,7 @@ class MailService(
 
         mailUserRepository.deleteByUserIdAndMailId(currentUserId, mailId)
         mailRepository.deleteById(mailId)
+        logger.info("Deleted mail {} for user {}", mailId, currentUserId)
     }
 
     /**
@@ -110,6 +115,7 @@ class MailService(
         val current = mailRepository.findById(mailId).orElseThrow { NoSuchElementException("Mail not found!") }
 
         if (current.status != EMailStatus.DRAFT) {
+            logger.warn("Update failed: Mail {} is not a DRAFT (current status: {})", mailId, current.status)
             throw IllegalStateException("A Mail can only be edited if its a draft")
         }
 
@@ -122,7 +128,9 @@ class MailService(
             updated.attachments = loadedAttachments.toMutableList()
         }
 
-        return mailRepository.save(updated)
+        val savedMail = mailRepository.save(updated)
+        logger.info("Updated draft mail {} for user {}", mailId, currentUserId)
+        return savedMail
     }
 
     /**
@@ -194,10 +202,12 @@ class MailService(
         val validationErrors = validator.validate(mail)
 
         if (validationErrors.isNotEmpty()) {
+            logger.warn("Send failed: Mail {} failed validation with {} errors", mailID, validationErrors.size)
             throw ConstraintViolationException(validationErrors)
         }
 
         if (mail.status != EMailStatus.DRAFT) {
+            logger.warn("Send failed: Mail {} is not a DRAFT (status: {})", mailID, mail.status)
             throw IllegalStateException("A Mail can only be send if its a draft")
         }
 
@@ -217,7 +227,9 @@ class MailService(
         }
 
         mail.status = EMailStatus.SENT
-        return mailRepository.save(mail)
+        val sentMail = mailRepository.save(mail)
+        logger.info("Mail {} successfully sent to {} recipients by user {}", mailID, recipients.size, currentUserId)
+        return sentMail
 
     }
 
@@ -254,6 +266,7 @@ class MailService(
                 relationType = MailUserRelation.RECIPIENT
             )
         )
+        logger.info("Received mail {} assigned to user {}", savedMail.mailId, user.userId)
 
         return savedMail
 

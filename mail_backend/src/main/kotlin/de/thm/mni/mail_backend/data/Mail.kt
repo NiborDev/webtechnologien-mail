@@ -18,6 +18,15 @@ import jakarta.persistence.Table
 import java.time.LocalDateTime
 import java.util.UUID
 
+/**
+ * Entity representing a Mail
+ * @param mailId The ID of the Mail
+ * @param from The E-Mail Address of the author of the mail
+ * @param to The E-Mail Addresses of the recipients
+ * @param cc The E-Mail Addresses of the carbon copy recipients
+ * @param bcc The E-Mail Addresses of the blind carbon copy recipients
+ * @param replyTo The E-Mail Addresses set for replying
+ */
 @Entity
 @Table(name = "mails")
 class Mail(
@@ -77,7 +86,7 @@ class Mail(
             subject = subject,
             bodyText = bodyText,
             status = status,
-            attachments = attachments,
+            attachments = attachments.map { it.toResponse() },
             isRead = isRead,
             isMarked = isMarked,
             sentAt = sentAt,

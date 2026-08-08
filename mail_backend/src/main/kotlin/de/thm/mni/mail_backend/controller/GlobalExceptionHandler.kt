@@ -7,11 +7,12 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.dao.InvalidDataAccessApiUsageException
 import java.util.NoSuchElementException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
-    private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgumentException(ex: IllegalArgumentException): ResponseEntity<Map<String, String>> {
@@ -39,6 +40,13 @@ class GlobalExceptionHandler {
         logger.warn("Validation failed: ${ex.message}")
         val errors = ex.bindingResult.fieldErrors.associate { it.field to (it.defaultMessage ?: "Invalid value") }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mapOf("errors" to errors))
+    }
+
+    @ExceptionHandler(InvalidDataAccessApiUsageException::class)
+    fun handleInvalidDataAccess(ex: InvalidDataAccessApiUsageException): ResponseEntity<Map<String, String>> {
+        logger.warn("Invalid data access query or sort parameter: ${ex.message}")
+        val errorResponse = mapOf("error" to (ex.message ?: "Invalid query or sort parameter"))
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
     }
 
     @ExceptionHandler(Exception::class)
