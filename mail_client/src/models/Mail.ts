@@ -44,6 +44,7 @@ export class Mail {
    * @property {Date | null} _receivedAt - The received date of the mail.
    * @property {Date} _createdAt - The creation date of the mail.
    * @property {Date} _updatedAt - The update date of the mail.
+   * @property {string} _source - The Source of the Mail
    */
   constructor(
     private _mailId: string,
@@ -62,6 +63,7 @@ export class Mail {
     private _receivedAt: Date | null,
     private _createdAt: Date,
     private _updatedAt: Date,
+    private _source: string
   ) {}
 
   /**
@@ -88,6 +90,7 @@ export class Mail {
       dto.receivedAt ? new Date(dto.receivedAt) : null,
       new Date(dto.createdAt),
       new Date(dto.updatedAt),
+      dto.source
     );
   }
 
@@ -114,6 +117,7 @@ export class Mail {
       receivedAt: this._receivedAt ? this._receivedAt.toISOString() : null,
       createdAt: this._createdAt.toISOString(),
       updatedAt: this._updatedAt.toISOString(),
+      source: this._source
     };
   }
 
@@ -269,4 +273,13 @@ export class Mail {
   public get hasAttachments(): boolean {
     return this._attachments.length > 0;
   }
+
+  /**
+   * Gets the source of the mail.
+   * @returns The sender of the mail.
+   */
+  public get source(): string {
+    return this._source;
+  }
+
 }
