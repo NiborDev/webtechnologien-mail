@@ -81,9 +81,9 @@ class AttachmentController(
             throw IllegalArgumentException("Upload request must contain at least one file.")
         }
         
-        val result = attachmentService.saveAttachments(files, UUID.fromString(currentUser.username))
-        logger.info("Upload successful: {} file(s) saved for user {}", result.size, currentUser.username)
-        return result
+        val attachments = attachmentService.saveAttachments(files, UUID.fromString(currentUser.username))
+        logger.info("Upload successful: {} file(s) saved for user {}", attachments.size, currentUser.username)
+        return attachments.map { it.toResponse() }
     }
 
     /**

@@ -73,7 +73,7 @@ class UserController(
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun registerUser(@Valid @RequestBody userCreate: UserCreate): UserResponse {
-        val user = userService.registerUser(userCreate)
+        val user = userService.registerUser(userCreate.toUser())
 
         return user.toResponse()
     }
@@ -99,7 +99,7 @@ class UserController(
     @SecurityRequirement(name = "")
     @PostMapping("/login")
     fun loginUser(@Valid @RequestBody userLogin: UserLogin): LoginResponse {
-        val user = userService.login(userLogin)
+        val user = userService.login(userLogin.email, userLogin.password)
         val token = jwtService.createToken(user.userId.toString())
 
         return LoginResponse(token, user.toResponse())
@@ -186,7 +186,10 @@ class UserController(
             @Valid @RequestBody userUpdate: UserUpdate,
             @AuthenticationPrincipal currentUser: UserDetails
     ): UserResponse {
-        val updatedUser = userService.updateUser(id, UUID.fromString(currentUser.username), userUpdate)
+        val currentUserId = UUID.fromString(currentUser.username)
+        val existingUser = userService.getUserById(id, currentUserId)
+        val userToUpdate = userUpdate.toUser(existingUser)
+        val updatedUser = userService.updateUser(id, currentUserId, userToUpdate)
         return updatedUser.toResponse()
     }
 
@@ -216,7 +219,8 @@ class UserController(
             @Valid @RequestBody passwordChange: UserPasswordUpdate,
             @AuthenticationPrincipal currentUser: UserDetails
     ): UserResponse {
-        val updatedUser = userService.updatePassword(id, passwordChange, UUID.fromString(currentUser.username))
+        val currentUserId = UUID.fromString(currentUser.username)
+        val updatedUser = userService.updatePassword(id, currentUserId, passwordChange.oldPassword, passwordChange.newPassword)
         return updatedUser.toResponse()
     }
 

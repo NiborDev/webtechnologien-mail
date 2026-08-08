@@ -6,8 +6,6 @@ import de.thm.mni.mail_backend.data.User
 import de.thm.mni.mail_backend.data.enums.EMailStatus
 import de.thm.mni.mail_backend.data.enums.MailUserRelation
 import de.thm.mni.mail_backend.data.enums.Source
-import de.thm.mni.mail_backend.dto.mail.MailUpdateData
-import de.thm.mni.mail_backend.dto.mail.MailUpdateIsRead
 import de.thm.mni.mail_backend.repositories.interfaces.AttachmentRepository
 import de.thm.mni.mail_backend.repositories.interfaces.MailRepository
 import de.thm.mni.mail_backend.repositories.interfaces.MailUserRepository
@@ -96,14 +94,14 @@ class MailService(
     /**
      * Updates a existing Mail (DRAFT)
      * @param mailId The ID of the existing Mail
-     * @param mailUpdateData The Information to update
+     * @param updatedMail The updated Mail entity
      * @param currentUserId The ID of the currently logged-in User
      * @return The updated Mail
      * @throws NoSuchElementException if there is no Mail with the given ID
      * @throws IllegalStateException if the Mail is not a draft (status SENT/RECEIVED, can not be updated)
      */
     @Transactional
-    fun updateMail(mailId: UUID, mailUpdateData: MailUpdateData, currentUserId: UUID): Mail {
+    fun updateMail(mailId: UUID, updatedMail: Mail, currentUserId: UUID): Mail {
 
         checkUserHasMail(mailId, currentUserId)
 
@@ -113,16 +111,14 @@ class MailService(
             throw IllegalStateException("A Mail can only be edited if its a draft")
         }
 
-        val updated = mailUpdateData.toMail(current)
-
         // Maps new Attachments to entities from database (Existing Attachments are already entities)
-        if (updated.attachments.isNotEmpty()) {
-            val attachmentIds = updated.attachments.mapNotNull { it.attachmentId }
+        if (updatedMail.attachments.isNotEmpty()) {
+            val attachmentIds = updatedMail.attachments.mapNotNull { it.attachmentId }
             val loadedAttachments = attachmentRepository.findAllById(attachmentIds)
-            updated.attachments = loadedAttachments.toMutableList()
+            updatedMail.attachments = loadedAttachments.toMutableList()
         }
 
-        return mailRepository.save(updated)
+        return mailRepository.save(updatedMail)
     }
 
     /**
@@ -153,27 +149,20 @@ class MailService(
     /**
      * Updates the isRead status of a Mail
      * @param mailId The ID of the existing Mail
-     * @param mailUpdateIsRead The Status to update to
+     * @param isRead The status to update to
      * @param currentUserId The ID of the currently logged-in User
      * @return The updated Mail
      * @throws NoSuchElementException if the Mail does not exist
-     * @throws IllegalArgumentException if the status to update to is null
-     *
      */
-    fun updateMailIsRead(mailId: UUID, mailUpdateIsRead: MailUpdateIsRead, currentUserId: UUID) : Mail {
+    fun updateMailIsRead(mailId: UUID, isRead: Boolean, currentUserId: UUID) : Mail {
 
         checkUserHasMail(mailId, currentUserId)
 
         val current = mailRepository.findById(mailId).orElseThrow { NoSuchElementException("Mail not found!") }
 
-        if (mailUpdateIsRead.isRead == null) {
-            throw IllegalArgumentException("Status to update to can not be null")
-        }
+        current.isRead = isRead
 
-        val updated = current
-        updated.isRead = mailUpdateIsRead.isRead!!
-
-        return mailRepository.save(updated)
+        return mailRepository.save(current)
     }
 
     /**

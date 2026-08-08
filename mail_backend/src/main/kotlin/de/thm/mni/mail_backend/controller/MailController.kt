@@ -101,7 +101,10 @@ class MailController(val mailService: MailService) {
     )
     @PatchMapping("/{id}")
     fun updateMailData(@PathVariable id: UUID, @Valid @RequestBody mailUpdateData: MailUpdateData, @AuthenticationPrincipal userDetails: UserDetails ): MailResponse {
-        val mail = mailService.updateMail(id, mailUpdateData, UUID.fromString(userDetails.username))
+        val currentUserId = UUID.fromString(userDetails.username)
+        val originalMail = mailService.getById(id, currentUserId)
+        val updatedMail = mailUpdateData.toMail(originalMail)
+        val mail = mailService.updateMail(id, updatedMail, currentUserId)
         return mail.toResponse()
     }
 
@@ -124,7 +127,8 @@ class MailController(val mailService: MailService) {
     )
     @PatchMapping("/{id}/isRead")
     fun updateMailIsRead(@PathVariable id: UUID, @Valid @RequestBody mailUpdateIsRead: MailUpdateIsRead, @AuthenticationPrincipal userDetails: UserDetails): MailResponse {
-        val mail = mailService.updateMailIsRead(id, mailUpdateIsRead, UUID.fromString(userDetails.username))
+        val isRead = requireNotNull(mailUpdateIsRead.isRead) { "Status of isRead is null" }
+        val mail = mailService.updateMailIsRead(id, isRead, UUID.fromString(userDetails.username))
         return mail.toResponse()
     }
 

@@ -3,8 +3,6 @@ package de.thm.mni.mail_backend.services
 import de.thm.mni.mail_backend.data.Attachment
 import de.thm.mni.mail_backend.data.enums.EMailStatus
 import de.thm.mni.mail_backend.data.enums.MailUserRelation
-import de.thm.mni.mail_backend.dto.attachments.AttachmentCreate
-import de.thm.mni.mail_backend.dto.attachments.AttachmentResponse
 import de.thm.mni.mail_backend.exceptions.StorageFileNotFoundException
 import de.thm.mni.mail_backend.repositories.interfaces.AttachmentRepository
 import de.thm.mni.mail_backend.repositories.interfaces.MailRepository
@@ -15,7 +13,10 @@ import org.springframework.core.io.Resource
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.util.MimeType
+import org.springframework.util.MimeTypeUtils
 import org.springframework.web.multipart.MultipartFile
+import java.time.LocalDateTime
 import java.util.UUID
 
 /**
@@ -99,26 +100,19 @@ class AttachmentService(
      *
      * @param files The list of uploaded multipart files to process and store.
      * @param currentUserId The ID of the currently authenticated user uploading the files.
-     * @return A list of [AttachmentResponse] DTOs representing the saved attachments.
+     * @return A list of [Attachment] entities representing the saved attachments.
      */
     @Transactional
-    fun saveAttachments(files: List<MultipartFile>, currentUserId: UUID): List<AttachmentResponse> {
+    fun saveAttachments(files: List<MultipartFile>, currentUserId: UUID): List<Attachment> {
         logger.info("Starting to save {} attachment(s) for user {}", files.size, currentUserId)
         return files.map { file ->
             // store file in user folder
             val savePath = fileStorageService.store(file, currentUserId)
-
-            // create attachment DTO from file
-            val attachmentCreate = AttachmentCreate.fromFile(file, savePath.toString())
-            
-            // convert to entity and save
-            val attachment = attachmentCreate.toAttachment()
+            val attachment = Attachment.fromFile(file, savePath.toString())
             val saved = attachmentRepository.save(attachment)
             
             logger.debug("Attachment saved with ID: {} ({}) for user {}", saved.attachmentId, file.originalFilename, currentUserId)
-
-            // convert to response
-            saved.toResponse()
+            saved
         }.also { 
             logger.info("Successfully saved {} attachment(s) for user {}", it.size, currentUserId)
         }
