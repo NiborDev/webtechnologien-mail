@@ -1,5 +1,6 @@
 package de.thm.mni.mail_backend.services
 
+import de.thm.mni.mail_backend.data.Attachment
 import de.thm.mni.mail_backend.data.Mail
 import de.thm.mni.mail_backend.data.MailUser
 import de.thm.mni.mail_backend.data.User
@@ -248,7 +249,17 @@ class MailService(
             isMarked = false,
             sentAt = mail.sentAt,
             receivedAt = LocalDateTime.now(),
-            attachments = mail.attachments.toMutableList(),
+            attachments = mail.attachments.map { attachment ->
+                Attachment(
+                    attachmentId = UUID.randomUUID(),
+                    fileName = attachment.fileName,
+                    sizeBytes = attachment.sizeBytes,
+                    storageUrl = attachment.storageUrl,
+                    createdAt = attachment.createdAt,
+                    updatedAt = LocalDateTime.now(),
+                    mimeType = attachment.mimeType
+                )
+            }.toMutableList(),
             source = Source.EXTERN
         )
         val savedMail = mailRepository.save(receivedMail)
