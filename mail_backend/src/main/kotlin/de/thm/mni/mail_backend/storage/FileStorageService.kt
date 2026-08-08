@@ -27,6 +27,10 @@ class FileStorageService(properties: StorageProperties) {
     private val logger = LoggerFactory.getLogger(this::class.java)
     private val rootLocation: Path = Paths.get(properties.location).toAbsolutePath().normalize()
 
+    /**
+     * Initializes the file storage.
+     * Creates the root directory for file storage if it doesn't exist.
+     */
     @PostConstruct
     fun init() {
         try {
@@ -40,7 +44,11 @@ class FileStorageService(properties: StorageProperties) {
 
     /**
      * Stores the file in a user-specific subdirectory and returns the stored path.
-     *
+     * 
+     * @param file The file to store.
+     * @param userId The ID of the user to store the file for.
+     * @return The path to the stored file.
+     * @throws StorageException If the file is empty or cannot be stored.
      */
     fun store(file: MultipartFile, userId: UUID): Path {
         if (file.isEmpty) {
@@ -78,6 +86,10 @@ class FileStorageService(properties: StorageProperties) {
 
     /**
      * Load the File to download it
+     * 
+     * @param filePathString The path to the file to load.
+     * @return The file as a Resource.
+     * @throws StorageFileNotFoundException If the file cannot be loaded.
      */
     fun loadAsResource(filePathString: String): Resource {
         try {
@@ -98,6 +110,9 @@ class FileStorageService(properties: StorageProperties) {
 
     /**
      * Deletes the file at the given path from the file storage.
+     * 
+     * @param filePathString The path to the file to delete.
+     * @throws StorageException If the file cannot be deleted.
      */
     fun delete(filePathString: String) {
         try {

@@ -5,6 +5,8 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import org.springframework.util.MimeType
+import org.springframework.util.MimeTypeUtils
+import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -46,5 +48,33 @@ class Attachment(
             sizeBytes = sizeBytes,
             mimeType = mimeType
         )
+    }
+
+    companion object {
+        /**
+         * Factory method to create an Attachment entity from a MultipartFile and storageUrl.
+         *
+         * @param file The uploaded MultipartFile
+         * @param storageUrl The path where the file is stored
+         * @param attachmentId Optional UUID (defaults to random UUID)
+         * @return Attachment entity initialized with file metadata
+         */
+        fun fromFile(file: MultipartFile, storageUrl: String, attachmentId: UUID = UUID.randomUUID()): Attachment {
+            val fileName = file.originalFilename ?: "unknown_file_name"
+            val mimeType = file.contentType
+                ?.takeIf { it.isNotBlank() }
+                ?.let { runCatching { MimeType.valueOf(it) }.getOrNull() }
+                ?: MimeTypeUtils.APPLICATION_OCTET_STREAM
+
+            return Attachment(
+                attachmentId = attachmentId,
+                fileName = fileName,
+                sizeBytes = file.size,
+                storageUrl = storageUrl,
+                createdAt = LocalDateTime.now(),
+                updatedAt = LocalDateTime.now(),
+                mimeType = mimeType
+            )
+        }
     }
 }

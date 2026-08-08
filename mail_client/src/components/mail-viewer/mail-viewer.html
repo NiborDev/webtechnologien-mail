@@ -59,6 +59,45 @@
       <span>{{ mail().subject }}</span>
     </div>
 
+    <div class="row">
+      <strong>Erstellt am:</strong>
+      <span>{{ mail().createdAt }}</span>
+    </div>
+
+    <div class="row">
+      <strong>Bearbeitet am:</strong>
+      <span>{{ mail().updatedAt }}</span>
+    </div>
+
+    @if (mail().status == EmailStatus.SENT || mail().status == EmailStatus.RECEIVED){
+      <div class="row">
+        <strong>Gesendet am:</strong>
+        <span>{{ mail().sentAt }}</span>
+      </div>
+    }
+
+    @if (mail().status == EmailStatus.RECEIVED){
+      <div class="row">
+        <strong>Empfangen am:</strong>
+        <span>{{ mail().receivedAt }}</span>
+      </div>
+    }
+
+    <div class="row">
+      <strong>Status:</strong>
+      <span>{{ mail().status.toString() }}</span>
+    </div>
+
+    <div class="row">
+      <strong>Quelle:</strong>
+      <span>{{ mail().source }}</span>
+    </div>
+
+
+
+
+
+
   </div>
 
 
@@ -80,7 +119,7 @@
   <div class="actions">
 
 
-    @if (mail().status == EmailStatus.DRAFT){
+    @if ((mail().status == EmailStatus.DRAFT) || (mail().status == EmailStatus.ERROR)){
       <button
         mat-raised-button
         color="primary"

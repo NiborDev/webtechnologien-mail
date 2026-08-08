@@ -63,7 +63,7 @@
         <p class="error-message">{{ passwordErrorMessage() }}</p>
       }
 
-      <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+      <form [formGroup]="passwordForm" #passwordNgForm="ngForm" (ngSubmit)="onChangePassword(passwordNgForm)">
         <mat-form-field class="full-width">
           <mat-label for="pwd-old">Altes Passwort</mat-label>
           <input id="pwd-old" matInput type="password" formControlName="oldPassword" aria-label="Altes Passwort">
@@ -78,7 +78,7 @@
           @if (passwordForm.controls.newPassword.hasError('required')) {
             <mat-error>Neues Passwort ist erforderlich</mat-error>
           } @else if (passwordForm.controls.newPassword.hasError('pattern')) {
-            <mat-error>Mind. 8 Zeichen, Buchstabe, Zahl & Sonderzeichen (@$!%*#?&)</mat-error>
+            <mat-error>Mind. 8 Zeichen, Buchstabe, Zahl & Sonderzeichen (&#64;$!%*#?&)</mat-error>
           }
         </mat-form-field>
 

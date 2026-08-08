@@ -17,22 +17,30 @@ import { MailUpdateIsRead } from '../../dtos/MailUpdateIsRead';
   styleUrl: './mail-detail.css',
 })
 export class MailDetail {
-  private readonly mailService = inject(MailService);
+  private readonly mailService: MailService = inject(MailService)
   private readonly route = inject(ActivatedRoute);
 
+  /**
+   * URL parameter for the Mail ID
+   * @private
+   */
   private readonly id = this.route.snapshot.paramMap.get('id')!;
 
+  /**
+   * Gets the Mail-Object and sets isRead status to true if currently false
+   * @protected
+   */
   protected readonly mail = toSignal(
     this.mailService.getById(this.id).pipe(
-      tap((mail) => {
-        if (mail && !mail.isRead) {
-          const mailUpdateIsRead: MailUpdateIsRead = {
-            isRead: true,
-          };
-          this.mailService.updateIsRead(this.id, mailUpdateIsRead).subscribe();
+      tap(mail =>{
+        if (mail && !mail.isRead){
+          const mailUpdateIsRead : MailUpdateIsRead ={
+            isRead : true
+          }
+          this.mailService.updateIsRead(this.id, mailUpdateIsRead).subscribe()
         }
       }),
     ),
-    { initialValue: null },
+    { initialValue: null }
   );
 }

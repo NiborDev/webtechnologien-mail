@@ -23,7 +23,7 @@ export class MailStatusTabsComponent {
   readonly statusOptions = [
     { status: EmailStatus.RECEIVED, label: 'Inbox / Received', icon: 'inbox' },
     { status: EmailStatus.SENT, label: 'Sent', icon: 'send' },
-    { status: EmailStatus.DRAFT, label: 'Drafts', icon: 'drafts' },
+    { status: EmailStatus.DRAFT || EmailStatus.ERROR, label: 'Drafts', icon: 'drafts' },
   ];
 
   /**

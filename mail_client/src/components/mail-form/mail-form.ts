@@ -20,17 +20,19 @@ import { Mail } from '../../models/Mail';
 import { Attachment } from '../../models/Attachment';
 import { AttachmentResponse } from '../../dtos/AttachmentResponse';
 import { AttachmentService } from '../../services/attachment-service';
-import { formatBytes } from '../../utils/file-formatter';
 
 import { AttachmentList } from '../attachment-list/attachment-list';
 
-
-/** Validator function to ensure at least one recipient is specified. */
+/**
+ * Validation: Checks if a Mail has at least one recipient
+ * @returns ValidationError with noRecipient: true if the mail has no recipient, otherwise null
+ * @param control Object for FormControl
+ */
 const recipientValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-  const to = (control.get('to')?.value as string[]) ?? [];
-  const cc = (control.get('cc')?.value as string[]) ?? [];
-  const bcc = (control.get('bcc')?.value as string[]) ?? [];
-  if (to.length + cc.length + bcc.length < 1) {
+  const to = control.get('to')?.value as string [] ?? []
+  const cc = control.get('cc')?.value as string [] ?? []
+  const bcc = control.get('bcc')?.value as string [] ?? []
+  if (to.length+cc.length+bcc.length <1) {
     return { noRecipient: true };
   }
   return null;
@@ -67,6 +69,10 @@ export class MailForm {
   protected readonly isUploading = signal<boolean>(false);
   protected readonly uploadProgress = signal<number>(0);
 
+  /**
+   * defines Form for Mail editing
+   * @protected
+   */
   protected readonly form = this.formBuilder.nonNullable.group({
     to: this.formBuilder.nonNullable.control<string[]>([]),
     cc: this.formBuilder.nonNullable.control<string[]>([]),
@@ -76,17 +82,25 @@ export class MailForm {
     bodyText: [''],
   });
 
-  private enableValidation() {
-    this.form.controls.subject.setValidators(Validators.required);
-    this.form.setValidators(recipientValidator);
-    this.form.updateValueAndValidity();
+  /**
+   * enables validation of the Form (sets validator as required to send a Mail)
+   * @private
+   */
+  private enableValidation(){
+    this.form.controls.subject.setValidators(Validators.required)
+    this.form.setValidators(recipientValidator)
+    this.form.updateValueAndValidity()
   }
 
-  private disableValidation() {
-    this.form.controls.subject.setValidators([]);
-    this.form.setValidators([]);
-    this.form.updateValueAndValidity();
-  }
+  /**
+   * disables validation of the Form
+   * @private
+   */
+  private disableValidation(){
+    this.form.controls.subject.setValidators([])
+    this.form.setValidators([])
+    this.form.updateValueAndValidity()
+    }
 
   /**
    * Constructs a MailCreate payload object from current form values and attachments.
@@ -173,15 +187,6 @@ export class MailForm {
     }
   }
 
-  /**
-   * Formats raw bytes into a human-readable file size string.
-   *
-   * @param bytes Number of bytes to format.
-   * @returns Formatted string representation.
-   */
-  protected formatBytes(bytes: number): string {
-    return formatBytes(bytes);
-  }
 
   /**
    * Validates form inputs and emits the `send` output event with the created mail payload.
@@ -206,6 +211,9 @@ export class MailForm {
     this.save.emit(this.buildMailCreatePayload());
   }
 
+  /**
+   * Constructor to initialise Form with existing data if required
+   */
   constructor() {
     effect(() => {
       const value = this.initialValue();

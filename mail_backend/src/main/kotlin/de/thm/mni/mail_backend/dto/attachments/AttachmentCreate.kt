@@ -1,6 +1,7 @@
 package de.thm.mni.mail_backend.dto.attachments
 
 import de.thm.mni.mail_backend.data.Attachment
+import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Positive
 import org.springframework.util.MimeType
@@ -18,13 +19,21 @@ import java.util.UUID
  * @param storageUrl Path where the file is stored
  * @param mimeType MIME type of the file
  */
+@Schema(description = "DTO payload for creating and initializing file attachments.")
 data class AttachmentCreate(
+    @field:Schema(description = "Original filename", example = "document.pdf")
     @field:NotBlank(message = "File name cannot be blank")
     var fileName: String,
+
+    @field:Schema(description = "File size in bytes", example = "1048576")
     @field:Positive(message = "File size must be greater than zero")
     var sizeBytes: Long,
+
+    @field:Schema(description = "Storage path/URL", example = "uploads/attachments/123e4567-e89b-12d3-a456-426614174000/550e8400-e29b-41d4-a716-446655440000_document.pdf")
     @field:NotBlank(message = "Storage URL cannot be blank")
     var storageUrl: String,
+
+    @field:Schema(description = "MIME type", type = "string", example = "application/pdf")
     @field:NotBlank(message = "MimeType cannot be blank")
     var mimeType: MimeType
 ) {

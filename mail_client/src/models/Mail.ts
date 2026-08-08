@@ -25,6 +25,27 @@ import { truncateText } from '../utils/text-formatter';
  * @property {Date} updatedAt - The update date of the mail.
  */
 export class Mail {
+  /**
+   * Constructs a Mail instance.
+   *
+   * @property {string} _mailId - The unique identifier of the mail.
+   * @property {string} _from - The sender of the mail.
+   * @property {string[]} _to - The recipients of the mail.
+   * @property {string[]} _cc - The carbon copy recipients of the mail.
+   * @property {string[]} _bcc - The blind carbon copy recipients of the mail.
+   * @property {string[]} _replyTo - The reply-to recipients of the mail.
+   * @property {string} _subject - The subject of the mail.
+   * @property {string} _bodyText - The body of the mail.
+   * @property {EmailStatus} _status - The status of the mail.
+   * @property {Attachment[]} _attachments - The attachments of the mail.
+   * @property {boolean} _isRead - Whether the mail is read.
+   * @property {boolean} _isMarked - Whether the mail is marked.
+   * @property {Date | null} _sentAt - The sent date of the mail.
+   * @property {Date | null} _receivedAt - The received date of the mail.
+   * @property {Date} _createdAt - The creation date of the mail.
+   * @property {Date} _updatedAt - The update date of the mail.
+   * @property {string} _source - The Source of the Mail
+   */
   constructor(
     private _mailId: string,
     private _from: string,
@@ -42,6 +63,7 @@ export class Mail {
     private _receivedAt: Date | null,
     private _createdAt: Date,
     private _updatedAt: Date,
+    private _source: string
   ) {}
 
   /**
@@ -68,6 +90,7 @@ export class Mail {
       dto.receivedAt ? new Date(dto.receivedAt) : null,
       new Date(dto.createdAt),
       new Date(dto.updatedAt),
+      dto.source
     );
   }
 
@@ -94,6 +117,7 @@ export class Mail {
       receivedAt: this._receivedAt ? this._receivedAt.toISOString() : null,
       createdAt: this._createdAt.toISOString(),
       updatedAt: this._updatedAt.toISOString(),
+      source: this._source
     };
   }
 
@@ -249,4 +273,13 @@ export class Mail {
   public get hasAttachments(): boolean {
     return this._attachments.length > 0;
   }
+
+  /**
+   * Gets the source of the mail.
+   * @returns The sender of the mail.
+   */
+  public get source(): string {
+    return this._source;
+  }
+
 }

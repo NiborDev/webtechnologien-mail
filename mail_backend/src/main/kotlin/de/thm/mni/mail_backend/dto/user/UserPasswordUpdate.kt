@@ -1,6 +1,7 @@
 package de.thm.mni.mail_backend.dto.user
 
 import de.thm.mni.mail_backend.data.User
+import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import java.time.LocalDateTime
@@ -12,21 +13,25 @@ import java.time.LocalDateTime
  * @param newPassword The new password of the user
  * @return The updated user
  */
+@Schema(description = "Request payload for changing a users password.")
 data class UserPasswordUpdate(
+    @field:Schema(description = "Current password for verification", example = "OldSecret123!")
     @field:NotBlank(message = "Old password cannot be empty")
     val oldPassword: String,
 
+    @field:Schema(description = "New password must meet security requirements", example = "NewPasswort1!")
     @field:Pattern(
         regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$",
-        message = """
-            Password must be at least 8 characters long and contain:
-            - At least one letter (A-Z or a-z)
-            - At least one digit (0-9)
-            - At least one special character from: ! @ $ % * # ? &
-        """
+        message = "Password must be at least 8 characters long and contain at least one letter, one digit and one special character."
     )
     val newPassword: String,
 ) {
+    /**
+     * Converts the UserPasswordUpdate to a User entity.
+     * 
+     * @param user The user to update.
+     * @return The updated user.
+     */
     fun toUser(user: User): User {
         return User(
             userId = user.userId,
