@@ -12,7 +12,7 @@ import java.util.NoSuchElementException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
-    private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgumentException(ex: IllegalArgumentException): ResponseEntity<Map<String, String>> {

@@ -13,6 +13,9 @@ import { MailUpdateIsRead } from '../dtos/MailUpdateIsRead';
 import { EmailStatus } from '../enums/email-status';
 import { MailPage } from '../dtos/MailPage';
 
+/**
+ * Service for managing Mail Operations including fetching, creating , updating, deleting
+ */
 @Injectable({ providedIn: 'root' })
 export class MailService {
   private readonly httpClient: HttpClient = inject(HttpClient);
@@ -44,10 +47,9 @@ export class MailService {
   }
 
   /**
-   * Get a mail by ID
-   *
-   * @param id Mail ID
-   * @returns Observable with mail
+   * Fetches a single Mail by ID
+   * @param {string} id The ID of rhe Mail to fetch
+   * @returns Observable with a Mail
    */
   public getById(id: string): Observable<Mail> {
     return this.httpClient
@@ -56,10 +58,9 @@ export class MailService {
   }
 
   /**
-   * Create a new mail
-   *
-   * @param mail Mail to create
-   * @returns Observable with created mail
+   * Creates a new Mail
+   * @param {MailCreate} mail The Mail to create
+   * @returns Observable with the saved Mail
    */
   public create(mail: MailCreate): Observable<Mail> {
     return this.httpClient
@@ -68,11 +69,10 @@ export class MailService {
   }
 
   /**
-   * Update a mail
-   *
-   * @param id Mail ID
-   * @param mailUpdateData Mail data to update
-   * @returns Observable with updated mail
+   * Updates an existing Mail-Draft
+   * @param {string} id The ID of the Mail to update
+   * @param {MailUpdate} mailUpdateData The Data to update to
+   * @returns Observable with the updated Mail
    */
   public updateData(id: string, mailUpdateData: MailUpdate): Observable<Mail> {
     return this.httpClient
@@ -81,11 +81,10 @@ export class MailService {
   }
 
   /**
-   * Update the read status of a mail
-   *
-   * @param id Mail ID
-   * @param mailUpdateIsRead Mail data to update
-   * @returns Observable with updated mail
+   * Updates the isRead status of an existing Mail
+   * @param {string} id The ID of the Mail to update
+   * @param {MailUpdateIsRead} mailUpdateIsRead The status to update to
+   * @returns Observable with the updated Mail
    */
   public updateIsRead(id: string, mailUpdateIsRead: MailUpdateIsRead): Observable<Mail> {
     return this.httpClient
@@ -94,10 +93,9 @@ export class MailService {
   }
 
   /**
-   * Send a mail
-   *
-   * @param id Mail ID
-   * @returns Observable with sent mail
+   * Triggers the send operation for a Mail
+   * @param {string}id The ID of the Mail to send
+   * @returns Observable with the send Mail
    */
   public send(id: string): Observable<Mail> {
     return this.httpClient
@@ -106,10 +104,9 @@ export class MailService {
   }
 
   /**
-   * Delete a mail
-   *
-   * @param id Mail ID
-   * @returns Observable with deleted mail
+   * Deletes a Mail
+   * @param {string} id The ID of the Mail to delete
+   * @returns Observable, completing on successful deletion
    */
   public deleteMail(id: string): Observable<void> {
     return this.httpClient.delete<void>(`${this.apiBasePath}/mails/${id}`);

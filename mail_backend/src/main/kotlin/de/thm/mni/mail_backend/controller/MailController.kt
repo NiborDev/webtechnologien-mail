@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
 
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
 @Tag(name = "Mails",
@@ -37,6 +38,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 @RestController
 @RequestMapping("/mails")
 class MailController(val mailService: MailService) {
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     /**
      * POST /mails creates a new Mail
@@ -57,7 +59,9 @@ class MailController(val mailService: MailService) {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun createMail(@Valid @RequestBody mailCreate: MailCreate, @AuthenticationPrincipal userDetails: UserDetails): MailResponse {
+        logger.info("User {} creating new draft mail", userDetails.username)
         val mail = mailService.createMail(mailCreate.toMail(), UUID.fromString(userDetails.username))
+        logger.info("Created draft mail with ID {} by user {}", mail.mailId, userDetails.username)
         return mail.toResponse()
     }
 
@@ -79,7 +83,9 @@ class MailController(val mailService: MailService) {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteMail(@PathVariable id: UUID, @AuthenticationPrincipal userDetails: UserDetails) {
+        logger.info("Deletion of mail {} requested by user {}", id, userDetails.username)
         mailService.deleteMail(id, UUID.fromString(userDetails.username))
+        logger.info("Mail {} deleted successfully by user {}", id, userDetails.username)
     }
 
     /**
@@ -104,7 +110,9 @@ class MailController(val mailService: MailService) {
         val currentUserId = UUID.fromString(userDetails.username)
         val originalMail = mailService.getById(id, currentUserId)
         val updatedMail = mailUpdateData.toMail(originalMail)
+        logger.info("User {} updating mail {}", userDetails.username, id)
         val mail = mailService.updateMail(id, updatedMail, currentUserId)
+        logger.info("Mail {} updated successfully by user {}", id, userDetails.username)
         return mail.toResponse()
     }
 
@@ -128,6 +136,7 @@ class MailController(val mailService: MailService) {
     @PatchMapping("/{id}/isRead")
     fun updateMailIsRead(@PathVariable id: UUID, @Valid @RequestBody mailUpdateIsRead: MailUpdateIsRead, @AuthenticationPrincipal userDetails: UserDetails): MailResponse {
         val isRead = requireNotNull(mailUpdateIsRead.isRead) { "Status of isRead is null" }
+        logger.debug("Mail isRead status of {} updated to {} by user {}", id, mailUpdateIsRead.isRead, userDetails.username)
         val mail = mailService.updateMailIsRead(id, isRead, UUID.fromString(userDetails.username))
         return mail.toResponse()
     }
@@ -150,6 +159,7 @@ class MailController(val mailService: MailService) {
     )
     @GetMapping("/{id}")
     fun getMailById(@PathVariable id: UUID, @AuthenticationPrincipal userDetails: UserDetails): MailResponse {
+        logger.debug("Fetching mail {} for user {}", id, userDetails.username)
         val mail = mailService.getById(id, UUID.fromString(userDetails.username))
         return mail.toResponse()
     }
@@ -177,7 +187,7 @@ class MailController(val mailService: MailService) {
         @ParameterObject pageable: Pageable,
         @AuthenticationPrincipal userDetails: UserDetails
         ): Page<MailResponse> {
-
+        logger.debug("User {} fetching mails with status {}", userDetails.username, status)
         return mailService
             .getAllFromUserWithStatus(status, pageable, UUID.fromString(userDetails.username))
             .map { it.toResponse() }
@@ -201,6 +211,9 @@ class MailController(val mailService: MailService) {
     )
     @PostMapping("/{id}/transmissions")
     fun sendMail(@PathVariable id: UUID, @AuthenticationPrincipal userDetails: UserDetails): MailResponse{
-        return mailService.sendMail(id, UUID.fromString(userDetails.username)).toResponse()
+        logger.info("User {} sending mail {}", userDetails.username, id)
+        val sentMail = mailService.sendMail(id, UUID.fromString(userDetails.username)).toResponse()
+        logger.info("Mail {} sent successfully by user {}", id, userDetails.username)
+        return sentMail
     }
 }
