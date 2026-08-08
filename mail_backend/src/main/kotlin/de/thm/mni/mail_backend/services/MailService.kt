@@ -8,6 +8,7 @@ import de.thm.mni.mail_backend.data.enums.MailUserRelation
 import de.thm.mni.mail_backend.data.enums.Source
 import de.thm.mni.mail_backend.dto.mail.MailUpdateData
 import de.thm.mni.mail_backend.dto.mail.MailUpdateIsRead
+import de.thm.mni.mail_backend.repositories.interfaces.AttachmentRepository
 import de.thm.mni.mail_backend.repositories.interfaces.MailRepository
 import de.thm.mni.mail_backend.repositories.interfaces.MailUserRepository
 import de.thm.mni.mail_backend.repositories.interfaces.UserRepository
@@ -26,6 +27,7 @@ class MailService(
     private val mailRepository: MailRepository,
     private val mailUserRepository: MailUserRepository,
     private val userRepository: UserRepository,
+    private val attachmentRepository: AttachmentRepository,
     private val validator: Validator
 ) {
 
@@ -58,6 +60,14 @@ class MailService(
     fun createMail(mail: Mail, currentUserId: UUID): Mail {
         val user = userRepository.findByUserId(currentUserId)?: throw NoSuchElementException("User with this Mail-Address doesn't exist")
         mail.from = user.email
+
+        // Maps new Attachments to entities from database (Existing Attachments are already entities)
+        if (mail.attachments.isNotEmpty()) {
+            val attachmentIds = mail.attachments.mapNotNull { it.attachmentId }
+            val loadedAttachments = attachmentRepository.findAllById(attachmentIds)
+            mail.attachments = loadedAttachments.toMutableList()
+        }
+
         val savedMail = mailRepository.save(mail)
         mailUserRepository.save(
             MailUser(
@@ -92,7 +102,8 @@ class MailService(
      * @throws NoSuchElementException if there is no Mail with the given ID
      * @throws IllegalStateException if the Mail is not a draft (status SENT/RECEIVED, can not be updated)
      */
-    fun updateMail(mailId: UUID,mailUpdateData: MailUpdateData, currentUserId: UUID): Mail {
+    @Transactional
+    fun updateMail(mailId: UUID, mailUpdateData: MailUpdateData, currentUserId: UUID): Mail {
 
         checkUserHasMail(mailId, currentUserId)
 
@@ -103,6 +114,13 @@ class MailService(
         }
 
         val updated = mailUpdateData.toMail(current)
+
+        // Maps new Attachments to entities from database (Existing Attachments are already entities)
+        if (updated.attachments.isNotEmpty()) {
+            val attachmentIds = updated.attachments.mapNotNull { it.attachmentId }
+            val loadedAttachments = attachmentRepository.findAllById(attachmentIds)
+            updated.attachments = loadedAttachments.toMutableList()
+        }
 
         return mailRepository.save(updated)
     }

@@ -1,10 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import {
-  AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
-  ValidationErrors,
-  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -15,29 +12,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../../services/auth-service';
 import { UserService } from '../../services/user-service';
 import { fromUser } from '../../dtos/UserResponse';
-
-/**
- * Regular expression matching backend password requirements:
- * At least 8 characters, containing a letter, a number, and a special character (@$!%*#?&).
- */
-const BACKEND_PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
-
-/**
- * Validator to verify the new password and confirm password match.
- *
- * @param control - The form group control.
- * @returns ValidationErrors object if mismatch, null otherwise.
- */
-const passwordMatchValidator: ValidatorFn = (
-  control: AbstractControl,
-): ValidationErrors | null => {
-  const newPassword = control.get('newPassword');
-  const newPasswordConfirm = control.get('newPasswordConfirm');
-  if (newPassword && newPasswordConfirm && newPassword.value !== newPasswordConfirm.value) {
-    return { passwordMismatch: true };
-  }
-  return null;
-};
+import {
+  BACKEND_PASSWORD_PATTERN,
+  passwordMatchValidator,
+} from '../../validators/password-validators';
 
 /**
  * User Profile page component.
@@ -90,7 +68,7 @@ export class Profile implements OnInit {
       newPassword: ['', [Validators.required, Validators.pattern(BACKEND_PASSWORD_PATTERN)]],
       newPasswordConfirm: ['', [Validators.required]],
     },
-    { validators: [passwordMatchValidator] },
+    { validators: [passwordMatchValidator('newPassword', 'newPasswordConfirm')] },
   );
 
   /** Lifecycle hook to initialize form values from current user context. */

@@ -1,4 +1,4 @@
-import {Attachment} from '../models/Attachment';
+import { AttachmentResponse } from './AttachmentResponse';
 
 /**
  * Data Transfer Object for creating a Mail
@@ -8,14 +8,14 @@ import {Attachment} from '../models/Attachment';
  * @property {string[]} replyTo separate Mail Addresses for replies
  * @property {string} subject The Subject of the Mail
  * @property {string} bodyText The body of the Mail
- * @property {Attachment[]} attachments The attachments of the Mail
+ * @property {AttachmentResponse[]} attachments The attachments of the Mail
  */
 export type MailCreate = {
-  to: string [],
-  cc: string [],
-  bcc: string [],
-  replyTo: string [],
-  subject: string,
-  bodyText: string,
-  attachments: Attachment[]
-}
+  to: string[];
+  cc: string[];
+  bcc: string[];
+  replyTo: string[];
+  subject: string;
+  bodyText: string;
+  attachments: AttachmentResponse[];
+};

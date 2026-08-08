@@ -48,6 +48,42 @@
 
   </mat-form-field>
 
+  <div class="attachment-section">
+    <input
+      #fileUpload
+      type="file"
+      class="file-input"
+      (change)="onFileSelected($event)"
+      multiple
+    />
+
+    <div class="upload-btn-container">
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="fileUpload.click()"
+        [disabled]="isUploading()"
+      >
+        <mat-icon>attach_file</mat-icon>
+        Anhang hinzufügen
+      </button>
+    </div>
+
+    @if (isUploading()) {
+      <div class="progress-container">
+        <mat-progress-bar mode="determinate" [value]="uploadProgress()"></mat-progress-bar>
+        <span>{{ uploadProgress() }}% hochgeladen</span>
+      </div>
+    }
+
+    <app-attachment-list
+      [attachments]="attachments()"
+      [removable]="true"
+      (download)="onDownloadAttachment($event)"
+      (remove)="onRemoveAttachment($event)"
+    ></app-attachment-list>
+  </div>
+
   @if(form.hasError('noRecipient')){
     <mat-error>
       Mindestens ein Empfänger muss angegeben werden.

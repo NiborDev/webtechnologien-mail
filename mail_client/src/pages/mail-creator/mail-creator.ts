@@ -1,19 +1,20 @@
 import { Component, inject } from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {MailService} from '../../services/mail-service';
-import {MailForm} from '../../components/mail-form/mail-form';
-import {MailCreate} from '../../dtos/MailCreate';
-import {toSignal} from '@angular/core/rxjs-interop';
-import {map, of} from 'rxjs';
-import {Mail} from '../../models/Mail';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {AuthService} from '../../services/auth-service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { map, of } from 'rxjs';
+
+import { MailService } from '../../services/mail-service';
+import { AuthService } from '../../services/auth-service';
+import { MailForm } from '../../components/mail-form/mail-form';
+import { MailCreate } from '../../dtos/MailCreate';
+import { Mail } from '../../models/Mail';
 
 /**
- * Component for the page to create a mail (new, reply, reply-all, forward)
+ * Page component for creating, replying to, and forwarding email messages.
  */
 @Component({
-  selector: 'app-mailCreator',
+  selector: 'app-mail-creator',
   imports: [MailForm],
   templateUrl: './mail-creator.html',
   styleUrl: './mail-creator.css',
@@ -21,12 +22,12 @@ import {AuthService} from '../../services/auth-service';
 export class MailCreator {
   private readonly mailService = inject(MailService);
   private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute)
-  private readonly snackBar = inject(MatSnackBar)
-  private readonly authService = inject(AuthService)
+  private readonly route = inject(ActivatedRoute);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly authService = inject(AuthService);
 
   private readonly id = this.route.snapshot.paramMap.get('id');
-  private readonly mode = this.route.snapshot.url.at(-1)?.path
+  private readonly mode = this.route.snapshot.url.at(-1)?.path;
 
   /**
    * Signal for initialing the MailForm if required (reply, reply-all, forward)
@@ -34,13 +35,11 @@ export class MailCreator {
    */
   protected readonly initialValue = toSignal(
     this.id
-      ? this.mailService.getById(this.id).pipe(
-        map(mail => this.initialise(mail))
-      )
+      ? this.mailService.getById(this.id).pipe(map((mail) => this.initialise(mail)))
       : of(undefined),
     {
-      initialValue: undefined
-    }
+      initialValue: undefined,
+    },
   );
 
   /**
@@ -54,7 +53,6 @@ export class MailCreator {
 
 
     switch (this.mode) {
-
       case 'reply':
         return {
           to: mail.replyTo.length ? mail.replyTo : [mail.from],
@@ -81,7 +79,6 @@ export class MailCreator {
       default:
         return {}
     }
-
   }
 
   /**
@@ -139,5 +136,4 @@ ${mail.bodyText}`;
       }
     });
   }
-
 }

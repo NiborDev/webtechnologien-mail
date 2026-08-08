@@ -1,17 +1,18 @@
 import { Component, inject } from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {MailService} from '../../services/mail-service';
-import {MailForm} from '../../components/mail-form/mail-form';
-import {toSignal} from '@angular/core/rxjs-interop';
-import {MailCreate} from '../../dtos/MailCreate';
-import {MailUpdate} from '../../dtos/MailUpdate';
-import {MatSnackBar} from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
+import { MailService } from '../../services/mail-service';
+import { MailForm } from '../../components/mail-form/mail-form';
+import { MailCreate } from '../../dtos/MailCreate';
+import { MailUpdate } from '../../dtos/MailUpdate';
 
 /**
- * Component for the page to edit an existing Draft-Mail
+ * Page component for editing existing draft email messages.
  */
 @Component({
-  selector: 'app-mailEditor',
+  selector: 'app-mail-editor',
   imports: [MailForm],
   templateUrl: './mail-editor.html',
   styleUrl: './mail-editor.css',
@@ -40,7 +41,6 @@ export class MailEditor {
    * @param mail The Mail to save
    */
   handleUpdate(mail: MailCreate) {
-
     const mailUpdate: MailUpdate = {
       ...mail,
       mailId: this.id
@@ -62,7 +62,6 @@ export class MailEditor {
    * @param mail The Mail to send
    */
   handleSend(mail: MailCreate): void {
-
     const mailUpdate: MailUpdate = {
       ...mail,
       mailId: this.id
@@ -85,5 +84,4 @@ export class MailEditor {
       }
     });
   }
-
 }
