@@ -37,6 +37,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 
+import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.RequestParam
 
 @Tag(
@@ -50,6 +51,7 @@ class UserController(
     val userService: UserService,
     val jwtService: JwtService
 ) {
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     /**
      * POST /users Registers a new user
@@ -73,8 +75,9 @@ class UserController(
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun registerUser(@Valid @RequestBody userCreate: UserCreate): UserResponse {
+        logger.info("Registering user with email: {}", userCreate.email)
         val user = userService.registerUser(userCreate)
-
+        logger.info("User registered successfully with ID: {}", user.userId)
         return user.toResponse()
     }
 
@@ -99,9 +102,10 @@ class UserController(
     @SecurityRequirement(name = "")
     @PostMapping("/login")
     fun loginUser(@Valid @RequestBody userLogin: UserLogin): LoginResponse {
+        logger.info("Login attempt for email: {}", userLogin.email)
         val user = userService.login(userLogin)
         val token = jwtService.createToken(user.userId.toString())
-
+        logger.info("User logged in successfully with ID: {}", user.userId)
         return LoginResponse(token, user.toResponse())
     }
 
@@ -129,6 +133,7 @@ class UserController(
         @RequestParam(required = false) search: String?,
         @ParameterObject pageable: Pageable
     ): Page<UserListResponse> {
+        logger.debug("Retrieving all users with search filter: '{}'", search)
         val users = userService.getAllUsers(search, pageable)
         return users.map { it.toUserListResponse() }
     }
@@ -156,6 +161,7 @@ class UserController(
         @Parameter(description = "UUID of the user") @PathVariable id: UUID,
         @AuthenticationPrincipal currentUser: UserDetails
     ): UserResponse {
+        logger.debug("User {} requested profile for ID {}", currentUser.username, id)
         val user = userService.getUserById(id, UUID.fromString(currentUser.username))
         return user.toResponse()
     }
@@ -186,7 +192,9 @@ class UserController(
             @Valid @RequestBody userUpdate: UserUpdate,
             @AuthenticationPrincipal currentUser: UserDetails
     ): UserResponse {
+        logger.info("User {} updating details for user ID {}", currentUser.username, id)
         val updatedUser = userService.updateUser(id, UUID.fromString(currentUser.username), userUpdate)
+        logger.info("User ID {} updated successfully", id)
         return updatedUser.toResponse()
     }
 
@@ -216,7 +224,9 @@ class UserController(
             @Valid @RequestBody passwordChange: UserPasswordUpdate,
             @AuthenticationPrincipal currentUser: UserDetails
     ): UserResponse {
+        logger.info("User {} changing password for user ID {}", currentUser.username, id)
         val updatedUser = userService.updatePassword(id, passwordChange, UUID.fromString(currentUser.username))
+        logger.info("Password updated successfully for user ID {}", id)
         return updatedUser.toResponse()
     }
 
@@ -240,6 +250,8 @@ class UserController(
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteUser(@Parameter(description = "UUID of the user") @PathVariable id: UUID, @AuthenticationPrincipal currentUser: UserDetails) {
+        logger.info("User {} deleting account for user ID {}", currentUser.username, id)
         userService.deleteUser(id, UUID.fromString(currentUser.username))
+        logger.info("User ID {} deleted successfully", id)
     }
 }
