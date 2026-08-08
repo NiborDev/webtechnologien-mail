@@ -205,7 +205,7 @@ class MailService(
             throw IllegalStateException("A Mail can only be send if its a draft")
         }
 
-        val recipients = (mail.to + mail.cc + mail.bcc)
+        val recipients = (mail.to + mail.cc + mail.bcc).distinct()
 
         mail.bcc = mutableListOf() //remove bcc before sending
         mail.sentAt = LocalDateTime.now()
