@@ -59,5 +59,9 @@ export class MailViewer {
     }
   }
 
+  /**
+   * status of the Mail - used to select which Buttons are shown
+   * @protected
+   */
   protected readonly EmailStatus = EmailStatus;
 }
