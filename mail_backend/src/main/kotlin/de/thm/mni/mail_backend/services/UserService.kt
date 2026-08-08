@@ -54,14 +54,14 @@ class UserService(
         val user = userRepository.findByEmail(email)
 
         if (user == null) {
-            logger.warn("Login failed: Email {} not found", userLogin.email)
+            logger.warn("Login failed: Email {} not found", email)
             // Timing attacks prevention
             passwordEncoder.matches(rawPassword, userNotFoundEncodedPassword)
             throw IllegalArgumentException("Email or password incorrect")
         }
 
         if (!passwordEncoder.matches(rawPassword, user.password)) {
-            logger.warn("Login failed: Invalid password for user {}", userLogin.email)
+            logger.warn("Login failed: Invalid password for user {}", email)
             throw IllegalArgumentException("Email or password incorrect")
         }
 
