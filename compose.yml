@@ -10,8 +10,7 @@ services:
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver
       - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-      # H2 Konsole aktivieren (unter http://localhost:8080/h2-console)
-      - SPRING_H2_CONSOLE_ENABLED=true
+      - SPRING_H2_CONSOLE_ENABLED=false
       # JPA / Hibernate Schema-Erstellung
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - APP_JWT_SECRET=${JWT_SECRET}
